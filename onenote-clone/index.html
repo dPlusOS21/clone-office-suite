@@ -3237,7 +3237,7 @@
                             </div>
                             <div class="doc-date">${nb.modified_formatted} &middot; ${sizeStr}</div>
                         </div>
-                        <button class="doc-delete" onclick="event.stopPropagation();if(confirm('Eliminare "' + '${nb.filename}' + '" dal server?')) deleteFromServer('${nb.filename}')" title="Elimina">
+                        <button class="doc-delete" onclick="event.stopPropagation();deleteFromServer('${nb.filename}')" title="Elimina">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>`;

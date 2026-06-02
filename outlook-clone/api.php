@@ -4,6 +4,9 @@
  * Gestisce IMAP, SMTP, e operazioni database
  */
 
+// Fuso orario esplicito: evita il warning/crash di PHP su date()
+date_default_timezone_set('Europe/Rome');
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -15,8 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/../backend/storage.php';
 
-$db = OutlookDB::getInstance();
+// Autenticazione obbligatoria: blocca le richieste anonime (401).
+$AUTH_USER = requireAuth();
+$UID = (int)$AUTH_USER['id'];
+
+// Database PER-UTENTE: ogni utente ha il proprio file SQLite isolato.
+// Così nessun utente può vedere account/email/contatti di un altro.
+$outlookDir = getUserStorageDir($UID, 'outlook');
+$db = OutlookDB::getInstance($outlookDir . '/outlook_data.db');
 $pdo = $db->getDb();
 
 $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;

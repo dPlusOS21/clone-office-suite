@@ -10,12 +10,20 @@ Utente Admin.txt
 claude session
 .claude/
 
-# Dati/contenuti utente delle app
+# Dati/contenuti utente delle app (documenti personali: NON pubblicare)
 onedrive-clone/files/
 onedrive-clone/trash/
 onenote-clone/saved_notebooks/
 powerpoint-clone/saved_presentations/
+word-clone/saved_documents/
+**/saved_documents/
 **/saved_reports/
+**/*_data.db
+
+# Certificati SSL (chiave privata e certificato: MAI pubblicare)
+ssl/*.pem
+ssl/*.key
+ssl/*.crt
 
 # ===== Sistema / build =====
 node_modules/

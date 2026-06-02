@@ -55,6 +55,46 @@ php -S localhost:8000
 
 > Il server PHP integrato serve sia i file statici delle app sia il backend (`backend/api.php`). Servire dalla **root del progetto** è importante perché le app usano percorsi relativi verso `../backend/` e `../js/`.
 
+### 🔒 Avvio in HTTPS (transazioni cifrate)
+
+Per servire la suite in **HTTPS** in locale (login e dati cifrati end-to-end):
+
+```bash
+./start-https.sh          # https://localhost:8443
+```
+
+Lo script genera al primo avvio un certificato **self-signed** (`ssl/`) e usa
+`socat` come terminatore TLS davanti a PHP (`sudo apt install socat` se manca).
+Il browser mostrerà un avviso di certificato non attendibile la prima volta:
+è normale per i certificati self-signed, accetta l'eccezione.
+
+In **produzione** usa un certificato vero (es. Let's Encrypt) o l'HTTPS del tuo
+hosting; il `.htaccess` incluso **forza il redirect a HTTPS** (escluso localhost).
+La chiave privata del certificato è in `.gitignore` e **non** viene pubblicata.
+
+---
+
+## 🧪 Test (cartella `clone-tests/`)
+
+La cartella [`clone-tests/`](clone-tests/) contiene **solo i test di regressione**
+(nessuna copia della suite). Vanno eseguiti **prima di ogni aggiornamento del
+repository**: se sono tutti verdi, le modifiche non hanno rotto nulla.
+
+```bash
+cd clone-tests
+npm install        # solo la prima volta (puppeteer-core per i test browser)
+npm test           # lint PHP + statici + browser + sicurezza + e2e
+npm run test:static  # solo lint PHP + statici (veloce, senza Chrome)
+```
+
+Cosa verifica:
+
+1. **Lint PHP** — sintassi di tutti i file `.php`.
+2. **Statici** — presenza file/guide, marcatori di funzionalità di ogni app, JSON validi, modalità demo, fix timezone.
+3. **Browser (smoke)** — ogni app si carica in demo senza errori JS, niente overlay di accesso.
+4. **Sicurezza backend** — gli endpoint per-utente **rifiutano** le richieste non autenticate (401).
+5. **E2E** — ciclo reale *salva → elenca → elimina* (click vero sul pulsante) per Excel, OneNote, PowerPoint.
+
 ---
 
 ## 🔐 Autenticazione e licenze
@@ -87,7 +127,10 @@ I moduli "Commenti e suggerimenti" delle guide inviano in POST a `backend/api.ph
 ```
 microsoft-clone/
 ├── index.html              # Hub / launcher delle app
-├── start.sh                # Avvio server PHP locale
+├── start.sh                # Avvio server PHP locale (HTTP)
+├── start-https.sh          # Avvio server locale in HTTPS (TLS via socat)
+├── ssl/                    # Generatore certificato self-signed (make-cert.sh)
+├── clone-tests/            # Test di regressione (lint, statici, browser, sicurezza, e2e)
 ├── buy.html                # Pagina acquisto licenze
 ├── js/auth.js              # Sistema di autenticazione condiviso
 ├── shared/                 # Risorse condivise (app-launcher, ecc.)
@@ -122,6 +165,25 @@ Le app puntano a somigliare alle versioni **online** di Office:
 - **OneDrive**: barra comandi blu, viste elenco/griglia.
 
 I selettori di colore e gli input usano **interfacce eleganti** integrate (niente popup/`prompt`/color picker nativi del sistema).
+
+---
+
+## 🔐 Sicurezza e isolamento tra utenti
+
+Ogni utente vede **solo i propri dati**:
+
+- **App a file** (Word, Excel, PowerPoint, OneNote, Power BI, OneDrive): i file sono salvati in `data/users/<id>/<app>/`, una directory **separata per utente**. Tutti gli endpoint richiedono autenticazione (`requireAuth`) e usano `basename()` sui nomi file per impedire il *path traversal*.
+- **Outlook**: usa un **database SQLite per-utente** (`data/users/<id>/outlook/outlook_data.db`). Così account email, messaggi e contatti di un utente non sono **mai** visibili a un altro. L'API Outlook ora richiede l'autenticazione (prima era accessibile in modo anonimo su un DB condiviso — vedi *Correzioni*).
+- L'isolamento è verificato dal test di sicurezza in `clone-tests/` (endpoint protetti → **401** senza sessione).
+
+---
+
+## 🩹 Correzioni recenti
+
+- **Sicurezza / isolamento dati (Outlook)** — l'API Outlook non richiedeva autenticazione e usava un database **condiviso** fra tutti gli utenti: un utente poteva vedere account ed email altrui. Ora richiede `requireAuth` e ogni utente ha un **database fisicamente separato** (`data/users/<id>/outlook/`).
+- **Eliminazione file dal server (Excel, OneNote, PowerPoint)** — il pulsante *Elimina* nella finestra "Apri dal server" aveva un apice doppio (`"`) dentro l'attributo `onclick="…"`: l'attributo veniva troncato e al click **non accadeva nulla** (nessun avviso, file non eliminato). Corretto; l'elenco ora si **aggiorna** dopo l'eliminazione. Coperto da un test e2e che clicca il pulsante reale.
+- **Crash/Warning PHP su `date()`** — impostato il fuso orario di default (`Europe/Rome`) in `backend/config.php` e in `outlook-clone/api.php`, evitando l'avviso PHP che poteva corrompere l'output JSON delle API (stesso problema affrontato dalla PR #1, qui risolto alla radice mantenendo l'orario locale).
+- **HTTPS** — aggiunto avvio cifrato locale (`start-https.sh` + `ssl/`) e redirect a HTTPS nel `.htaccess` per la produzione.
 
 ---
 

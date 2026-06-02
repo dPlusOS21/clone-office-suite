@@ -494,7 +494,7 @@ newFile() {
                                         <td style="padding:10px 12px;text-align:right;color:#888;font-size:12px;">${sizeStr}</td>
                                         <td style="padding:10px 12px;color:#888;font-size:11px;">${f.modified_formatted || ''}</td>
                                         <td style="padding:10px 12px;text-align:center;">
-                                            <button onclick="event.stopPropagation(); if(confirm('Eliminare "' + '${f.filename.replace(/'/g,"\\'")}' + '"?')) { document.getElementById('server-open-modal')?.remove(); window.excelMenu.deleteFromServer('${f.filename.replace(/'/g,"\\'")}'); }" style="border:none;background:none;color:#ccc;cursor:pointer;padding:4px;border-radius:4px;" title="Elimina" onmouseenter="this.style.color='#d32f2f'" onmouseleave="this.style.color='#ccc'">
+                                            <button onclick="event.stopPropagation(); window.excelMenu.confirmDeleteFromServer('${f.filename.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="border:none;background:none;color:#ccc;cursor:pointer;padding:4px;border-radius:4px;" title="Elimina" onmouseenter="this.style.color='#d32f2f'" onmouseleave="this.style.color='#ccc'">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
@@ -524,6 +524,12 @@ newFile() {
         this.hideAllMenus();
     }
 
+    confirmDeleteFromServer(filename) {
+        if (confirm('Eliminare il file «' + filename + '»?')) {
+            this.deleteFromServer(filename);
+        }
+    }
+
     deleteFromServer(filename) {
         this.updateStatus('Eliminazione...');
         fetch('php/delete.php', {
@@ -535,7 +541,10 @@ newFile() {
         .then(result => {
             if (result.success) {
                 this.updateStatus('File eliminato');
-                this.showNotification('File eliminato con successo', 'info');
+                this.showNotification('File «' + filename + '» eliminato con successo', 'info');
+                // Aggiorna l'elenco: chiude e riapre la finestra "Apri dal server"
+                document.getElementById('server-open-modal')?.remove();
+                this.openFromServer();
             } else {
                 this.updateStatus('Errore: ' + (result.message || 'eliminazione fallita'));
                 this.showNotification('Errore: ' + (result.message || 'eliminazione fallita'), 'error');

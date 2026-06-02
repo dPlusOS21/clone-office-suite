@@ -3708,7 +3708,7 @@
                             '<td style="padding:10px 12px;text-align:right;color:#888;font-size:12px;">' + sizeStr + '</td>' +
                             '<td style="padding:10px 12px;color:#888;font-size:11px;">' + (f.modified_formatted || '') + '</td>' +
                             '<td style="padding:10px 12px;text-align:center;">' +
-                            '<button onclick="event.stopPropagation(); if(confirm(\'Eliminare "' + f.filename.replace(/'/g, "\\'") + '" dal server?\')) { document.getElementById(\'serverModalOverlay\').classList.remove(\'show\'); deleteFromServer(\'' + f.filename.replace(/'/g, "\\'") + '\'); }" style="border:none;background:none;color:#ccc;cursor:pointer;padding:4px;border-radius:4px;" title="Elimina" onmouseenter="this.style.color=\'#d32f2f\'" onmouseleave="this.style.color=\'#ccc\'">' +
+                            '<button onclick="event.stopPropagation(); deleteFromServer(\'' + f.filename.replace(/'/g, "\\'") + '\')" style="border:none;background:none;color:#ccc;cursor:pointer;padding:4px;border-radius:4px;" title="Elimina" onmouseenter="this.style.color=\'#d32f2f\'" onmouseleave="this.style.color=\'#ccc\'">' +
                             '<i class="fas fa-trash"></i></button></td></tr>';
                     });
                     html += '</tbody></table>';

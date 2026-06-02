@@ -1,0 +1,15 @@
+{
+  "name": "clone-office-suite-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Suite di test di regressione per la Clone Office Suite",
+  "type": "module",
+  "scripts": {
+    "test": "bash run-tests.sh",
+    "test:static": "bash run-tests.sh --static",
+    "lint:php": "bash 01-php-lint.sh"
+  },
+  "dependencies": {
+    "puppeteer-core": "^22.0.0"
+  }
+}

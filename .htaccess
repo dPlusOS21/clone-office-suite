@@ -1,5 +1,15 @@
 # ─── Protezione Altervista ───
 
+# Forza HTTPS (transazioni cifrate) in produzione.
+# Esclude localhost/127.0.0.1 per non disturbare lo sviluppo locale.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
 # Blocca accesso a directory sensibili
 RewriteRule ^data/ - [F,L]
 RewriteRule ^backend/config\.php - [F,L]

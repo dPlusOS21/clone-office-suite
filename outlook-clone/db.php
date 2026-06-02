@@ -4,15 +4,18 @@
  * Gestione database per email, account, cartelle, contatti
  */
 
-define('DB_PATH', __DIR__ . '/outlook_data.db');
-define('ENCRYPTION_KEY', hash('sha256', 'outlook-clone-key-' . (__DIR__), true));
+if (!defined('ENCRYPTION_KEY')) {
+    define('ENCRYPTION_KEY', hash('sha256', 'outlook-clone-key-' . (__DIR__), true));
+}
 
 class OutlookDB {
     private static $instance = null;
     private $db;
+    private $path;
 
-    private function __construct() {
-        $this->db = new PDO('sqlite:' . DB_PATH);
+    private function __construct($dbPath) {
+        $this->path = $dbPath;
+        $this->db = new PDO('sqlite:' . $dbPath);
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->db->exec('PRAGMA journal_mode=WAL');
         $this->db->exec('PRAGMA foreign_keys=ON');
@@ -20,9 +23,20 @@ class OutlookDB {
         $this->init();
     }
 
-    public static function getInstance() {
+    /**
+     * Restituisce l'istanza del DB. Il percorso è OBBLIGATORIO e deve essere
+     * la directory di storage PER-UTENTE (data/users/<id>/outlook/...), così
+     * ogni utente ha un database fisicamente separato: nessun utente può
+     * vedere i dati (account, email, contatti) di un altro.
+     */
+    public static function getInstance($dbPath = null) {
+        if ($dbPath === null) {
+            // Fallback legacy (mono-utente). In uso multi-utente passare sempre
+            // il percorso per-utente dall'API autenticata.
+            $dbPath = __DIR__ . '/outlook_data.db';
+        }
         if (self::$instance === null) {
-            self::$instance = new self();
+            self::$instance = new self($dbPath);
         }
         return self::$instance;
     }

@@ -7,6 +7,12 @@
  * 2. PHP abbia i permessi di scrittura su /data/
  */
 
+// ─── Fuso orario ───
+// Evita il warning/crash di PHP su date() quando il timezone di sistema
+// non è configurato (E_WARNING "It is not safe to rely on the system's
+// timezone settings") che può corrompere l'output JSON delle API.
+date_default_timezone_set('Europe/Rome');
+
 // ─── Percorsi ───
 define('ROOT_DIR', dirname(__DIR__));                         // /cartella-clone
 define('DATA_DIR', ROOT_DIR . '/data');                       // /data
