@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guida · Clone-Excel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #243; background: #f3f4f6; line-height: 1.6; }
+    header {
+        background: #217346; color: #fff; padding: 0 24px; height: 56px;
+        display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    header .logo { font-size: 22px; }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header .home-link { margin-left: auto; color: #fff; text-decoration: none; font-size: 13px; opacity: .9; display: flex; align-items: center; gap: 6px; }
+    header .home-link:hover { opacity: 1; text-decoration: underline; }
+    .layout { display: flex; max-width: 1180px; margin: 0 auto; }
+    nav.sidebar {
+        width: 250px; flex: 0 0 250px; background: #fff; border-right: 1px solid #e5e7eb;
+        padding: 18px 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto;
+    }
+    nav.sidebar a {
+        display: block; padding: 9px 24px; color: #374151; text-decoration: none; font-size: 14px;
+        border-left: 3px solid transparent;
+    }
+    nav.sidebar a:hover { background: #f0faf4; color: #217346; }
+    nav.sidebar a.active { background: #e8f5ee; color: #217346; border-left-color: #217346; font-weight: 600; }
+    nav.sidebar .sec-label { padding: 14px 24px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #9ca3af; font-weight: 700; }
+    main { flex: 1; padding: 32px 40px; min-width: 0; background: #f3f4f6; }
+    .search-box { padding: 0 24px 12px; }
+    .search-box input { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
+    section.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 26px 30px; margin-bottom: 22px; scroll-margin-top: 70px; }
+    section.card h2 { font-size: 21px; color: #1a5c39; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    section.card h3 { font-size: 16px; color: #243; margin: 18px 0 8px; }
+    section.card p { margin-bottom: 10px; color: #374151; }
+    ul, ol { margin: 8px 0 12px 22px; }
+    li { margin-bottom: 6px; }
+    kbd {
+        background: #f3f4f6; border: 1px solid #d1d5db; border-bottom-width: 2px; border-radius: 4px;
+        padding: 1px 7px; font-family: 'Segoe UI', sans-serif; font-size: 12px; color: #111; white-space: nowrap;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eef0f2; }
+    th { background: #f8faf9; color: #555; font-weight: 600; }
+    code { background: #f3f4f6; padding: 1px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; color: #b5360b; }
+    .fn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 6px; margin: 10px 0; }
+    .fn-grid span { background: #f0faf4; border: 1px solid #d7ecdf; border-radius: 5px; padding: 5px 8px; font-family: Consolas, monospace; font-size: 12.5px; color: #1a5c39; }
+    .tip { background: #eef6ff; border-left: 4px solid #2196f3; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .note { background: #fff8e6; border-left: 4px solid #f0ad4e; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .step { counter-reset: none; }
+    .feedback-form label { display: block; font-size: 13px; font-weight: 600; color: #555; margin: 12px 0 4px; }
+    .feedback-form input, .feedback-form select, .feedback-form textarea {
+        width: 100%; padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: inherit;
+    }
+    .feedback-form button { margin-top: 16px; padding: 10px 24px; background: #217346; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .feedback-form button:hover { background: #1a5c39; }
+    .feedback-ok { display: none; background: #e8f5ee; color: #1a5c39; border: 1px solid #b7dfc6; border-radius: 6px; padding: 12px; margin-top: 14px; font-size: 14px; }
+    .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; margin-top: 14px; }
+    .mini-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; background: #fafbfc; }
+    .mini-card i { font-size: 22px; color: #217346; margin-bottom: 8px; }
+    .mini-card h4 { font-size: 15px; margin-bottom: 4px; }
+    .mini-card p { font-size: 13px; color: #6b7280; }
+    @media (max-width: 760px) { nav.sidebar { display: none; } main { padding: 20px; } }
+</style>
+</head>
+<body>
+<header>
+    <span class="logo"><i class="fas fa-table"></i></span>
+    <h1>Guida di Clone-Excel</h1>
+    <a class="home-link" href="index.html" onclick="return tornaAlFoglio(event)"><i class="fas fa-arrow-left"></i> Torna al foglio</a>
+</header>
+
+<div class="layout">
+    <nav class="sidebar">
+        <div class="search-box"><input type="text" id="guide-search" placeholder="Cerca nella guida..."></div>
+        <div class="sec-label">Per iniziare</div>
+        <a href="#introduzione" class="active">Introduzione</a>
+        <a href="#basi">Operazioni di base</a>
+        <a href="#formule">Formule e funzioni</a>
+        <a href="#formattazione">Formattazione</a>
+        <div class="sec-label">Inserimento</div>
+        <a href="#oggetti">Forme, linee e testo</a>
+        <a href="#grafici">Grafici</a>
+        <div class="sec-label">Collaborazione</div>
+        <a href="#file">File e salvataggio</a>
+        <a href="#condivisione">Condivisione</a>
+        <div class="sec-label">Risorse</div>
+        <a href="#scorciatoie">Scorciatoie da tastiera</a>
+        <a href="#formazione">Formazione</a>
+        <a href="#community">Community</a>
+        <a href="#commenti">Commenti e suggerimenti</a>
+    </nav>
+
+    <main>
+        <section class="card" id="introduzione">
+            <h2><i class="fas fa-circle-info"></i> Introduzione</h2>
+            <p>Benvenuto in <strong>Clone-Excel</strong>, il foglio di calcolo della suite Clone Office. Permette di inserire dati, eseguire calcoli con le formule, formattare le celle, creare grafici e oggetti grafici, e condividere il lavoro — tutto nel browser.</p>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-table-cells"></i><h4>Griglia di celle</h4><p>Organizza dati in righe e colonne, con celle ridimensionabili.</p></div>
+                <div class="mini-card"><i class="fas fa-square-root-variable"></i><h4>Oltre 100 funzioni</h4><p>Matematiche, statistiche, logiche, testo, ricerca, data e finanziarie.</p></div>
+                <div class="mini-card"><i class="fas fa-floppy-disk"></i><h4>Salvataggio automatico</h4><p>Il lavoro viene salvato nel browser e può essere esportato.</p></div>
+            </div>
+        </section>
+
+        <section class="card" id="basi">
+            <h2><i class="fas fa-table-cells-large"></i> Operazioni di base</h2>
+            <h3>Spostarsi e selezionare</h3>
+            <ul>
+                <li>Usa le <strong>frecce direzionali</strong> per spostarti tra le celle.</li>
+                <li>Clicca e trascina per selezionare un <strong>intervallo</strong>; tieni <kbd>Shift</kbd> + frecce per estendere la selezione.</li>
+                <li><kbd>Ctrl</kbd>+<kbd>A</kbd> seleziona tutto il foglio.</li>
+            </ul>
+            <h3>Inserire e modificare dati</h3>
+            <ul>
+                <li>Inizia a digitare per scrivere nella cella, oppure premi <kbd>F2</kbd> o doppio click per modificarne il contenuto.</li>
+                <li>Conferma con <kbd>Invio</kbd> (cella sotto) o <kbd>Tab</kbd> (cella a destra).</li>
+                <li><kbd>Canc</kbd> cancella il contenuto delle celle selezionate.</li>
+            </ul>
+            <div class="tip"><strong>Suggerimento:</strong> seleziona più celle numeriche per vedere automaticamente Somma, Media, Conteggio, Min e Max nella barra di stato in basso.</div>
+        </section>
+
+        <section class="card" id="formule">
+            <h2><i class="fas fa-square-root-variable"></i> Formule e funzioni</h2>
+            <p>Le formule iniziano sempre con il segno <code>=</code>. Puoi usare operatori (<code>+ - * / ^ %</code>), riferimenti di cella (<code>A1</code>), intervalli (<code>A1:A10</code>) e funzioni annidate. Il separatore degli argomenti è il punto e virgola <code>;</code>.</p>
+            <h3>Esempi</h3>
+            <table>
+                <tr><th>Formula</th><th>Risultato</th></tr>
+                <tr><td><code>=SOMMA(A1:A10)</code></td><td>Somma dell'intervallo</td></tr>
+                <tr><td><code>=SE(A1&gt;100;"Alto";"Basso")</code></td><td>Test condizionale</td></tr>
+                <tr><td><code>=CERCA.VERT("Mela";A1:B20;2;FALSO)</code></td><td>Ricerca verticale</td></tr>
+                <tr><td><code>=MEDIA(B1:B5)*1,22</code></td><td>Media con operatore</td></tr>
+            </table>
+            <h3>Funzioni disponibili (selezione)</h3>
+            <div class="fn-grid">
+                <span>SOMMA</span><span>MEDIA</span><span>MAX</span><span>MIN</span><span>CONTA.NUMERI</span>
+                <span>CONTA.SE</span><span>SOMMA.SE</span><span>SE</span><span>E / O / NON</span><span>SE.ERRORE</span>
+                <span>CERCA.VERT</span><span>CERCA.ORIZZ</span><span>INDICE</span><span>CONFRONTA</span><span>SCARTO</span>
+                <span>CONCATENA</span><span>SINISTRA</span><span>DESTRA</span><span>STRINGA.ESTRAI</span><span>LUNGHEZZA</span>
+                <span>ARROTONDA</span><span>POTENZA</span><span>RADQ</span><span>RESTO</span><span>SOMMA.PRODOTTO</span>
+                <span>MEDIANA</span><span>DEV.ST</span><span>RANGO</span><span>PERCENTILE</span><span>OGGI / ADESSO</span>
+                <span>ANNO / MESE</span><span>RATA</span><span>VA / VF</span><span>TASSO</span><span>...e altre</span>
+            </div>
+            <div class="note"><strong>Nota:</strong> sono accettate sia le costanti <code>VERO</code>/<code>FALSO</code> sia <code>TRUE</code>/<code>FALSE</code>. In caso di errore la cella mostra valori come <code>#DIV/0!</code>, <code>#NOME?</code> o <code>#VALORE!</code>.</div>
+        </section>
+
+        <section class="card" id="formattazione">
+            <h2><i class="fas fa-fill-drip"></i> Formattazione</h2>
+            <h3>Carattere e allineamento</h3>
+            <p>Dalla scheda <strong>Home</strong> regoli tipo e dimensione del carattere, grassetto (<kbd>Ctrl</kbd>+<kbd>B</kbd>), corsivo (<kbd>Ctrl</kbd>+<kbd>I</kbd>), sottolineato (<kbd>Ctrl</kbd>+<kbd>U</kbd>), colore, allineamento orizzontale/verticale, unione celle e a capo automatico.</p>
+            <h3>Formati numerici</h3>
+            <p>Il gruppo <strong>Numero</strong> applica i formati: Generale, Numero, Valuta (€), Contabile, Percentuale, Separatore migliaia, Data breve/lunga, Ora, Frazione e Scientifico. I pulsanti <em>Aumenta/Riduci decimali</em> regolano le cifre decimali.</p>
+            <div class="tip"><strong>Suggerimento:</strong> i bordi, il colore di riempimento e gli stili condizionali si trovano sempre nella scheda Home.</div>
+        </section>
+
+        <section class="card" id="oggetti">
+            <h2><i class="fas fa-shapes"></i> Forme, linee e testo</h2>
+            <p>Dalle schede <strong>Inserisci</strong> e <strong>Disegno</strong> puoi aggiungere forme (rettangolo, cerchio, triangolo, rombo, freccia), linee, caselle di testo e WordArt.</p>
+            <ul>
+                <li>Gli oggetti si <strong>trascinano</strong> per spostarli.</li>
+                <li><strong>Clic destro</strong> su un oggetto apre il menu con: colore, spessore bordo, opacità, angoli arrotondati, rotazione, ordine (primo/secondo piano), duplica ed elimina.</li>
+                <li>Per le <strong>linee</strong> puoi regolare colore, <em>spessore</em> e <em>lunghezza</em>.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="grafici">
+            <h2><i class="fas fa-chart-column"></i> Grafici</h2>
+            <p>Seleziona un intervallo di dati e, dalla scheda <strong>Inserisci</strong>, scegli il tipo di grafico: colonne, linee, torta, barre o area. Il grafico viene inserito come oggetto nel foglio e può essere spostato e ridimensionato.</p>
+        </section>
+
+        <section class="card" id="file">
+            <h2><i class="fas fa-folder-open"></i> File e salvataggio</h2>
+            <p>Dal menu <strong>File</strong>:</p>
+            <ul>
+                <li><strong>Nuovo</strong> (<kbd>Ctrl</kbd>+<kbd>N</kbd>), <strong>Apri</strong> (<kbd>Ctrl</kbd>+<kbd>O</kbd>), <strong>Salva</strong> (<kbd>Ctrl</kbd>+<kbd>S</kbd>).</li>
+                <li><strong>Salva/Apri dal server</strong> per archiviare i file lato server.</li>
+                <li><strong>Download/Carica file</strong> in formato JSON, oppure esporta in <strong>PDF</strong>.</li>
+            </ul>
+            <div class="note"><strong>Nota:</strong> nel dialog <em>File ▸ Apri</em> ogni file salvato in locale può essere eliminato con l'icona del cestino.</div>
+        </section>
+
+        <section class="card" id="condivisione">
+            <h2><i class="fas fa-share-nodes"></i> Condivisione</h2>
+            <p>La scheda <strong>Condividi</strong> offre: <strong>Condividi</strong> (invito via email con link e permessi), <strong>Crea una copia</strong>, <strong>Copia collegamento</strong> alla cartella di lavoro e <strong>Collegamento a questo foglio</strong> con riferimento alla cella selezionata.</p>
+        </section>
+
+        <section class="card" id="scorciatoie">
+            <h2><i class="fas fa-keyboard"></i> Scorciatoie da tastiera</h2>
+            <table>
+                <tr><th>Comando</th><th>Tasti</th></tr>
+                <tr><td>Nuovo / Apri / Salva</td><td><kbd>Ctrl</kbd>+<kbd>N</kbd> · <kbd>Ctrl</kbd>+<kbd>O</kbd> · <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+                <tr><td>Stampa</td><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td></tr>
+                <tr><td>Annulla / Ripristina</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td></tr>
+                <tr><td>Copia / Taglia / Incolla</td><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>X</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd></td></tr>
+                <tr><td>Grassetto / Corsivo / Sottolineato</td><td><kbd>Ctrl</kbd>+<kbd>B</kbd> · <kbd>Ctrl</kbd>+<kbd>I</kbd> · <kbd>Ctrl</kbd>+<kbd>U</kbd></td></tr>
+                <tr><td>Seleziona tutto</td><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td></tr>
+                <tr><td>Somma automatica</td><td><kbd>Alt</kbd>+<kbd>=</kbd></td></tr>
+                <tr><td>Modifica cella</td><td><kbd>F2</kbd></td></tr>
+                <tr><td>Ricalcola</td><td><kbd>F9</kbd></td></tr>
+                <tr><td>Guida</td><td><kbd>F1</kbd></td></tr>
+            </table>
+        </section>
+
+        <section class="card" id="formazione">
+            <h2><i class="fas fa-graduation-cap"></i> Formazione</h2>
+            <p>Percorsi guidati passo-passo per imparare le funzionalità principali.</p>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-1"></i><h4>Primo foglio</h4><p>Inserisci dati, applica una formula <code>=SOMMA</code> e formatta una tabella.</p></div>
+                <div class="mini-card"><i class="fas fa-2"></i><h4>Calcoli con le funzioni</h4><p>Usa <code>SE</code>, <code>CERCA.VERT</code> e le funzioni statistiche su un elenco.</p></div>
+                <div class="mini-card"><i class="fas fa-3"></i><h4>Grafici e oggetti</h4><p>Crea un grafico a colonne e aggiungi forme esplicative.</p></div>
+                <div class="mini-card"><i class="fas fa-4"></i><h4>Condividere il lavoro</h4><p>Esporta in PDF e genera un collegamento condivisibile.</p></div>
+            </div>
+        </section>
+
+        <section class="card" id="community">
+            <h2><i class="fas fa-users"></i> Community</h2>
+            <p>Hai una domanda o vuoi confrontarti con altri utenti di Clone Office? Questo spazio raccoglie domande frequenti e discussioni della community.</p>
+            <h3>Domande frequenti</h3>
+            <ul>
+                <li><strong>I miei dati si salvano da soli?</strong> Sì, il foglio viene salvato automaticamente nel browser; puoi anche esportarlo in JSON o PDF.</li>
+                <li><strong>Posso usare le funzioni in inglese?</strong> Sì, sono accettati sia i nomi italiani (<code>SOMMA</code>) sia quelli inglesi (<code>SUM</code>).</li>
+                <li><strong>Come elimino un file salvato?</strong> Da <em>File ▸ Apri</em>, con l'icona del cestino accanto al nome.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="commenti">
+            <h2><i class="fas fa-comment-dots"></i> Commenti e suggerimenti</h2>
+            <p>Il tuo parere ci aiuta a migliorare Clone-Excel. Inviaci un commento, una segnalazione o un'idea.</p>
+            <form class="feedback-form" id="feedbackForm" onsubmit="return inviaFeedback(event)">
+                <label for="fb-type">Tipo</label>
+                <select id="fb-type">
+                    <option>Mi piace qualcosa</option>
+                    <option>Non mi piace qualcosa</option>
+                    <option>Ho un suggerimento</option>
+                    <option>Segnalazione di un problema</option>
+                </select>
+                <label for="fb-msg">Messaggio</label>
+                <textarea id="fb-msg" rows="5" placeholder="Scrivi qui il tuo commento..."></textarea>
+                <label for="fb-email">Email (facoltativa)</label>
+                <input id="fb-email" type="email" placeholder="nome@esempio.com">
+                <button type="submit"><i class="fas fa-paper-plane"></i> Invia commento</button>
+                <div class="feedback-ok" id="fb-ok"><i class="fas fa-check-circle"></i> Grazie! Il tuo commento è stato registrato.</div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+    // "Torna al foglio": se la guida è stata aperta in un nuovo tab dall'app,
+    // chiude il tab e riporta il focus al foglio già aperto; altrimenti naviga.
+    function tornaAlFoglio(e) {
+        e.preventDefault();
+        if (window.opener && !window.opener.closed) {
+            try { window.opener.focus(); } catch (err) {}
+            window.close();
+        } else {
+            window.location.href = 'index.html';
+        }
+        return false;
+    }
+
+    // Evidenzia la voce di menu durante lo scroll
+    const links = document.querySelectorAll('nav.sidebar a');
+    const sections = [...document.querySelectorAll('section.card')];
+    function onScroll() {
+        let current = sections[0].id;
+        const y = window.scrollY + 90;
+        for (const s of sections) { if (s.offsetTop <= y) current = s.id; }
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+    }
+    window.addEventListener('scroll', onScroll);
+
+    // Ricerca semplice: nasconde le sezioni che non contengono il testo
+    document.getElementById('guide-search').addEventListener('input', function(e) {
+        const q = e.target.value.trim().toLowerCase();
+        sections.forEach(s => {
+            s.style.display = (!q || s.textContent.toLowerCase().includes(q)) ? '' : 'none';
+        });
+    });
+
+    // Form commenti — salva in localStorage e ringrazia
+    async function inviaFeedback(ev) {
+        ev.preventDefault();
+        const fb = {
+            app: 'Clone-Excel',
+            type: document.getElementById('fb-type').value,
+            msg: document.getElementById('fb-msg').value.trim(),
+            email: document.getElementById('fb-email').value.trim()
+        };
+        if (!fb.msg) { document.getElementById('fb-msg').focus(); return false; }
+        const ok = document.getElementById('fb-ok');
+        try {
+            const res = await fetch('../backend/api.php?action=send-feedback', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fb)
+            });
+            const data = await res.json();
+            if (data.error) { ok.style.display = 'block'; ok.style.background = '#fdecea'; ok.style.color = '#b71c1c'; ok.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + data.error; return false; }
+            ok.style.display = 'block';
+            ok.innerHTML = data.mailed
+                ? '<i class="fas fa-check-circle"></i> Grazie! Il commento è stato inviato via email.'
+                : '<i class="fas fa-check-circle"></i> Grazie! Il commento è stato registrato' + (data.configured ? '' : ' (email destinatario non ancora configurata dall\'amministratore)') + '.';
+        } catch (e) {
+            try { const all = JSON.parse(localStorage.getItem('excel-feedback') || '[]'); all.push({ ...fb, date: new Date().toISOString() }); localStorage.setItem('excel-feedback', JSON.stringify(all)); } catch (_) {}
+            ok.style.display = 'block';
+            ok.innerHTML = '<i class="fas fa-check-circle"></i> Grazie! Commento salvato (server non raggiungibile).';
+        }
+        document.getElementById('feedbackForm').reset();
+        return false;
+    }
+
+    // Apertura diretta su una sezione (es. guida.html#formazione)
+    if (location.hash) {
+        const t = document.querySelector(location.hash);
+        if (t) setTimeout(() => t.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+</script>
+</body>
+</html>

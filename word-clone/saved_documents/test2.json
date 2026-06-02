@@ -1,0 +1,13 @@
+{
+    "name": "Documento1",
+    "content": "<h1>Nuovo Documento<\/h1><p>Inizia a scrivere qui...<\/p><p>Ecco i comandi SQL per SQLite per aggiungere le tre colonne alla tabella ticket:<\/p><p><br><\/p><p>ALTER TABLE ticket ADD COLUMN tipo_intervento_id INTEGER;<\/p><p>ALTER TABLE ticket ADD COLUMN consegna_base REAL DEFAULT 0.00;<\/p><p>ALTER TABLE ticket ADD COLUMN supplemento REAL DEFAULT 0.00;<\/p><p><br><\/p><p>programmi da aggiornare:<\/p><p><br><\/p><p>root\/index.php<\/p><p><br><\/p><p>root\/ticket_view.php<\/p><p>root\/ticket_new.php<\/p><p>root\/ticket_edit.php<\/p><p>root\/ticket_delete.php (controllare perchè non dovrebbe essere cambiato e neppure forse più utilizzato)<\/p><p>root\/ticket_actions.php<\/p><p><br><\/p><p><br><\/p><p>root\/admin\/tipi_intervento.php<\/p><p>root\/admin\/tipi_intervento_stampa.php<\/p><p>root\/admin\/tipi_intervento_new.php<\/p><p>root\/admin\/tipi_intervento_edit.php<\/p><p>root\/admin\/tipi_intervento_actions.php<\/p><p>root\/admin\/dashboard.php<\/p><p><br><\/p><p><br><\/p><p><br><\/p><p>La tabella relativa ai tipi_intervento è stata già passata con CSV tramite export\/import<\/p><div><br><\/div>",
+    "wordCount": 84,
+    "orientation": "portrait",
+    "margins": {
+        "top": 25,
+        "right": 25,
+        "bottom": 25,
+        "left": 25
+    },
+    "savedAt": "2025-11-17T18:40:33.496Z"
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guida · Clone-Word</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #243; background: #f3f4f6; line-height: 1.6; }
+    header {
+        background: #2b579a; color: #fff; padding: 0 24px; height: 56px;
+        display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    header .logo { font-size: 22px; }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header .home-link { margin-left: auto; color: #fff; text-decoration: none; font-size: 13px; opacity: .9; display: flex; align-items: center; gap: 6px; }
+    header .home-link:hover { opacity: 1; text-decoration: underline; }
+    .layout { display: flex; max-width: 1180px; margin: 0 auto; }
+    nav.sidebar {
+        width: 250px; flex: 0 0 250px; background: #fff; border-right: 1px solid #e5e7eb;
+        padding: 18px 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto;
+    }
+    nav.sidebar a {
+        display: block; padding: 9px 24px; color: #374151; text-decoration: none; font-size: 14px;
+        border-left: 3px solid transparent;
+    }
+    nav.sidebar a:hover { background: #eef3fb; color: #2b579a; }
+    nav.sidebar a.active { background: #e4ecf9; color: #2b579a; border-left-color: #2b579a; font-weight: 600; }
+    nav.sidebar .sec-label { padding: 14px 24px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #9ca3af; font-weight: 700; }
+    main { flex: 1; padding: 32px 40px; min-width: 0; background: #f3f4f6; }
+    .search-box { padding: 0 24px 12px; }
+    .search-box input { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
+    section.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 26px 30px; margin-bottom: 22px; scroll-margin-top: 70px; }
+    section.card h2 { font-size: 21px; color: #1f3f73; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    section.card h3 { font-size: 16px; color: #243; margin: 18px 0 8px; }
+    section.card p { margin-bottom: 10px; color: #374151; }
+    ul, ol { margin: 8px 0 12px 22px; }
+    li { margin-bottom: 6px; }
+    kbd {
+        background: #f3f4f6; border: 1px solid #d1d5db; border-bottom-width: 2px; border-radius: 4px;
+        padding: 1px 7px; font-family: 'Segoe UI', sans-serif; font-size: 12px; color: #111; white-space: nowrap;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eef0f2; }
+    th { background: #f5f8fd; color: #555; font-weight: 600; }
+    code { background: #f3f4f6; padding: 1px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; color: #b5360b; }
+    .tip { background: #eef6ff; border-left: 4px solid #2196f3; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .note { background: #fff8e6; border-left: 4px solid #f0ad4e; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .feedback-form label { display: block; font-size: 13px; font-weight: 600; color: #555; margin: 12px 0 4px; }
+    .feedback-form input, .feedback-form select, .feedback-form textarea {
+        width: 100%; padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: inherit;
+    }
+    .feedback-form button { margin-top: 16px; padding: 10px 24px; background: #2b579a; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .feedback-form button:hover { background: #1f3f73; }
+    .feedback-ok { display: none; background: #e4ecf9; color: #1f3f73; border: 1px solid #b9cdec; border-radius: 6px; padding: 12px; margin-top: 14px; font-size: 14px; }
+    .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; margin-top: 14px; }
+    .mini-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; background: #fafbfc; }
+    .mini-card i { font-size: 22px; color: #2b579a; margin-bottom: 8px; }
+    .mini-card h4 { font-size: 15px; margin-bottom: 4px; }
+    .mini-card p { font-size: 13px; color: #6b7280; }
+    @media (max-width: 760px) { nav.sidebar { display: none; } main { padding: 20px; } }
+</style>
+</head>
+<body>
+<header>
+    <span class="logo"><i class="fas fa-file-word"></i></span>
+    <h1>Guida di Clone-Word</h1>
+    <a class="home-link" href="index.html" onclick="return tornaAlDocumento(event)"><i class="fas fa-arrow-left"></i> Torna al documento</a>
+</header>
+
+<div class="layout">
+    <nav class="sidebar">
+        <div class="search-box"><input type="text" id="guide-search" placeholder="Cerca nella guida..."></div>
+        <div class="sec-label">Per iniziare</div>
+        <a href="#introduzione" class="active">Introduzione</a>
+        <a href="#scrivere">Scrivere e modificare</a>
+        <a href="#formattazione">Formattazione del testo</a>
+        <a href="#paragrafo">Paragrafi e stili</a>
+        <div class="sec-label">Inserimento</div>
+        <a href="#inserisci">Tabelle, immagini e oggetti</a>
+        <a href="#layout">Layout di pagina</a>
+        <a href="#riferimenti">Riferimenti</a>
+        <div class="sec-label">Strumenti</div>
+        <a href="#revisione">Revisione</a>
+        <a href="#visualizza">Visualizza</a>
+        <a href="#trova">Trova e sostituisci</a>
+        <div class="sec-label">File</div>
+        <a href="#file">File e salvataggio</a>
+        <a href="#condivisione">Condivisione</a>
+        <div class="sec-label">Risorse</div>
+        <a href="#scorciatoie">Scelte rapide da tastiera</a>
+        <a href="#novita">Novità</a>
+        <a href="#commenti">Commenti e suggerimenti</a>
+    </nav>
+
+    <main>
+        <section class="card" id="introduzione">
+            <h2><i class="fas fa-circle-info"></i> Introduzione</h2>
+            <p>Benvenuto in <strong>Clone-Word</strong>, l'elaboratore di testi della suite Clone Office. Permette di scrivere e formattare documenti, inserire tabelle, immagini e oggetti, gestire il layout di pagina, rivedere e condividere — tutto nel browser.</p>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-pen-nib"></i><h4>Scrittura ricca</h4><p>Caratteri, stili, paragrafi, elenchi e allineamenti.</p></div>
+                <div class="mini-card"><i class="fas fa-table"></i><h4>Tabelle e oggetti</h4><p>Inserisci tabelle, immagini, intestazioni e numeri di pagina.</p></div>
+                <div class="mini-card"><i class="fas fa-floppy-disk"></i><h4>Salvataggio automatico</h4><p>Il documento viene salvato nel browser e può essere esportato.</p></div>
+            </div>
+            <div class="tip"><strong>Suggerimento:</strong> premi <kbd>F1</kbd> in qualsiasi momento per riaprire questa guida.</div>
+        </section>
+
+        <section class="card" id="scrivere">
+            <h2><i class="fas fa-keyboard"></i> Scrivere e modificare</h2>
+            <ul>
+                <li>Fai clic nel foglio e inizia a digitare. Il testo va a capo automaticamente.</li>
+                <li><kbd>Invio</kbd> crea un nuovo paragrafo; <kbd>Maiusc</kbd>+<kbd>Invio</kbd> un'interruzione di riga.</li>
+                <li><strong>Annulla</strong> (<kbd>Ctrl</kbd>+<kbd>Z</kbd>) e <strong>Ripristina</strong> (<kbd>Ctrl</kbd>+<kbd>Y</kbd>).</li>
+                <li>Gli <strong>Appunti</strong> (scheda Home): Taglia, Copia e <strong>Incolla</strong>.</li>
+            </ul>
+            <div class="note"><strong>Nota:</strong> per incollare puoi usare anche <kbd>Ctrl</kbd>+<kbd>V</kbd> direttamente.</div>
+        </section>
+
+        <section class="card" id="formattazione">
+            <h2><i class="fas fa-font"></i> Formattazione del testo</h2>
+            <p>Seleziona il testo e usa il gruppo <strong>Carattere</strong> della scheda Home:</p>
+            <ul>
+                <li>Tipo e dimensione del carattere, <strong>Grassetto</strong> (<kbd>Ctrl</kbd>+<kbd>B</kbd>), <em>Corsivo</em> (<kbd>Ctrl</kbd>+<kbd>I</kbd>), Sottolineato (<kbd>Ctrl</kbd>+<kbd>U</kbd>).</li>
+                <li>Barrato, Pedice, Apice, Maiuscole/minuscole, evidenziatore e colore del carattere.</li>
+                <li><strong>Cancella formattazione</strong> rimuove tutti gli stili dal testo selezionato.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="paragrafo">
+            <h2><i class="fas fa-align-left"></i> Paragrafi e stili</h2>
+            <ul>
+                <li>Allineamento a sinistra, al centro, a destra e giustificato.</li>
+                <li>Elenchi <strong>puntati</strong> e <strong>numerati</strong>, aumento/riduzione del rientro.</li>
+                <li><strong>Interlinea</strong> (1, 1,15, 1,5, 2) dal menu dedicato.</li>
+                <li>La galleria <strong>Stili</strong> applica con un clic Titolo, Sottotitolo, Intestazioni e Normale.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="inserisci">
+            <h2><i class="fas fa-table-cells"></i> Tabelle, immagini e oggetti</h2>
+            <p>Dalla scheda <strong>Inserisci</strong>:</p>
+            <ul>
+                <li><strong>Tabella</strong>: scegli righe e colonne.</li>
+                <li><strong>Immagine</strong>: carica un'immagine nel documento.</li>
+                <li><strong>Intestazione/Piè di pagina</strong> e <strong>Numeri di pagina</strong>.</li>
+                <li>Note a piè di pagina, collegamenti e simboli.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="layout">
+            <h2><i class="fas fa-file-lines"></i> Layout di pagina</h2>
+            <p>Dalla scheda <strong>Layout</strong> regoli <strong>margini</strong>, <strong>orientamento</strong> (verticale/orizzontale), <strong>dimensione</strong> del foglio e i rientri. Il <strong>righello</strong> sopra la pagina aiuta ad allineare il contenuto.</p>
+        </section>
+
+        <section class="card" id="riferimenti">
+            <h2><i class="fas fa-book"></i> Riferimenti</h2>
+            <p>La scheda <strong>Riferimenti</strong> consente di inserire un <strong>sommario</strong> automatico, note a piè di pagina e di chiusura, e citazioni di base.</p>
+        </section>
+
+        <section class="card" id="revisione">
+            <h2><i class="fas fa-clipboard-check"></i> Revisione</h2>
+            <ul>
+                <li><strong>Modalità documento</strong> (pulsante in alto a destra): <em>Modifica</em>, <em>Revisione</em> (modifiche tracciate) e <em>Visualizzazione</em> (sola lettura).</li>
+                <li><strong>Commenti</strong>: aggiungi note al documento dal pannello dedicato.</li>
+                <li>Controllo ortografico e conteggio parole.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="visualizza">
+            <h2><i class="fas fa-eye"></i> Visualizza</h2>
+            <ul>
+                <li><strong>Layout di stampa</strong> e <strong>layout Web</strong>.</li>
+                <li><strong>Righello</strong> e <strong>griglia</strong>.</li>
+                <li><strong>Zoom</strong>: usa lo slider nella barra di stato (50%–200%) o il pulsante di reset.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="trova">
+            <h2><i class="fas fa-magnifying-glass"></i> Trova e sostituisci</h2>
+            <p>La casella <strong>Cerca</strong> in alto (o <kbd>Ctrl</kbd>+<kbd>F</kbd>) evidenzia tutte le occorrenze e mostra il conteggio; usa <kbd>Invio</kbd> e <kbd>F3</kbd> per scorrere i risultati. <strong>Sostituisci</strong> (<kbd>Ctrl</kbd>+<kbd>H</kbd>) apre la finestra Trova/Sostituisci con "Sostituisci tutto".</p>
+        </section>
+
+        <section class="card" id="file">
+            <h2><i class="fas fa-folder-open"></i> File e salvataggio</h2>
+            <p>Dal menu <strong>File</strong>:</p>
+            <ul>
+                <li><strong>Nuovo</strong>, <strong>Apri</strong>, <strong>Salva</strong> (<kbd>Ctrl</kbd>+<kbd>S</kbd>) e <strong>Salva con nome</strong>.</li>
+                <li><strong>Salva/Apri dal server</strong> per archiviare i documenti lato server.</li>
+                <li><strong>Esporta</strong> in TXT, DOCX o PDF; <strong>Stampa</strong> (<kbd>Ctrl</kbd>+<kbd>P</kbd>).</li>
+            </ul>
+        </section>
+
+        <section class="card" id="condivisione">
+            <h2><i class="fas fa-share-nodes"></i> Condivisione</h2>
+            <p>Il pulsante <strong>Condividi</strong> in alto a destra consente di invitare altri al documento e di copiare il collegamento per condividerlo.</p>
+        </section>
+
+        <section class="card" id="scorciatoie">
+            <h2><i class="fas fa-keyboard"></i> Scelte rapide da tastiera</h2>
+            <table>
+                <tr><th>Comando</th><th>Tasti</th></tr>
+                <tr><td>Nuovo / Apri / Salva</td><td><kbd>Ctrl</kbd>+<kbd>N</kbd> · <kbd>Ctrl</kbd>+<kbd>O</kbd> · <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+                <tr><td>Stampa</td><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td></tr>
+                <tr><td>Annulla / Ripristina</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td></tr>
+                <tr><td>Copia / Taglia / Incolla</td><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>X</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd></td></tr>
+                <tr><td>Grassetto / Corsivo / Sottolineato</td><td><kbd>Ctrl</kbd>+<kbd>B</kbd> · <kbd>Ctrl</kbd>+<kbd>I</kbd> · <kbd>Ctrl</kbd>+<kbd>U</kbd></td></tr>
+                <tr><td>Trova / Sostituisci</td><td><kbd>Ctrl</kbd>+<kbd>F</kbd> · <kbd>Ctrl</kbd>+<kbd>H</kbd></td></tr>
+                <tr><td>Trova successivo</td><td><kbd>F3</kbd></td></tr>
+                <tr><td>Guida</td><td><kbd>F1</kbd></td></tr>
+            </table>
+        </section>
+
+        <section class="card" id="novita">
+            <h2><i class="fas fa-bullhorn"></i> Novità</h2>
+            <p>Le ultime aggiunte a Clone-Word:</p>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-palette"></i><h4>Tema Word 365</h4><p>Interfaccia chiara fedele a Word online, con icone colorate.</p></div>
+                <div class="mini-card"><i class="fas fa-paste"></i><h4>Incolla e Trova</h4><p>Pulsante Incolla e ricerca nel documento (F3) con evidenziazione.</p></div>
+                <div class="mini-card"><i class="fas fa-ruler-horizontal"></i><h4>Righelli</h4><p>Righello orizzontale e verticale attivi per impostazione predefinita.</p></div>
+                <div class="mini-card"><i class="fas fa-user-pen"></i><h4>Modalità documento</h4><p>Modifica, Revisione (modifiche tracciate) e Sola lettura.</p></div>
+            </div>
+        </section>
+
+        <section class="card" id="commenti">
+            <h2><i class="fas fa-comment-dots"></i> Commenti e suggerimenti</h2>
+            <p>Il tuo parere ci aiuta a migliorare Clone-Word. Inviaci un commento, una segnalazione o un'idea.</p>
+            <form class="feedback-form" id="feedbackForm" onsubmit="return inviaFeedback(event)">
+                <label for="fb-type">Tipo</label>
+                <select id="fb-type">
+                    <option>Mi piace qualcosa</option>
+                    <option>Non mi piace qualcosa</option>
+                    <option>Ho un suggerimento</option>
+                    <option>Segnalazione di un problema</option>
+                </select>
+                <label for="fb-msg">Messaggio</label>
+                <textarea id="fb-msg" rows="5" placeholder="Scrivi qui il tuo commento..."></textarea>
+                <label for="fb-email">Email (facoltativa)</label>
+                <input id="fb-email" type="email" placeholder="nome@esempio.com">
+                <button type="submit"><i class="fas fa-paper-plane"></i> Invia commento</button>
+                <div class="feedback-ok" id="fb-ok"><i class="fas fa-check-circle"></i> Grazie! Il tuo commento è stato registrato.</div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+    function tornaAlDocumento(e) {
+        e.preventDefault();
+        if (window.opener && !window.opener.closed) {
+            try { window.opener.focus(); } catch (err) {}
+            window.close();
+        } else {
+            window.location.href = 'index.html';
+        }
+        return false;
+    }
+
+    const links = document.querySelectorAll('nav.sidebar a');
+    const sections = [...document.querySelectorAll('section.card')];
+    function onScroll() {
+        let current = sections[0].id;
+        const y = window.scrollY + 90;
+        for (const s of sections) { if (s.offsetTop <= y) current = s.id; }
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+    }
+    window.addEventListener('scroll', onScroll);
+
+    document.getElementById('guide-search').addEventListener('input', function(e) {
+        const q = e.target.value.trim().toLowerCase();
+        sections.forEach(s => {
+            s.style.display = (!q || s.textContent.toLowerCase().includes(q)) ? '' : 'none';
+        });
+    });
+
+    async function inviaFeedback(ev) {
+        ev.preventDefault();
+        const fb = {
+            app: 'Clone-Word',
+            type: document.getElementById('fb-type').value,
+            msg: document.getElementById('fb-msg').value.trim(),
+            email: document.getElementById('fb-email').value.trim()
+        };
+        if (!fb.msg) { document.getElementById('fb-msg').focus(); return false; }
+        const ok = document.getElementById('fb-ok');
+        try {
+            const res = await fetch('../backend/api.php?action=send-feedback', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fb)
+            });
+            const data = await res.json();
+            if (data.error) { ok.style.display = 'block'; ok.style.background = '#fdecea'; ok.style.color = '#b71c1c'; ok.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + data.error; return false; }
+            ok.style.display = 'block';
+            ok.innerHTML = data.mailed
+                ? '<i class="fas fa-check-circle"></i> Grazie! Il commento è stato inviato via email.'
+                : '<i class="fas fa-check-circle"></i> Grazie! Il commento è stato registrato' + (data.configured ? '' : ' (email destinatario non ancora configurata dall\'amministratore)') + '.';
+        } catch (e) {
+            try { const all = JSON.parse(localStorage.getItem('word-feedback') || '[]'); all.push({ ...fb, date: new Date().toISOString() }); localStorage.setItem('word-feedback', JSON.stringify(all)); } catch (_) {}
+            ok.style.display = 'block';
+            ok.innerHTML = '<i class="fas fa-check-circle"></i> Grazie! Commento salvato (server non raggiungibile).';
+        }
+        document.getElementById('feedbackForm').reset();
+        return false;
+    }
+
+    if (location.hash) {
+        const t = document.querySelector(location.hash);
+        if (t) setTimeout(() => t.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clone Office Suite - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.03) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .logo i {
+            font-size: 22px;
+            color: #e94560;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .header-content {
+            text-align: center;
+            padding: 50px 30px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-content h1 {
+            font-size: 42px;
+            font-weight: 300;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-content h1 span {
+            font-weight: 700;
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            opacity: 0.7;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Search */
+        .search-container {
+            max-width: 500px;
+            margin: 25px auto 0;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-container input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .search-container input:focus {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #e94560;
+        }
+
+        /* App Grid */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .app-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 1px solid #eee;
+        }
+
+        .app-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            border-color: transparent;
+        }
+
+        .app-card-icon {
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.08;
+            background-image: radial-gradient(circle at 20% 80%, currentColor 1px, transparent 1px),
+                              radial-gradient(circle at 80% 20%, currentColor 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .app-card-icon i {
+            font-size: 56px;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+        }
+
+        .app-card-body {
+            padding: 20px 24px 24px;
+        }
+
+        .app-card-body h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #1a1a2e;
+        }
+
+        .app-card-body p {
+            font-size: 13px;
+            color: #777;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .app-card-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* Word */
+        .app-word .app-card-icon { background: linear-gradient(135deg, #e8f0fe, #d0e0fd); color: #2564c1; }
+        .app-word .app-card-icon i { color: #2564c1; }
+        .app-word .app-card-badge { background: #e8f0fe; color: #2564c1; }
+        .app-word:hover { border-color: #2564c1; }
+
+        /* Excel */
+        .app-excel .app-card-icon { background: linear-gradient(135deg, #e6f5ea, #c8e6c9); color: #217346; }
+        .app-excel .app-card-icon i { color: #217346; }
+        .app-excel .app-card-badge { background: #e6f5ea; color: #217346; }
+        .app-excel:hover { border-color: #217346; }
+
+        /* PowerPoint */
+        .app-ppt .app-card-icon { background: linear-gradient(135deg, #fde8e0, #f5c6b6); color: #d04423; }
+        .app-ppt .app-card-icon i { color: #d04423; }
+        .app-ppt .app-card-badge { background: #fde8e0; color: #d04423; }
+        .app-ppt:hover { border-color: #d04423; }
+
+        /* Outlook */
+        .app-outlook .app-card-icon { background: linear-gradient(135deg, #e1f0ff, #b3d7ff); color: #0078d4; }
+        .app-outlook .app-card-icon i { color: #0078d4; }
+        .app-outlook .app-card-badge { background: #e1f0ff; color: #0078d4; }
+        .app-outlook:hover { border-color: #0078d4; }
+
+        /* OneDrive */
+        .app-onedrive .app-card-icon { background: linear-gradient(135deg, #e1f0ff, #b3d7ff); color: #0078d4; }
+        .app-onedrive .app-card-icon i { color: #0078d4; }
+        .app-onedrive .app-card-badge { background: #e1f0ff; color: #0078d4; }
+        .app-onedrive:hover { border-color: #0078d4; }
+
+        /* OneNote */
+        .app-onenote .app-card-icon { background: linear-gradient(135deg, #f3e5f5, #e1bee7); color: #7b1fa2; }
+        .app-onenote .app-card-icon i { color: #7b1fa2; }
+        .app-onenote .app-card-badge { background: #f3e5f5; color: #7b1fa2; }
+        .app-onenote:hover { border-color: #7b1fa2; }
+
+        .app-powerbi .app-card-icon { background: linear-gradient(135deg, #fdf3c7, #f8e58c); color: #c9a000; }
+        .app-powerbi .app-card-icon i { color: #c9a000; }
+        .app-powerbi .app-card-badge { background: #fdf3c7; color: #b08e00; }
+        .app-powerbi:hover { border-color: #f2c811; }
+        .app-access .app-card-icon { background: linear-gradient(135deg, #f6e3e4, #ecc7c8); color: #a4373a; }
+        .app-access .app-card-icon i { color: #a4373a; }
+        .app-access .app-card-badge { background: #f6e3e4; color: #a4373a; }
+        .app-access:hover { border-color: #a4373a; }
+
+        /* Coming soon cards */
+        .app-card.coming-soon {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .app-card.coming-soon:hover {
+            transform: none;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .app-card.coming-soon .app-card-icon {
+            background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+        }
+
+        .app-card.coming-soon .app-card-icon i {
+            color: #aaa;
+        }
+
+        .coming-soon-badge {
+            background: #f0f0f0 !important;
+            color: #999 !important;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .quick-action:hover {
+            border-color: #2564c1;
+            background: #f8faff;
+        }
+
+        .quick-action i {
+            font-size: 18px;
+            color: #666;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #e94560;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content h1 { font-size: 28px; }
+            .apps-grid { grid-template-columns: 1fr; }
+            .header-content { padding: 30px 20px 40px; }
+            .main { padding: 25px 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .header-top { padding: 10px 15px; }
+            .logo { font-size: 15px; }
+            .quick-actions { flex-direction: column; }
+        }
+
+        /* Auth Modal */
+        .auth-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .auth-modal-overlay.active { display: flex; }
+        .auth-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+            position: relative;
+            animation: authFadeIn 0.25s ease;
+        }
+        @keyframes authFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .auth-close {
+            position: absolute;
+            top: 12px; right: 16px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #aaa;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+        .auth-close:hover { color: #d32f2f; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="logo">
+                <i class="fas fa-cubes"></i>
+                Clone Office Suite
+            </div>
+            <div class="header-right">
+                <button class="header-btn" onclick="window.open('https://www.paypal.com/donate?business=deplano.d%40gmail.com&item_name=Sostieni+Clone+Office+Suite&currency_code=EUR','_blank')" title="Sostieni il progetto con una donazione" style="background:#ffc439;color:#142c8e;border-color:#ffc439;font-weight:700;">
+                    <i class="fab fa-paypal"></i> Dona
+                </button>
+                <button class="header-btn" onclick="window.location.href='buy.html'">
+                    <i class="fas fa-shopping-cart"></i> Acquista
+                </button>
+                <button class="header-btn" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i> Tema
+                </button>
+                <button class="header-btn" id="btn-auth" onclick="toggleAuth()">
+                    <i class="fas fa-user"></i> <span id="auth-label">Utente</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="header-content">
+            <h1>La tua <span>Clone Office Suite</span></h1>
+            <p>Tutti gli strumenti di produttività in un unico posto. Crea documenti, fogli di calcolo e presentazioni.</p>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Cerca applicazioni o funzionalità..." id="searchApps" oninput="filterApps(this.value)">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Quick Actions -->
+        <div class="section-title"><i class="fas fa-bolt"></i> Azioni rapide</div>
+        <div class="quick-actions">
+            <a href="word-clone/index.html" class="quick-action">
+                <i class="fas fa-file-word" style="color: #2564c1;"></i> Nuovo documento
+            </a>
+            <a href="excel-clone/index.html" class="quick-action">
+                <i class="fas fa-file-excel" style="color: #217346;"></i> Nuovo foglio di calcolo
+            </a>
+            <a href="powerpoint-clone/index.html" class="quick-action">
+                <i class="fas fa-file-powerpoint" style="color: #d04423;"></i> Nuova presentazione
+            </a>
+            <a href="powerbi-clone/index.html" class="quick-action">
+                <i class="fas fa-chart-column" style="color: #c9a000;"></i> Nuovo report Power BI
+            </a>
+            <a href="access-clone/index.html" class="quick-action">
+                <i class="fas fa-database" style="color: #a4373a;"></i> Nuovo database
+            </a>
+            <a href="onenote-clone/index.html" class="quick-action">
+                <i class="fas fa-book-open" style="color: #7b1fa2;"></i> Nuovo blocco appunti
+            </a>
+            <a href="outlook-clone/index.html" class="quick-action">
+                <i class="fas fa-envelope" style="color: #0078d4;"></i> Apri posta
+            </a>
+            <a href="onedrive-clone/index.html" class="quick-action">
+                <i class="fas fa-cloud" style="color: #0078d4;"></i> I miei file
+            </a>
+        </div>
+
+        <!-- Applications -->
+        <div class="section-title"><i class="fas fa-th-large"></i> Applicazioni</div>
+        <div class="apps-grid" id="appsGrid">
+
+            <!-- Word -->
+            <a href="word-clone/index.html" class="app-card app-word" data-name="clone-word word documento testo scrittura">
+                <div class="app-card-icon">
+                    <i class="fas fa-file-word"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-Word</h3>
+                    <p>Elaborazione testi con formattazione avanzata, tabelle, immagini, esportazione DOCX e molto altro.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+            <!-- Excel -->
+            <a href="excel-clone/index.html" class="app-card app-excel" data-name="clone-excel excel foglio calcolo tabella formula">
+                <div class="app-card-icon">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-Excel</h3>
+                    <p>Foglio di calcolo con formule, funzioni, formattazione celle, grafici e gestione dati.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+            <!-- PowerPoint -->
+            <a href="powerpoint-clone/index.html" class="app-card app-ppt" data-name="clone-powerpoint powerpoint presentazione slide diapositive">
+                <div class="app-card-icon">
+                    <i class="fas fa-file-powerpoint"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-PowerPoint</h3>
+                    <p>Creazione presentazioni con slide, testi, transizioni, animazioni e temi personalizzabili.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+            <!-- Outlook -->
+            <a href="outlook-clone/index.html" class="app-card app-outlook" data-name="clone-outlook outlook email posta">
+                <div class="app-card-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-Outlook</h3>
+                    <p>Client email completo con IMAP/SMTP, gestione account multipli, contatti, ricerca e allegati.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+            <!-- OneNote -->
+            <a href="onenote-clone/index.html" class="app-card app-onenote" data-name="clone-onenote onenote note appunti blocco disegno">
+                <div class="app-card-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-OneNote</h3>
+                    <p>Blocco note digitale per appunti, disegni a mano libera, tag, to-do list e organizzazione informazioni.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+            <!-- OneDrive -->
+            <a href="onedrive-clone/index.html" class="app-card app-onedrive" data-name="clone-onedrive onedrive cloud file archiviazione">
+                <div class="app-card-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-OneDrive</h3>
+                    <p>File manager cloud con upload, download, cestino, preferiti e accesso a tutti i file della suite.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+            <!-- Power BI -->
+            <a href="powerbi-clone/index.html" class="app-card app-powerbi" data-name="clone-powerbi power bi dashboard report grafici business intelligence dati">
+                <div class="app-card-icon">
+                    <i class="fas fa-chart-column"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-Power BI</h3>
+                    <p>Dashboard interattive e report: grafici, KPI, slicer e filtri incrociati a partire dai tuoi dati o da Excel.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+            <!-- Access -->
+            <a href="access-clone/index.html" class="app-card app-access" data-name="clone-access database tabelle query maschere report relazioni dati">
+                <div class="app-card-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="app-card-body">
+                    <h3>Clone-Access</h3>
+                    <p>Database: tabelle, query, maschere e report, con struttura dei campi e diagramma delle relazioni.</p>
+                    <span class="app-card-badge">Completo</span>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModal" onclick="if(event.target===this) closeAuth()">
+        <div class="auth-modal">
+            <button class="auth-close" onclick="closeAuth()">&times;</button>
+            <div id="auth-container"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        Clone Office Suite &copy; 2026 - Un progetto di office automation open source
+    </footer>
+
+    <script>
+        // Filtro applicazioni
+        function filterApps(query) {
+            const cards = document.querySelectorAll('.app-card');
+            const q = query.toLowerCase().trim();
+
+            cards.forEach(card => {
+                const name = (card.getAttribute('data-name') || '').toLowerCase();
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('p').textContent.toLowerCase();
+                const match = !q || name.includes(q) || title.includes(q) || desc.includes(q);
+                card.style.display = match ? '' : 'none';
+            });
+        }
+
+        // Gestione tema (placeholder per dark mode futura)
+        let isDark = false;
+        function toggleTheme() {
+            isDark = !isDark;
+            if (isDark) {
+                document.body.style.background = '#1a1a2e';
+                document.querySelectorAll('.app-card:not(.coming-soon)').forEach(c => {
+                    c.style.background = '#16213e';
+                    c.style.borderColor = '#0f3460';
+                });
+                document.querySelectorAll('.app-card-body h3').forEach(h => h.style.color = '#eee');
+                document.querySelectorAll('.app-card-body p').forEach(p => p.style.color = '#999');
+                document.querySelectorAll('.section-title').forEach(t => t.style.color = '#eee');
+                document.querySelectorAll('.quick-action').forEach(a => {
+                    a.style.background = '#16213e';
+                    a.style.borderColor = '#0f3460';
+                    a.style.color = '#ddd';
+                });
+            } else {
+                document.body.style.background = '#f0f2f5';
+                document.querySelectorAll('.app-card:not(.coming-soon)').forEach(c => {
+                    c.style.background = 'white';
+                    c.style.borderColor = '#eee';
+                });
+                document.querySelectorAll('.app-card-body h3').forEach(h => h.style.color = '#1a1a2e');
+                document.querySelectorAll('.app-card-body p').forEach(p => p.style.color = '#777');
+                document.querySelectorAll('.section-title').forEach(t => t.style.color = '#1a1a2e');
+                document.querySelectorAll('.quick-action').forEach(a => {
+                    a.style.background = 'white';
+                    a.style.borderColor = '#eee';
+                    a.style.color = '#333';
+                });
+            }
+        }
+
+        // Keyboard shortcut per ricerca
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchApps').focus();
+            }
+        });
+
+        // ─── Autenticazione ───
+        let authInitialized = false;
+
+        function toggleAuth() {
+            const auth = window.CloneOfficeAuth;
+            if (!auth) return;
+            if (auth.isAuthenticated()) {
+                const container = document.getElementById('auth-container');
+                showAuthModal();
+                auth.showUserUI(container);
+            } else {
+                const container = document.getElementById('auth-container');
+                showAuthModal();
+                auth.showLoginUI(container);
+            }
+        }
+
+        function showAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+        }
+
+        function closeAuth() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function initAuth() {
+            if (authInitialized) return;
+            authInitialized = true;
+            const auth = window.CloneOfficeAuth;
+            if (!auth) return;
+
+            auth.onAuthChange(function(user) {
+                const label = document.getElementById('auth-label');
+                if (user) {
+                    label.textContent = user.name.split(' ')[0];
+                    // Se il modal è aperto, aggiorna
+                    const container = document.getElementById('auth-container');
+                    if (container && document.getElementById('authModal').classList.contains('active')) {
+                        auth.showUserUI(container);
+                    }
+                } else {
+                    label.textContent = 'Utente';
+                }
+            });
+
+            auth.init().then(function(user) {
+                if (user) {
+                    document.getElementById('auth-label').textContent = user.name.split(' ')[0];
+                }
+            });
+
+            // Blocca navigazione alle app se non autenticati
+            document.querySelectorAll('.app-card:not(.coming-soon), .quick-action').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    const a = window.CloneOfficeAuth;
+                    if (!a || !a.isAuthenticated()) {
+                        e.preventDefault();
+                        const container = document.getElementById('auth-container');
+                        showAuthModal();
+                        a.showLoginUI(container);
+                    }
+                });
+            });
+        }
+
+        // Inizializza auth quando la pagina è pronta
+        if (document.readyState === 'complete') {
+            initAuth();
+        } else {
+            window.addEventListener('load', initAuth);
+        }
+    </script>
+</body>
+</html>

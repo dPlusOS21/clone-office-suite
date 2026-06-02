@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clone-Excel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/excel-menu.css">
+    <link rel="stylesheet" href="css/spreadsheet.css">
+    <link rel="stylesheet" href="css/ribbon.css">
+    <script src="../js/auth.js"></script>
+</head>
+<body>
+    <div id="excel-app">
+        <!-- Barra del titolo -->
+        <div id="title-bar">
+            <button class="waffle-btn" onclick="OfficeLauncher.toggle()" title="App Office Suite" style="color:white;"><div class="waffle-grid"><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span></div></button>
+            <button class="title-action-btn" id="btn-undo" onclick="if(window.spreadsheet) spreadsheet.undo();" title="Annulla (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+            <button class="title-action-btn" id="btn-redo" onclick="if(window.spreadsheet) spreadsheet.redo();" title="Ripristina (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+            <span style="color:white;font-size:12px;margin-left:4px;opacity:0.8;">Clone-Excel</span>
+            <input type="text" class="app-title-input" id="docTitle" value="Cartel1" title="Clicca per rinominare">
+            <div class="title-right">
+                <div class="search-box">
+                    <input type="text" placeholder="Cerca strumenti, guida e altro ancora (ALT + X)" id="search-input">
+                </div>
+                <div class="microsoft-actions">
+                    <button class="ms-action" id="btn-comments">commenti</button>
+                    <button class="ms-action" id="btn-update">Aggiornamento</button>
+                    <button class="ms-action" id="btn-edit">Modifica</button>
+                    <button class="ms-action" id="btn-buy-ms365">Acquista Clone Office</button>
+                    <button class="ms-action" id="btn-auth-excel"><i class="fas fa-user"></i> <span id="auth-label-excel">Utente</span></button>
+                </div>
+            </div>
+            <div class="window-controls">
+                <button class="control-btn minimize">−</button>
+                <button class="control-btn maximize">□</button>
+                <button class="control-btn close">×</button>
+            </div>
+        </div>
+
+        <!-- Ribbon Menu -->
+        <div id="ribbon-container">
+            <!-- Barra dei menu principale -->
+            <div id="menu-bar"></div>
+
+            <!-- Contenuto del ribbon -->
+            <div id="ribbon-content">
+                <!-- Home Tab Content -->
+                <div id="home-tab" class="ribbon-tab active">
+                    <div class="ribbon-group">
+                        <div class="group-title">Appunti</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" id="btn-paste" title="Incolla (Ctrl+V)">
+                                <span class="button-icon">📋</span>
+                                <span class="button-text">Incolla</span>
+                            </button>
+                            <div class="button-group">
+                                <button class="ribbon-button" id="btn-cut" title="Taglia (Ctrl+X)">
+                                    <span class="button-icon">✂️</span>
+                                </button>
+                                <button class="ribbon-button" id="btn-copy" title="Copia (Ctrl+C)">
+                                    <span class="button-icon">📄</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Carattere</div>
+                        <div class="group-controls">
+                            <select class="ribbon-combo" id="font-family">
+                                <option>Calibri</option>
+                                <option>Arial</option>
+                                <option>Times New Roman</option>
+                                <option>Verdana</option>
+                                <option>Georgia</option>
+                            </select>
+                            <select class="ribbon-combo" id="font-size">
+                                <option>8</option>
+                                <option>9</option>
+                                <option>10</option>
+                                <option>11</option>
+                                <option>12</option>
+                                <option>14</option>
+                                <option>16</option>
+                                <option>18</option>
+                                <option>20</option>
+                                <option>24</option>
+                                <option>28</option>
+                                <option>32</option>
+                                <option>36</option>
+                            </select>
+                            <div class="button-group">
+                                <button class="ribbon-button" id="btn-bold" title="Grassetto (Ctrl+B)">
+                                    <span class="button-icon">B</span>
+                                </button>
+                                <button class="ribbon-button" id="btn-italic" title="Corsivo (Ctrl+I)">
+                                    <span class="button-icon">I</span>
+                                </button>
+                                <button class="ribbon-button" id="btn-underline" title="Sottolineato (Ctrl+U)">
+                                    <span class="button-icon">U</span>
+                                </button>
+                            </div>
+                            <button class="ribbon-button" title="Bordi">
+                                <span class="button-icon">▦</span>
+                                <span class="button-text">Bordi</span>
+                            </button>
+                            <button class="ribbon-button" title="Colore riempimento">
+                                <span class="button-icon">🖌️</span>
+                            </button>
+                            <button class="ribbon-button" title="Colore carattere">
+                                <span class="button-icon">A</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Allineamento</div>
+                        <div class="group-controls">
+                            <div class="align-stack">
+                                <div class="button-group">
+                                    <button class="ribbon-button" id="btn-align-left" title="Allinea a sinistra">
+                                        <span class="button-icon">⇤</span>
+                                    </button>
+                                    <button class="ribbon-button" id="btn-align-center" title="Allinea al centro">
+                                        <span class="button-icon">↔</span>
+                                    </button>
+                                    <button class="ribbon-button" id="btn-align-right" title="Allinea a destra">
+                                        <span class="button-icon">⇥</span>
+                                    </button>
+                                </div>
+                                <div class="button-group">
+                                    <button class="ribbon-button" id="btn-align-top" title="Allinea in alto">
+                                        <span class="button-icon">⤒</span>
+                                    </button>
+                                    <button class="ribbon-button" id="btn-align-middle" title="Allinea al centro verticale">
+                                        <span class="button-icon">↕</span>
+                                    </button>
+                                    <button class="ribbon-button" id="btn-align-bottom" title="Allinea in basso">
+                                        <span class="button-icon">⤓</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="ribbon-button" id="btn-merge" title="Unisci e centra">
+                                <span class="button-icon">⧉</span>
+                                <span class="button-text">Unisci e centra</span>
+                            </button>
+                            <button class="ribbon-button" id="btn-wrap-text" title="A capo automatico">
+                                <span class="button-icon">↵</span>
+                                <span class="button-text">A capo automatico</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Numero</div>
+                        <div class="group-controls">
+                            <select class="ribbon-combo" id="number-format">
+                                <option>Generale</option>
+                                <option>Numero</option>
+                                <option>Valuta</option>
+                                <option>Contabile</option>
+                                <option>Data breve</option>
+                                <option>Data lunga</option>
+                                <option>Ora</option>
+                                <option>Percentuale</option>
+                                <option>Frazione</option>
+                                <option>Scientifico</option>
+                                <option>Testo</option>
+                                <option>Altri formati numerici</option>
+                            </select>
+                            <div class="button-group">
+                                <button class="ribbon-button" id="btn-fmt-currency" title="Formato valuta">
+                                    <span class="button-icon">€</span>
+                                </button>
+                                <button class="ribbon-button" id="btn-fmt-percent" title="Formato percentuale">
+                                    <span class="button-icon">%</span>
+                                </button>
+                                <button class="ribbon-button" id="btn-fmt-separator" title="Formato separatore">
+                                    <span class="button-icon">,</span>
+                                </button>
+                            </div>
+                            <div class="button-group">
+                                <button class="ribbon-button" id="btn-inc-decimal" title="Aumenta decimali">
+                                    <span class="button-icon">.0→.00</span>
+                                </button>
+                                <button class="ribbon-button" id="btn-dec-decimal" title="Riduci decimali">
+                                    <span class="button-icon">.00→.0</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Stili</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Stili condizionali">
+                                <span class="button-icon">⚡</span>
+                                <span class="button-text">Stili condizionali</span>
+                            </button>
+                            <button class="ribbon-button" title="Formatta come tabella">
+                                <span class="button-icon"></span>
+                                <span class="button-text">Formatta come tabella</span>
+                            </button>
+                            <button class="ribbon-button" title="Stili cella">
+                                <span class="button-icon">📊</span>
+                                <span class="button-text">Stili cella</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Celle</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" id="btn-insert-cells" title="Inserisci">
+                                <span class="button-icon">＋</span>
+                                <span class="button-text">Inserisci</span>
+                            </button>
+                            <button class="ribbon-button" id="btn-delete-cells" title="Elimina">
+                                <span class="button-icon">－</span>
+                                <span class="button-text">Elimina</span>
+                            </button>
+                            <button class="ribbon-button" id="btn-format-cells" title="Formato">
+                                <span class="button-icon">⛭</span>
+                                <span class="button-text">Formato</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Modifica</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" id="btn-autosum" title="Somma">
+                                <span class="button-icon">∑</span>
+                                <span class="button-text">Somma</span>
+                            </button>
+                            <button class="ribbon-button" id="btn-fill" title="Riempimento">
+                                <span class="button-icon">⤸</span>
+                                <span class="button-text">Riempimento</span>
+                            </button>
+                            <button class="ribbon-button" id="btn-clear" title="Cancella">
+                                <span class="button-icon">🗑️</span>
+                                <span class="button-text">Cancella</span>
+                            </button>
+                            <button class="ribbon-button" id="btn-sort-filter" title="Ordina e filtra">
+                                <span class="button-icon">↓↑</span>
+                                <span class="button-text">Ordina e filtra</span>
+                            </button>
+                            <button class="ribbon-button" id="btn-find" title="Trova e seleziona">
+                                <span class="button-icon">🔍</span>
+                                <span class="button-text">Trova e seleziona</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insert Tab Content -->
+                <div id="insert-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Tabelle</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button large" title="Tabella pivot">
+                                <span class="button-icon">📊</span>
+                                <span class="button-text">Tabella pivot</span>
+                            </button>
+                            <button class="ribbon-button" title="Tabella">
+                                <span class="button-icon"></span>
+                                <span class="button-text">Tabella</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Illustrazioni</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Immagine">
+                                <span class="button-icon">🖼️</span>
+                                <span class="button-text">Immagine</span>
+                            </button>
+                            <button class="ribbon-button" title="Forme">
+                                <span class="button-icon">◇</span>
+                                <span class="button-text">Forme</span>
+                            </button>
+                            <button class="ribbon-button" title="SmartArt">
+                                <span class="button-icon">🔷</span>
+                                <span class="button-text">SmartArt</span>
+                            </button>
+                            <button class="ribbon-button" title="Grafico">
+                                <span class="button-icon">📈</span>
+                                <span class="button-text">Grafico</span>
+                            </button>
+                            <button class="ribbon-button" title="Icone">
+                                <span class="button-icon">🖼️</span>
+                                <span class="button-text">Icone</span>
+                            </button>
+                            <button class="ribbon-button" title="Modello 3D">
+                                <span class="button-icon">🧊</span>
+                                <span class="button-text">Modello 3D</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Componenti aggiuntivi</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="App componenti aggiuntivi">
+                                <span class="button-icon">⎙</span>
+                                <span class="button-text">App componenti aggiuntivi</span>
+                            </button>
+                            <button class="ribbon-button" title="Office componenti aggiuntivi">
+                                <span class="button-icon">△</span>
+                                <span class="button-text">Office componenti aggiuntivi</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Grafici consigliati</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Grafico consigliato">
+                                <span class="button-icon">💡</span>
+                                <span class="button-text">Grafico consigliato</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Grafici</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Inserisci grafico a colonne">
+                                <span class="button-icon">📊</span>
+                                <span class="button-text">Colonne</span>
+                            </button>
+                            <button class="ribbon-button" title="Inserisci grafico a linee">
+                                <span class="button-icon">📈</span>
+                                <span class="button-text">Linee</span>
+                            </button>
+                            <button class="ribbon-button" title="Inserisci grafico a torta">
+                                <span class="button-icon">🥧</span>
+                                <span class="button-text">Torta</span>
+                            </button>
+                            <button class="ribbon-button" title="Inserisci grafico a barre">
+                                <span class="button-icon">📊</span>
+                                <span class="button-text">Barre</span>
+                            </button>
+                            <button class="ribbon-button" title="Inserisci grafico ad area">
+                                <span class="button-icon">📈</span>
+                                <span class="button-text">Area</span>
+                            </button>
+                            <button class="ribbon-button" title="Altri grafici">
+                                <span class="button-icon">⋯</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Report</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Report di Power BI">
+                                <span class="button-icon">PBI</span>
+                                <span class="button-text">Report di Power BI</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Filtri</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Filtri">
+                                <span class="button-icon">⧩</span>
+                                <span class="button-text">Filtri</span>
+                            </button>
+                            <button class="ribbon-button" title="Filtri avanzati">
+                                <span class="button-icon">⧩+</span>
+                                <span class="button-text">Avanzati</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Testo</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Casella di testo">
+                                <span class="button-icon">T</span>
+                                <span class="button-text">Casella di testo</span>
+                            </button>
+                            <button class="ribbon-button" title="Intestazione e piè di pagina">
+                                <span class="button-icon">📄</span>
+                                <span class="button-text">Intestazione e piè di pagina</span>
+                            </button>
+                            <button class="ribbon-button" title="WordArt">
+                                <span class="button-icon">A</span>
+                                <span class="button-text">WordArt</span>
+                            </button>
+                            <button class="ribbon-button" title="Simbolo">
+                                <span class="button-icon">Ω</span>
+                                <span class="button-text">Simbolo</span>
+                            </button>
+                            <button class="ribbon-button" title="Oggetto">
+                                <span class="button-icon">📎</span>
+                                <span class="button-text">Oggetto</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Simboli</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Equazione">
+                                <span class="button-icon">π</span>
+                                <span class="button-text">Equazione</span>
+                            </button>
+                            <button class="ribbon-button" title="Simbolo">
+                                <span class="button-icon">Ω</span>
+                                <span class="button-text">Simbolo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layout di pagina Tab Content -->
+                <div id="page-layout-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Impostazioni di pagina</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Margini">
+                                <span class="button-icon">⎔</span>
+                                <span class="button-text">Margini</span>
+                            </button>
+                            <button class="ribbon-button" title="Orientamento">
+                                <span class="button-icon">⤢</span>
+                                <span class="button-text">Orientamento</span>
+                            </button>
+                            <button class="ribbon-button" title="Dimensione">
+                                <span class="button-icon">A4</span>
+                                <span class="button-text">Dimensione</span>
+                            </button>
+                            <button class="ribbon-button" title="Area di stampa">
+                                <span class="button-icon">⎙</span>
+                                <span class="button-text">Area di stampa</span>
+                            </button>
+                            <button class="ribbon-button" title="Interruzioni">
+                                <span class="button-icon">⤸</span>
+                                <span class="button-text">Interruzioni</span>
+                            </button>
+                            <button class="ribbon-button" title="Sfondo">
+                                <span class="button-icon">🏞️</span>
+                                <span class="button-text">Sfondo</span>
+                            </button>
+                            <button class="ribbon-button" title="Stampa titoli">
+                                <span class="button-icon">📑</span>
+                                <span class="button-text">Stampa titoli</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Adatta all'area di stampa</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Larghezza">
+                                <span class="button-icon">↔</span>
+                                <span class="button-text">Larghezza</span>
+                            </button>
+                            <button class="ribbon-button" title="Altezza">
+                                <span class="button-icon">↕</span>
+                                <span class="button-text">Altezza</span>
+                            </button>
+                            <button class="ribbon-button" title="Scala">
+                                <span class="button-icon">%</span>
+                                <span class="button-text">Scala</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Opzioni foglio</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Griglia">
+                                <span class="button-icon">#</span>
+                                <span class="button-text">Griglia</span>
+                            </button>
+                            <button class="ribbon-button" title="Intestazioni">
+                                <span class="button-icon">1</span>
+                                <span class="button-text">Intestazioni</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Disponi</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Porta in primo piano">
+                                <span class="button-icon">⤴</span>
+                                <span class="button-text">Porta in primo piano</span>
+                            </button>
+                            <button class="ribbon-button" title="Porta in secondo piano">
+                                <span class="button-icon">⤵</span>
+                                <span class="button-text">Porta in secondo piano</span>
+                            </button>
+                            <button class="ribbon-button" title="Raggruppa">
+                                <span class="button-icon">⧉</span>
+                                <span class="button-text">Raggruppa</span>
+                            </button>
+                            <button class="ribbon-button" title="Separa">
+                                <span class="button-icon">⧈</span>
+                                <span class="button-text">Separa</span>
+                            </button>
+                            <button class="ribbon-button" title="Allinea">
+                                <span class="button-icon">☰</span>
+                                <span class="button-text">Allinea</span>
+                            </button>
+                            <button class="ribbon-button" title="Ruota">
+                                <span class="button-icon">↷</span>
+                                <span class="button-text">Ruota</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formule Tab Content -->
+                <div id="formulas-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Libreria funzioni</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Inserisci funzione">
+                                <span class="button-icon">ƒx</span>
+                                <span class="button-text">Inserisci funzione</span>
+                            </button>
+                            <button class="ribbon-button" title="Funzione automatica">
+                                <span class="button-icon">∑</span>
+                                <span class="button-text">Funzione automatica</span>
+                            </button>
+                            <button class="ribbon-button" title="Ultima utilizzata">
+                                <span class="button-icon">🕒</span>
+                                <span class="button-text">Ultima utilizzata</span>
+                            </button>
+                            <div class="button-group vertical">
+                                <button class="ribbon-button" title="Finanziarie">
+                                    <span class="button-text">Finanziarie</span>
+                                </button>
+                                <button class="ribbon-button" title="Logiche">
+                                    <span class="button-text">Logiche</span>
+                                </button>
+                                <button class="ribbon-button" title="Testo">
+                                    <span class="button-text">Testo</span>
+                                </button>
+                                <button class="ribbon-button" title="Data e ora">
+                                    <span class="button-text">Data e ora</span>
+                                </button>
+                                <button class="ribbon-button" title="Ricerca e riferimento">
+                                    <span class="button-text">Ricerca e riferimento</span>
+                                </button>
+                                <button class="ribbon-button" title="Matematiche e trigonometria">
+                                    <span class="button-text">Matematiche</span>
+                                </button>
+                                <button class="ribbon-button" title="Altre funzioni">
+                                    <span class="button-text">Altre</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Nomi definiti</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Gestione nomi">
+                                <span class="button-icon">📝</span>
+                                <span class="button-text">Gestione nomi</span>
+                            </button>
+                            <button class="ribbon-button" title="Definisci nome">
+                                <span class="button-icon">✎</span>
+                                <span class="button-text">Definisci nome</span>
+                            </button>
+                            <button class="ribbon-button" title="Usa nella formula">
+                                <span class="button-icon">🔗</span>
+                                <span class="button-text">Usa nella formula</span>
+                            </button>
+                            <button class="ribbon-button" title="Crea dalla selezione">
+                                <span class="button-icon">⧉</span>
+                                <span class="button-text">Crea dalla selezione</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Verifica formule</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Calcola adesso">
+                                <span class="button-icon">⚡</span>
+                                <span class="button-text">Calcola adesso</span>
+                            </button>
+                            <button class="ribbon-button" title="Calcola foglio">
+                                <span class="button-icon">📄</span>
+                                <span class="button-text">Calcola foglio</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Calcolo</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Opzioni di calcolo">
+                                <span class="button-icon">⚙️</span>
+                                <span class="button-text">Opzioni di calcolo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dati Tab Content -->
+                <div id="data-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Carica dati</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Da file">
+                                <span class="button-icon">📁</span>
+                                <span class="button-text">Da file</span>
+                            </button>
+                            <button class="ribbon-button" title="Da database">
+                                <span class="button-icon">🗃️</span>
+                                <span class="button-text">Da database</span>
+                            </button>
+                            <button class="ribbon-button" title="Da Web">
+                                <span class="button-icon">🌐</span>
+                                <span class="button-text">Da Web</span>
+                            </button>
+                            <button class="ribbon-button" title="Da query">
+                                <span class="button-icon">🔍</span>
+                                <span class="button-text">Da query</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Strumenti dati</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Aggiorna tutto">
+                                <span class="button-icon">🔄</span>
+                                <span class="button-text">Aggiorna tutto</span>
+                            </button>
+                            <button class="ribbon-button" title="Proprietà">
+                                <span class="button-icon">⚙️</span>
+                                <span class="button-text">Proprietà</span>
+                            </button>
+                            <button class="ribbon-button" title="Modifica collegamenti">
+                                <span class="button-icon">🔗</span>
+                                <span class="button-text">Modifica collegamenti</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Ordinamento e filtri</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Ordina dalla A alla Z">
+                                <span class="button-icon">A→Z</span>
+                            </button>
+                            <button class="ribbon-button" title="Ordina dalla Z alla A">
+                                <span class="button-icon">Z→A</span>
+                            </button>
+                            <button class="ribbon-button" title="Ordina personalizzato">
+                                <span class="button-icon">⚙️</span>
+                                <span class="button-text">Ordina personalizzato</span>
+                            </button>
+                            <button class="ribbon-button" title="Filtro">
+                                <span class="button-icon">⧩</span>
+                                <span class="button-text">Filtro</span>
+                            </button>
+                            <button class="ribbon-button" title="Cancella">
+                                <span class="button-icon">🗑️</span>
+                                <span class="button-text">Cancella</span>
+                            </button>
+                            <button class="ribbon-button" title="Riapplica">
+                                <span class="button-icon">↻</span>
+                                <span class="button-text">Riapplica</span>
+                            </button>
+                            <button class="ribbon-button" title="Avanzato">
+                                <span class="button-icon">⧩+</span>
+                                <span class="button-text">Avanzato</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Strumenti di analisi</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Analisi dati">
+                                <span class="button-icon">📈</span>
+                                <span class="button-text">Analisi dati</span>
+                            </button>
+                            <button class="ribbon-button" title="Simulazione">
+                                <span class="button-icon">🎯</span>
+                                <span class="button-text">Simulazione</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Previsione</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Foglio previsione">
+                                <span class="button-icon">🔮</span>
+                                <span class="button-text">Foglio previsione</span>
+                            </button>
+                            <button class="ribbon-button" title="Previsione linea temporale">
+                                <span class="button-icon">📅</span>
+                                <span class="button-text">Previsione linea temporale</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Outline</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Raggruppa">
+                                <span class="button-icon">⧉</span>
+                                <span class="button-text">Raggruppa</span>
+                            </button>
+                            <button class="ribbon-button" title="Separa">
+                                <span class="button-icon">⧈</span>
+                                <span class="button-text">Separa</span>
+                            </button>
+                            <button class="ribbon-button" title="Subtotali">
+                                <span class="button-icon">∑</span>
+                                <span class="button-text">Subtotali</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revisione Tab Content -->
+                <div id="review-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Strumenti di correzione</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Controllo ortografia">
+                                <span class="button-icon">ABC</span>
+                                <span class="button-text">Controllo ortografia</span>
+                            </button>
+                            <button class="ribbon-button" title="Thesaurus">
+                                <span class="button-icon">📚</span>
+                                <span class="button-text">Thesaurus</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Accessibilità</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Controllo accessibilità">
+                                <span class="button-icon">♿</span>
+                                <span class="button-text">Controllo accessibilità</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Commenti</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Nuovo commento">
+                                <span class="button-icon">💬</span>
+                                <span class="button-text">Nuovo commento</span>
+                            </button>
+                            <button class="ribbon-button" title="Elimina">
+                                <span class="button-icon">🗑️</span>
+                                <span class="button-text">Elimina</span>
+                            </button>
+                            <button class="ribbon-button" title="Precedente">
+                                <span class="button-icon">⮜</span>
+                                <span class="button-text">Precedente</span>
+                            </button>
+                            <button class="ribbon-button" title="Successivo">
+                                <span class="button-icon">⮞</span>
+                                <span class="button-text">Successivo</span>
+                            </button>
+                            <button class="ribbon-button" title="Mostra commento">
+                                <span class="button-icon">👁️</span>
+                                <span class="button-text">Mostra commento</span>
+                            </button>
+                            <button class="ribbon-button" title="Mostra tutti i commenti">
+                                <span class="button-icon">👁️👁️</span>
+                                <span class="button-text">Mostra tutti</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Proteggi</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Proteggi foglio">
+                                <span class="button-icon">🔒</span>
+                                <span class="button-text">Proteggi foglio</span>
+                            </button>
+                            <button class="ribbon-button" title="Proteggi cartella di lavoro">
+                                <span class="button-icon">🔏</span>
+                                <span class="button-text">Proteggi cartella</span>
+                            </button>
+                            <button class="ribbon-button" title="Consenti modifica intervalli">
+                                <span class="button-icon">✏️</span>
+                                <span class="button-text">Consenti modifica</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Note</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Nuova nota">
+                                <span class="button-icon">📝</span>
+                                <span class="button-text">Nuova nota</span>
+                            </button>
+                            <button class="ribbon-button" title="Elimina nota">
+                                <span class="button-icon">🗑️</span>
+                                <span class="button-text">Elimina nota</span>
+                            </button>
+                            <button class="ribbon-button" title="Precedente">
+                                <span class="button-icon">⮜</span>
+                                <span class="button-text">Precedente</span>
+                            </button>
+                            <button class="ribbon-button" title="Successivo">
+                                <span class="button-icon">⮞</span>
+                                <span class="button-text">Successivo</span>
+                            </button>
+                            <button class="ribbon-button" title="Mostra tutte le note">
+                                <span class="button-icon">👁️</span>
+                                <span class="button-text">Mostra tutte</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualizza Tab Content -->
+                <div id="view-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Visualizzazioni cartella di lavoro</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Normale">
+                                <span class="button-icon">📄</span>
+                                <span class="button-text">Normale</span>
+                            </button>
+                            <button class="ribbon-button" title="Layout di pagina">
+                                <span class="button-icon">⎔</span>
+                                <span class="button-text">Layout di pagina</span>
+                            </button>
+                            <button class="ribbon-button" title="Anteprima interruzioni di pagina">
+                                <span class="button-icon">⤸</span>
+                                <span class="button-text">Anteprima interruzioni</span>
+                            </button>
+                            <button class="ribbon-button" title="Visualizzazioni personalizzate">
+                                <span class="button-icon">👁️</span>
+                                <span class="button-text">Personalizzate</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Mostra</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Linea della griglia">
+                                <span class="button-icon">#</span>
+                                <span class="button-text">Linea della griglia</span>
+                            </button>
+                            <button class="ribbon-button" title="Intestazioni">
+                                <span class="button-icon">1</span>
+                                <span class="button-text">Intestazioni</span>
+                            </button>
+                            <button class="ribbon-button" title="Barra della formula">
+                                <span class="button-icon">ƒx</span>
+                                <span class="button-text">Barra della formula</span>
+                            </button>
+                            <button class="ribbon-button" title="Barra di stato">
+                                <span class="button-icon">📊</span>
+                                <span class="button-text">Barra di stato</span>
+                            </button>
+                            <button class="ribbon-button" title="Regola">
+                                <span class="button-icon">📏</span>
+                                <span class="button-text">Regola</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Zoom</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Zoom">
+                                <span class="button-icon">🔍</span>
+                                <span class="button-text">Zoom</span>
+                            </button>
+                            <button class="ribbon-button" title="Adatta alla selezione">
+                                <span class="button-icon">⤢</span>
+                                <span class="button-text">Adatta alla selezione</span>
+                            </button>
+                            <button class="ribbon-button" title="100%">
+                                <span class="button-icon">1:1</span>
+                                <span class="button-text">100%</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Finestra</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Nuova finestra">
+                                <span class="button-icon">🪟</span>
+                                <span class="button-text">Nuova finestra</span>
+                            </button>
+                            <button class="ribbon-button" title="Organizza tutto">
+                                <span class="button-icon">⧉</span>
+                                <span class="button-text">Organizza tutto</span>
+                            </button>
+                            <button class="ribbon-button" title="Nascondi">
+                                <span class="button-icon">👁️</span>
+                                <span class="button-text">Nascondi</span>
+                            </button>
+                            <button class="ribbon-button" title="Mostra">
+                                <span class="button-icon">👁️</span>
+                                <span class="button-text">Mostra</span>
+                            </button>
+                            <button class="ribbon-button" title="Dividi">
+                                <span class="button-icon">⧄</span>
+                                <span class="button-text">Dividi</span>
+                            </button>
+                            <button class="ribbon-button" title="Blocca riquadri">
+                                <span class="button-icon">📌</span>
+                                <span class="button-text">Blocca riquadri</span>
+                            </button>
+                            <button class="ribbon-button" title="Sposta">
+                                <span class="button-icon">↔</span>
+                                <span class="button-text">Sposta</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ribbon-group">
+                        <div class="group-title">Macro</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Visualizza macro">
+                                <span class="button-icon">⚙️</span>
+                                <span class="button-text">Visualizza macro</span>
+                            </button>
+                            <button class="ribbon-button" title="Macro relative">
+                                <span class="button-icon">📜</span>
+                                <span class="button-text">Macro relative</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Condividi Tab Content -->
+                <div id="share-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Condivisione</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Condividi">
+                                <span class="button-icon">👥</span>
+                                <span class="button-text">Condividi</span>
+                            </button>
+                            <button class="ribbon-button" title="Crea una copia">
+                                <span class="button-icon">📋</span>
+                                <span class="button-text">Crea una copia</span>
+                            </button>
+                            <button class="ribbon-button" title="Copia collegamento">
+                                <span class="button-icon">🔗</span>
+                                <span class="button-text">Copia collegamento</span>
+                            </button>
+                            <button class="ribbon-button" title="Collegamento a questo foglio">
+                                <span class="button-icon">📎</span>
+                                <span class="button-text">Collegamento a questo foglio</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guida Tab Content -->
+                <div id="help-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Guida</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Guida">
+                                <span class="button-icon">❓</span>
+                                <span class="button-text">Guida</span>
+                            </button>
+                            <button class="ribbon-button" title="Formazione">
+                                <span class="button-icon">🎓</span>
+                                <span class="button-text">Formazione</span>
+                            </button>
+                            <button class="ribbon-button" title="Community">
+                                <span class="button-icon">👥</span>
+                                <span class="button-text">Community</span>
+                            </button>
+                            <button class="ribbon-button" title="Commenti e suggerimenti">
+                                <span class="button-icon">💬</span>
+                                <span class="button-text">Commenti</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Disegno Tab Content -->
+                <div id="drawing-tab" class="ribbon-tab">
+                    <div class="ribbon-group">
+                        <div class="group-title">Disegno</div>
+                        <div class="group-controls">
+                            <button class="ribbon-button" title="Forme">
+                                <span class="button-icon">◇</span>
+                                <span class="button-text">Forme</span>
+                            </button>
+                            <button class="ribbon-button" title="Linee">
+                                <span class="button-icon">─</span>
+                                <span class="button-text">Linee</span>
+                            </button>
+                            <button class="ribbon-button" title="Testo">
+                                <span class="button-icon">T</span>
+                                <span class="button-text">Testo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra della formula -->
+        <div id="formula-bar">
+            <div class="cell-reference" id="cell-reference">A1</div>
+            <div class="formula-container">
+                <input type="text" id="formula-input" placeholder="Inserisci formula o valore">
+            </div>
+        </div>
+
+        <!-- Area principale del foglio di calcolo -->
+        <div id="sheet-area">
+            <!-- Intestazioni colonne -->
+            <div id="column-headers-container">
+                <div id="corner-header"></div>
+                <div id="column-headers"></div>
+            </div>
+            
+            <!-- Intestazioni righe e griglia -->
+            <div id="sheet-container">
+                <div id="row-headers"></div>
+                <div id="spreadsheet-viewport">
+                    <div id="spreadsheet"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra dei fogli -->
+        <div id="sheet-tabs-bar">
+            <button class="sheet-tab-btn" id="btn-add-sheet" title="Aggiungi foglio">+</button>
+            <div class="sheet-tabs-scroll" id="sheetTabsScroll">
+                <div class="sheet-tab active" data-sheet="0" onclick="switchSheet(0)" ondblclick="renameSheet(0)">Foglio1</div>
+            </div>
+        </div>
+
+        <!-- Barra di stato -->
+        <div id="status-bar">
+            <div class="status-left">
+                <span id="status-text">Pronto</span>
+            </div>
+            <div class="status-center">
+                <span id="status-average" class="status-stat" style="display:none;">Media: <b id="stat-avg-val">0</b></span>
+                <span id="status-count" class="status-stat" style="display:none;">Conteggio: <b id="stat-count-val">0</b></span>
+                <span id="status-sum" class="status-stat" style="display:none;">Somma: <b id="stat-sum-val">0</b></span>
+                <span id="status-min" class="status-stat" style="display:none;">Min: <b id="stat-min-val">0</b></span>
+                <span id="status-max" class="status-stat" style="display:none;">Max: <b id="stat-max-val">0</b></span>
+            </div>
+            <div class="status-right">
+                <button class="status-button active" id="btn-normal-view" title="Normale">Normale</button>
+                <button class="status-button" id="btn-page-layout" title="Layout di pagina">Layout</button>
+                <button class="status-button" id="btn-page-break" title="Anteprima interruzioni">Interruzioni</button>
+                <div class="zoom-controls">
+                    <button class="zoom-button" id="btn-zoom-out">−</button>
+                    <input type="range" id="zoom-slider-bar" min="10" max="400" value="100" style="width:80px;cursor:pointer;">
+                    <span class="zoom-level" id="zoom-level">100%</span>
+                    <button class="zoom-button" id="btn-zoom-in">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialog per il salvataggio -->
+    <div id="save-dialog" class="modal">
+        <div class="modal-content">
+            <h3>Salva cartella di lavoro</h3>
+            <input type="text" id="filename-input" placeholder="Nome file" value="Cartel1">
+            <div class="modal-buttons">
+                <button id="save-confirm" class="primary">Salva</button>
+                <button id="save-cancel">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialog per l'apertura -->
+    <div id="open-dialog" class="modal">
+        <div class="modal-content">
+            <h3>Apri cartella di lavoro</h3>
+            <div id="file-list"></div>
+            <div class="modal-buttons">
+                <button id="open-confirm">Apri</button>
+                <button id="open-cancel">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inclusione delle librerie -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/excel-menu.js"></script>
+    <script src="js/spreadsheet.js"></script>
+    <script src="js/excel-functions.js"></script>
+    <!-- Aggiungi dopo excel-functions.js -->
+    <script src="js/excel-advanced.js"></script>
+    <script src="js/excel-clone.js"></script>
+    <script src="js/ribbon-actions.js"></script>
+    <script src="../shared/app-launcher.js"></script>
+    <script>OfficeLauncher.init();</script>
+    <script>
+    // ===== GESTIONE FOGLI =====
+    let sheets = [{ name: 'Foglio1', data: null }];
+    let activeSheet = 0;
+
+    function renderSheetTabs() {
+        const container = document.getElementById('sheetTabsScroll');
+        container.innerHTML = '';
+        sheets.forEach((s, i) => {
+            const tab = document.createElement('div');
+            tab.className = 'sheet-tab' + (i === activeSheet ? ' active' : '');
+            tab.setAttribute('data-sheet', i);
+            tab.onclick = () => switchSheet(i);
+            tab.ondblclick = (e) => { e.stopPropagation(); renameSheet(i); };
+            tab.innerHTML = s.name;
+            if (sheets.length > 1) {
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'close-tab';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = (e) => { e.stopPropagation(); removeSheet(i); };
+                tab.appendChild(closeBtn);
+            }
+            container.appendChild(tab);
+        });
+    }
+
+    function switchSheet(idx) {
+        if (idx === activeSheet) return;
+        // Salva dati foglio corrente
+        if (window.spreadsheet) {
+            sheets[activeSheet].data = window.spreadsheet.exportData();
+        }
+        activeSheet = idx;
+        // Carica dati nuovo foglio
+        if (sheets[idx].data && window.spreadsheet) {
+            window.spreadsheet.importData(sheets[idx].data);
+        } else if (window.spreadsheet) {
+            window.spreadsheet.clear();
+        }
+        renderSheetTabs();
+    }
+
+    function renameSheet(idx) {
+        const newName = prompt('Nome foglio:', sheets[idx].name);
+        if (newName && newName.trim()) {
+            sheets[idx].name = newName.trim();
+            renderSheetTabs();
+        }
+    }
+
+    function removeSheet(idx) {
+        if (sheets.length <= 1) return;
+        if (!confirm('Eliminare "' + sheets[idx].name + '"?')) return;
+        // Salva dati del foglio corrente prima di eliminare
+        if (window.spreadsheet && idx !== activeSheet) {
+            sheets[activeSheet].data = window.spreadsheet.exportData();
+        }
+        sheets.splice(idx, 1);
+        // Ricalcola activeSheet
+        if (idx < activeSheet) {
+            activeSheet--;
+        } else if (idx === activeSheet) {
+            activeSheet = Math.min(activeSheet, sheets.length - 1);
+        }
+        // Ricarica il foglio attivo
+        if (sheets[activeSheet].data && window.spreadsheet) {
+            window.spreadsheet.importData(sheets[activeSheet].data);
+        } else if (window.spreadsheet) {
+            // Foglio senza dati: ricrea la griglia vuota
+            window.spreadsheet.createHeaders();
+            window.spreadsheet.createGrid();
+            window.spreadsheet.selectCell('A1');
+        }
+        renderSheetTabs();
+    }
+
+    document.getElementById('btn-add-sheet').addEventListener('click', () => {
+        const num = sheets.length + 1;
+        sheets.push({ name: 'Foglio' + num, data: null });
+        switchSheet(sheets.length - 1);
+    });
+
+    // ===== RINOMINA FILE (inline editing) =====
+    document.getElementById('docTitle').addEventListener('input', (e) => {
+        document.title = e.target.value + ' - Clone-Excel';
+    });
+
+    // Aggiungi voce chiudi nel menu File mobile
+    (function addMobileCloseToMenu() {
+        const dropdown = document.querySelector('.menu-dropdown');
+        if (!dropdown) return;
+        // Aggiungi bottone chiudi in cima al dropdown per mobile
+        const closeItem = document.createElement('div');
+        closeItem.className = 'menu-option mobile-menu-close';
+        closeItem.innerHTML = '<i class="fas fa-times" style="margin-right:8px;width:16px;text-align:center;"></i> Chiudi menu';
+        closeItem.style.cssText = 'display:none;font-weight:600;color:#d32f2f;';
+        closeItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (window.excelMenu) window.excelMenu.hideAllMenus();
+        });
+        dropdown.insertBefore(closeItem, dropdown.firstChild);
+        // Mostra solo su mobile
+        const mq = window.matchMedia('(max-width: 768px)');
+        const toggle = () => { closeItem.style.display = mq.matches ? 'flex' : 'none'; };
+        mq.addEventListener('change', toggle);
+        toggle();
+    })();
+    </script>
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModal" onclick="if(event.target===this) closeAuth()">
+        <div class="auth-modal">
+            <button class="auth-close" onclick="closeAuth()">&times;</button>
+            <div id="auth-container"></div>
+        </div>
+    </div>
+
+    <style>
+        .auth-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .auth-modal-overlay.active { display: flex; }
+        .auth-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+            position: relative;
+            animation: authFadeIn 0.25s ease;
+        }
+        @keyframes authFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .auth-close {
+            position: absolute;
+            top: 12px; right: 16px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #aaa;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+        .auth-close:hover { color: #d32f2f; }
+        #btn-auth-excel {
+            padding: 4px 10px;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        #btn-auth-excel:hover { background: rgba(255,255,255,0.1); }
+    </style>
+
+    <script>
+    let authInitialized = false;
+
+    function toggleAuth() {
+        const auth = window.CloneOfficeAuth;
+        if (!auth) return;
+        const container = document.getElementById('auth-container');
+        showAuthModal();
+        if (auth.isAuthenticated()) {
+            auth.showUserUI(container);
+        } else {
+            auth.showLoginUI(container);
+        }
+    }
+
+    function showAuthModal() {
+        document.getElementById('authModal').classList.add('active');
+    }
+
+    function closeAuth() {
+        document.getElementById('authModal').classList.remove('active');
+    }
+
+    function initAuth() {
+        if (authInitialized) return;
+        authInitialized = true;
+        const auth = window.CloneOfficeAuth;
+        if (!auth) return;
+
+        document.getElementById('btn-auth-excel').addEventListener('click', toggleAuth);
+
+        auth.onAuthChange(function(user) {
+            const label = document.getElementById('auth-label-excel');
+            if (user) {
+                label.textContent = user.name.split(' ')[0];
+                hideAuthBlocker();
+                hideSessionLimitBlocker();
+            } else {
+                label.textContent = 'Utente';
+            }
+        });
+
+        auth.onSessionLimit(function(data) {
+            showSessionLimitBlocker(data);
+        });
+
+        auth.init().then(function(user) {
+            if (user) {
+                document.getElementById('auth-label-excel').textContent = user.name.split(' ')[0];
+                hideAuthBlocker();
+            } else {
+                showAuthBlocker();
+            }
+        });
+    }
+
+    function showAuthBlocker() {
+        let blocker = document.getElementById('auth-blocker');
+        if (blocker) return;
+        blocker = document.createElement('div');
+        blocker.id = 'auth-blocker';
+        blocker.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#f0f2f5;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;"><div style="font-size:64px;margin-bottom:20px;">🔐</div><h2 style="font-size:24px;color:#1a1a2e;margin-bottom:8px;">Accesso richiesto</h2><p style="color:#888;font-size:14px;margin-bottom:24px;">Devi effettuare l\'accesso per utilizzare questa applicazione.</p><button onclick="toggleAuth()" style="padding:12px 32px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Accedi con QR Code</button><br><br><a href="../index.html" style="color:#e94560;font-size:13px;text-decoration:none;">Torna alla Home</a></div></div>';
+        document.body.appendChild(blocker);
+    }
+    function hideAuthBlocker() {
+        const b = document.getElementById('auth-blocker');
+        if (b) b.remove();
+    }
+    function showSessionLimitBlocker(data) {
+        let b = document.getElementById('session-limit-blocker');
+        if (b) return;
+        b = document.createElement('div'); b.id = 'session-limit-blocker';
+        b.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(26,26,46,0.97);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;max-width:420px;"><div style="font-size:64px;margin-bottom:20px;">📵</div><h2 style="font-size:24px;color:#fff;margin-bottom:8px;">Limite dispositivi raggiunto</h2><p style="color:#ccc;font-size:14px;margin-bottom:8px;">Hai '+data.active_sessions+' sessione/i attiva/e su un massimo di '+data.max_devices+' consentiti dalla licenza.</p><p style="color:#999;font-size:12px;margin-bottom:24px;">Per utilizzare questa applicazione su un nuovo dispositivo, disconnetti una sessione esistente o acquista una licenza con pi&ugrave; dispositivi.</p><button onclick="logoutAndClose()" style="padding:12px 32px;background:#e94560;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Esci e torna alla Home</button></div></div>';
+        document.body.appendChild(b);
+    }
+    function hideSessionLimitBlocker() {
+        const b = document.getElementById('session-limit-blocker');
+        if (b) b.remove();
+    }
+    function logoutAndClose() {
+        const a = window.CloneOfficeAuth;
+        if (a) a.logout().then(function() { window.location.href = "../index.html"; });
+        else window.location.href = "../index.html";
+    }
+
+    if (document.readyState === 'complete') {
+        initAuth();
+    } else {
+        window.addEventListener('load', initAuth);
+    }
+    </script>
+</body>
+</html>

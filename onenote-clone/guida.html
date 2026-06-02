@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guida · Clone-OneNote</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #243; background: #f3f4f6; line-height: 1.6; }
+    header { background: #7b1fa2; color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    header .logo { font-size: 22px; }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header .home-link { margin-left: auto; color: #fff; text-decoration: none; font-size: 13px; opacity: .9; display: flex; align-items: center; gap: 6px; }
+    header .home-link:hover { opacity: 1; text-decoration: underline; }
+    .layout { display: flex; max-width: 1180px; margin: 0 auto; }
+    nav.sidebar { width: 250px; flex: 0 0 250px; background: #fff; border-right: 1px solid #e5e7eb; padding: 18px 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+    nav.sidebar a { display: block; padding: 9px 24px; color: #374151; text-decoration: none; font-size: 14px; border-left: 3px solid transparent; }
+    nav.sidebar a:hover { background: #f5eefa; color: #7b1fa2; }
+    nav.sidebar a.active { background: #f0e3f7; color: #7b1fa2; border-left-color: #7b1fa2; font-weight: 600; }
+    nav.sidebar .sec-label { padding: 14px 24px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #9ca3af; font-weight: 700; }
+    main { flex: 1; padding: 32px 40px; min-width: 0; background: #f3f4f6; }
+    .search-box { padding: 0 24px 12px; }
+    .search-box input { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
+    section.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 26px 30px; margin-bottom: 22px; scroll-margin-top: 70px; }
+    section.card h2 { font-size: 21px; color: #59148a; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    section.card h3 { font-size: 16px; color: #243; margin: 18px 0 8px; }
+    section.card p { margin-bottom: 10px; color: #374151; }
+    ul, ol { margin: 8px 0 12px 22px; } li { margin-bottom: 6px; }
+    kbd { background: #f3f4f6; border: 1px solid #d1d5db; border-bottom-width: 2px; border-radius: 4px; padding: 1px 7px; font-family: 'Segoe UI', sans-serif; font-size: 12px; color: #111; white-space: nowrap; }
+    .tip { background: #eef6ff; border-left: 4px solid #2196f3; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .note { background: #fff8e6; border-left: 4px solid #f0ad4e; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .feedback-form label { display: block; font-size: 13px; font-weight: 600; color: #555; margin: 12px 0 4px; }
+    .feedback-form input, .feedback-form select, .feedback-form textarea { width: 100%; padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .feedback-form button { margin-top: 16px; padding: 10px 24px; background: #7b1fa2; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .feedback-form button:hover { background: #59148a; }
+    .feedback-ok { display: none; background: #f0e3f7; color: #59148a; border: 1px solid #d9bce8; border-radius: 6px; padding: 12px; margin-top: 14px; font-size: 14px; }
+    .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; margin-top: 14px; }
+    .mini-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; background: #fafbfc; }
+    .mini-card i { font-size: 22px; color: #7b1fa2; margin-bottom: 8px; }
+    .mini-card h4 { font-size: 15px; margin-bottom: 4px; } .mini-card p { font-size: 13px; color: #6b7280; }
+    @media (max-width: 760px) { nav.sidebar { display: none; } main { padding: 20px; } }
+</style>
+</head>
+<body>
+<header>
+    <span class="logo"><i class="fas fa-book"></i></span>
+    <h1>Guida di Clone-OneNote</h1>
+    <a class="home-link" href="index.html" onclick="return tornaApp(event)"><i class="fas fa-arrow-left"></i> Torna agli appunti</a>
+</header>
+<div class="layout">
+    <nav class="sidebar">
+        <div class="search-box"><input type="text" id="guide-search" placeholder="Cerca nella guida..."></div>
+        <div class="sec-label">Per iniziare</div>
+        <a href="#introduzione" class="active">Introduzione</a>
+        <a href="#struttura">Blocchi, sezioni e pagine</a>
+        <a href="#scrivere">Scrivere e formattare</a>
+        <div class="sec-label">Strumenti</div>
+        <a href="#inserire">Inserire (tabelle, immagini, link)</a>
+        <a href="#tag">Tag e To-Do</a>
+        <a href="#disegno">Disegno</a>
+        <a href="#visualizza">Visualizza e zoom</a>
+        <div class="sec-label">Risorse</div>
+        <a href="#scorciatoie">Scelte rapide</a>
+        <a href="#novita">Novità</a>
+        <a href="#commenti">Commenti e suggerimenti</a>
+    </nav>
+    <main>
+        <section class="card" id="introduzione">
+            <h2><i class="fas fa-circle-info"></i> Introduzione</h2>
+            <p>Benvenuto in <strong>Clone-OneNote</strong>, il blocco appunti digitale della suite Clone Office. Organizza le idee in blocchi, sezioni e pagine, scrivi liberamente, inserisci tabelle e immagini, disegna a mano libera e ritrova tutto con la ricerca.</p>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-layer-group"></i><h4>Blocchi e sezioni</h4><p>Struttura gerarchica: blocco → sezione → pagina.</p></div>
+                <div class="mini-card"><i class="fas fa-pen-nib"></i><h4>Scrittura libera</h4><p>Clicca ovunque e scrivi; formatta con G/C/S, elenchi e tag.</p></div>
+                <div class="mini-card"><i class="fas fa-floppy-disk"></i><h4>Salvataggio automatico</h4><p>Gli appunti vengono salvati nel browser e sul server.</p></div>
+            </div>
+        </section>
+        <section class="card" id="struttura">
+            <h2><i class="fas fa-layer-group"></i> Blocchi, sezioni e pagine</h2>
+            <ul>
+                <li><strong>Blocchi appunti</strong>: nella barra stretta a sinistra; "+" per crearne uno nuovo.</li>
+                <li><strong>Sezioni</strong>: le schede in alto nel pannello (es. "Note rapide"); "+" per aggiungerne.</li>
+                <li><strong>Pagine</strong>: l'elenco sotto le sezioni; <strong>"+ Aggiungi pagina"</strong> in cima crea una nuova pagina.</li>
+            </ul>
+            <div class="tip"><strong>Suggerimento:</strong> appena apri o crei una pagina il cursore è già pronto: puoi iniziare a scrivere subito.</div>
+        </section>
+        <section class="card" id="scrivere">
+            <h2><i class="fas fa-font"></i> Scrivere e formattare</h2>
+            <p>Dalla scheda <strong>Home</strong>: tipo e dimensione del carattere, <strong>G</strong> (grassetto), <em>C</em> (corsivo), <u>S</u> (sottolineato), barrato, apice/pedice, <strong>evidenziatore</strong> e <strong>colore carattere</strong>, allineamenti, elenchi puntati/numerati, rientri e interlinea.</p>
+        </section>
+        <section class="card" id="inserire">
+            <h2><i class="fas fa-table-cells"></i> Inserire</h2>
+            <p>Dalla scheda <strong>Inserisci</strong>: <strong>tabelle</strong>, <strong>immagini</strong>, <strong>link</strong>, <strong>data/ora</strong>, blocchi di codice, simboli ed emoji.</p>
+        </section>
+        <section class="card" id="tag">
+            <h2><i class="fas fa-tags"></i> Tag e To-Do</h2>
+            <p>Usa <strong>To-Do</strong> per creare caselle di controllo spuntabili e <strong>Tag</strong> (Contrassegni) per evidenziare elementi importanti, domande, idee.</p>
+        </section>
+        <section class="card" id="disegno">
+            <h2><i class="fas fa-pen"></i> Disegno</h2>
+            <p>Dalla scheda <strong>Disegno</strong> attiva penna, evidenziatore o gomma, scegli colore e spessore e disegna direttamente sul foglio.</p>
+        </section>
+        <section class="card" id="visualizza">
+            <h2><i class="fas fa-eye"></i> Visualizza e zoom</h2>
+            <p>Mostra righe o griglia di sfondo e regola lo <strong>zoom</strong> con il controllo in basso a destra (− / cursore / + ; clic su % per azzerare).</p>
+        </section>
+        <section class="card" id="scorciatoie">
+            <h2><i class="fas fa-keyboard"></i> Scelte rapide da tastiera</h2>
+            <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                <tr><td style="padding:6px 0;">Grassetto / Corsivo / Sottolineato</td><td><kbd>Ctrl</kbd>+<kbd>G</kbd> · <kbd>Ctrl</kbd>+<kbd>I</kbd> · <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+                <tr><td style="padding:6px 0;">Cerca</td><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td></tr>
+                <tr><td style="padding:6px 0;">Annulla / Ripristina</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td></tr>
+            </table>
+        </section>
+        <section class="card" id="novita">
+            <h2><i class="fas fa-bullhorn"></i> Novità</h2>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-palette"></i><h4>Look bianco OneNote online</h4><p>Barra e ribbon bianchi con accenti viola, G/C/S, Modifica/Condividi.</p></div>
+                <div class="mini-card"><i class="fas fa-i-cursor"></i><h4>Scrittura immediata</h4><p>Il cursore è pronto all'avvio: scrivi senza dover cliccare.</p></div>
+                <div class="mini-card"><i class="fas fa-magnifying-glass"></i><h4>Zoom interattivo</h4><p>Controllo zoom nella barra di stato, anche su mobile.</p></div>
+            </div>
+        </section>
+        <section class="card" id="commenti">
+            <h2><i class="fas fa-comment-dots"></i> Commenti e suggerimenti</h2>
+            <p>Il tuo parere ci aiuta a migliorare Clone-OneNote.</p>
+            <form class="feedback-form" id="feedbackForm" onsubmit="return inviaFeedback(event)">
+                <label for="fb-type">Tipo</label>
+                <select id="fb-type"><option>Mi piace qualcosa</option><option>Non mi piace qualcosa</option><option>Ho un suggerimento</option><option>Segnalazione di un problema</option></select>
+                <label for="fb-msg">Messaggio</label>
+                <textarea id="fb-msg" rows="5" placeholder="Scrivi qui il tuo commento..."></textarea>
+                <label for="fb-email">Email (facoltativa)</label>
+                <input id="fb-email" type="email" placeholder="nome@esempio.com">
+                <button type="submit"><i class="fas fa-paper-plane"></i> Invia commento</button>
+                <div class="feedback-ok" id="fb-ok"><i class="fas fa-check-circle"></i> Grazie! Il tuo commento è stato registrato.</div>
+            </form>
+        </section>
+    </main>
+</div>
+<script>
+    function tornaApp(e){ e.preventDefault(); if(window.opener&&!window.opener.closed){try{window.opener.focus();}catch(x){} window.close();} else { window.location.href='index.html'; } return false; }
+    const links=document.querySelectorAll('nav.sidebar a'); const sections=[...document.querySelectorAll('section.card')];
+    window.addEventListener('scroll',()=>{let cur=sections[0].id;const y=window.scrollY+90;for(const s of sections){if(s.offsetTop<=y)cur=s.id;}links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));});
+    document.getElementById('guide-search').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();sections.forEach(s=>{s.style.display=(!q||s.textContent.toLowerCase().includes(q))?'':'none';});});
+    async function inviaFeedback(ev){ ev.preventDefault(); const fb={app:'Clone-OneNote',type:document.getElementById('fb-type').value,msg:document.getElementById('fb-msg').value.trim(),email:document.getElementById('fb-email').value.trim()}; if(!fb.msg){document.getElementById('fb-msg').focus();return false;} const ok=document.getElementById('fb-ok'); try{ const res=await fetch('../backend/api.php?action=send-feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fb)}); const data=await res.json(); if(data.error){ok.style.display='block';ok.style.background='#fdecea';ok.style.color='#b71c1c';ok.innerHTML='<i class="fas fa-triangle-exclamation"></i> '+data.error;return false;} ok.style.display='block'; ok.innerHTML=data.mailed?'<i class="fas fa-check-circle"></i> Grazie! Il commento è stato inviato via email.':'<i class="fas fa-check-circle"></i> Grazie! Il commento è stato registrato'+(data.configured?'':' (email destinatario non ancora configurata dall\'amministratore)')+'.'; }catch(e){ try{const all=JSON.parse(localStorage.getItem('onenote-feedback')||'[]');all.push({...fb,date:new Date().toISOString()});localStorage.setItem('onenote-feedback',JSON.stringify(all));}catch(_){ } ok.style.display='block'; ok.innerHTML='<i class="fas fa-check-circle"></i> Grazie! Commento salvato (server non raggiungibile).'; } document.getElementById('feedbackForm').reset(); return false; }
+    if(location.hash){const t=document.querySelector(location.hash);if(t)setTimeout(()=>t.scrollIntoView({behavior:'smooth'}),100);}
+</script>
+</body>
+</html>

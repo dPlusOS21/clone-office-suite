@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clone-Outlook - Posta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../js/auth.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; background: #f5f5f5; height: 100vh; display: flex; flex-direction: column; }
+
+        /* Fix: assicura visibilita App Launcher sopra tutto */
+        .app-launcher-panel { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; }
+        .app-launcher-panel.open { transform: translateX(0) !important; }
+        .app-launcher-overlay { position: fixed !important; z-index: 99998 !important; }
+        .app-launcher-overlay.open { display: block !important; }
+
+        /* Top Bar */
+        .top-bar {
+            background: #0078d4;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            height: 48px;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .top-bar .waffle-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 6px 8px; border-radius: 4px; }
+        .top-bar .waffle-btn:hover { background: rgba(255,255,255,0.15); }
+        .waffle-grid { display: grid; grid-template-columns: repeat(3,5px); gap: 2px; }
+        .waffle-dot { width: 5px; height: 5px; background: white; border-radius: 50%; }
+        .app-logo { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; margin-right: 8px; }
+        .app-logo i { font-size: 18px; }
+        .search-bar { flex: 1; max-width: 600px; position: relative; }
+        .search-bar input { width: 100%; padding: 6px 12px 6px 36px; border: none; border-radius: 4px; font-size: 13px; background: rgba(255,255,255,0.15); color: white; outline: none; }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.7); }
+        .search-bar input:focus { background: white; color: #333; }
+        .search-bar input:focus::placeholder { color: #999; }
+        .search-bar i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); font-size: 13px; }
+        .search-bar input:focus + i, .search-bar input:focus ~ i { color: #999; }
+        .top-right { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+        .top-btn { background: none; border: none; color: white; font-size: 16px; cursor: pointer; padding: 6px 10px; border-radius: 4px; }
+        .top-btn:hover { background: rgba(255,255,255,0.15); }
+        .user-avatar { width: 32px; height: 32px; background: #005a9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        /* Layout principale */
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+
+        /* Sidebar navigazione */
+        .nav-sidebar {
+            width: 48px;
+            background: #f0f0f0;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        .nav-btn { width: 40px; height: 40px; border: none; background: none; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #444; position: relative; }
+        .nav-btn:hover { background: #e0e0e0; }
+        .nav-btn.active { background: #d0e8ff; color: #0078d4; }
+        .nav-btn .badge { position: absolute; top: 4px; right: 4px; background: #d13438; color: white; font-size: 9px; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .nav-spacer { flex: 1; }
+
+        /* Folder Panel */
+        .folder-panel {
+            width: 240px;
+            background: #fafafa;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .folder-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .folder-header h3 { font-size: 14px; font-weight: 600; color: #333; }
+        .new-mail-btn { background: #0078d4; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0 12px 8px; font-weight: 500; }
+        .new-mail-btn:hover { background: #106ebe; }
+        .folder-list { flex: 1; overflow-y: auto; padding: 0 4px; }
+        .folder-item { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; border-radius: 4px; gap: 10px; font-size: 13px; color: #333; user-select: none; }
+        .folder-item:hover { background: #e8e8e8; }
+        .folder-item.active { background: #d0e8ff; color: #0078d4; font-weight: 600; }
+        .folder-item i { width: 18px; text-align: center; font-size: 14px; color: #666; }
+        .folder-item.active i { color: #0078d4; }
+        .folder-item .folder-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .folder-item .folder-count { font-size: 11px; color: #0078d4; font-weight: 600; min-width: 20px; text-align: right; }
+        .folder-section { padding: 8px 12px 4px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .folder-actions { padding: 8px 12px; border-top: 1px solid #e0e0e0; }
+        .folder-actions button { background: none; border: none; color: #0078d4; font-size: 12px; cursor: pointer; padding: 4px 0; }
+        .folder-actions button:hover { text-decoration: underline; }
+
+        /* Account selector */
+        .account-selector { padding: 8px 12px; border-bottom: 1px solid #e0e0e0; }
+        .account-selector select { width: 100%; padding: 6px 8px; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 12px; background: white; cursor: pointer; }
+
+        /* Email List */
+        .email-list-panel {
+            width: 360px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .email-list-header { padding: 8px 12px; border-bottom: 1px solid #edebe9; display: flex; align-items: center; gap: 8px; }
+        .email-list-header h3 { font-size: 15px; font-weight: 600; flex: 1; }
+        .email-list-actions { display: flex; gap: 4px; }
+        .email-list-actions button { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 4px; font-size: 14px; color: #666; }
+        .email-list-actions button:hover { background: #f0f0f0; color: #333; }
+        .email-list-filter { padding: 4px 12px; border-bottom: 1px solid #edebe9; display: flex; gap: 8px; }
+        .filter-btn { background: none; border: none; cursor: pointer; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #666; }
+        .filter-btn:hover { background: #f0f0f0; }
+        .filter-btn.active { background: #d0e8ff; color: #0078d4; font-weight: 600; }
+        .email-list { flex: 1; overflow-y: auto; }
+        .email-item { display: flex; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; gap: 10px; align-items: flex-start; position: relative; }
+        .email-item:hover { background: #f5f5f5; }
+        .email-item.active { background: #e8f0fe; }
+        .email-item.unread { border-left: 3px solid #0078d4; }
+        .email-item.unread .email-sender { font-weight: 700; }
+        .email-item.unread .email-subject { font-weight: 600; }
+        .email-avatar { width: 36px; height: 36px; border-radius: 50%; background: #0078d4; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+        .email-content { flex: 1; min-width: 0; }
+        .email-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+        .email-sender { font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+        .email-date { font-size: 11px; color: #888; white-space: nowrap; margin-left: 8px; }
+        .email-subject { font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+        .email-preview { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .email-indicators { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+        .email-indicators i { font-size: 11px; color: #888; }
+        .email-indicators i.starred { color: #ffc107; }
+        .email-star-btn { background: none; border: none; cursor: pointer; padding: 2px; font-size: 14px; color: #ccc; }
+        .email-star-btn:hover, .email-star-btn.starred { color: #ffc107; }
+        .email-list-empty { text-align: center; padding: 40px 20px; color: #888; }
+        .email-list-empty i { font-size: 48px; margin-bottom: 12px; display: block; color: #ccc; }
+
+        /* Reading Pane */
+        .reading-pane {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .reading-empty { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #888; gap: 12px; }
+        .reading-empty i { font-size: 64px; color: #d0d0d0; }
+        .reading-header { padding: 16px 20px; border-bottom: 1px solid #edebe9; }
+        .reading-subject { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 8px; }
+        .reading-from { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .reading-from-avatar { width: 40px; height: 40px; border-radius: 50%; background: #0078d4; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .reading-from-info { flex: 1; }
+        .reading-from-name { font-size: 14px; font-weight: 600; color: #333; }
+        .reading-from-email { font-size: 12px; color: #666; }
+        .reading-to { font-size: 12px; color: #666; margin-top: 4px; }
+        .reading-date { font-size: 12px; color: #888; }
+        .reading-actions { display: flex; gap: 4px; margin-top: 8px; }
+        .reading-actions button { background: #f0f0f0; border: 1px solid #d1d1d1; padding: 6px 14px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .reading-actions button:hover { background: #e0e0e0; }
+        .reading-actions button.primary { background: #0078d4; color: white; border-color: #0078d4; }
+        .reading-actions button.primary:hover { background: #106ebe; }
+        .reading-body { flex: 1; overflow-y: auto; padding: 20px; }
+        .reading-body iframe { width: 100%; min-height: 300px; border: none; }
+        .reading-attachments { padding: 12px 20px; border-top: 1px solid #edebe9; background: #fafafa; }
+        .reading-attachments h4 { font-size: 12px; color: #666; margin-bottom: 8px; }
+        .attachment-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .attachment-item { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: white; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .attachment-item:hover { background: #f0f0f0; }
+        .attachment-item i { color: #0078d4; }
+
+        /* Compose Modal */
+        .compose-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 500; display: none; }
+        .compose-modal {
+            position: fixed;
+            bottom: 0;
+            right: 20px;
+            width: 620px;
+            max-height: 80vh;
+            background: white;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+            z-index: 501;
+            display: none;
+            flex-direction: column;
+        }
+        .compose-header { display: flex; align-items: center; padding: 10px 16px; background: #0078d4; color: white; border-radius: 8px 8px 0 0; cursor: move; }
+        .compose-header span { flex: 1; font-size: 14px; font-weight: 500; }
+        .compose-header button { background: none; border: none; color: white; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+        .compose-header button:hover { background: rgba(255,255,255,0.2); }
+        .compose-fields { padding: 8px 16px; border-bottom: 1px solid #edebe9; }
+        .compose-field { display: flex; align-items: center; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+        .compose-field:last-child { border-bottom: none; }
+        .compose-field label { font-size: 13px; color: #666; width: 40px; flex-shrink: 0; }
+        .compose-field input { flex: 1; border: none; outline: none; font-size: 13px; padding: 4px 0; font-family: inherit; }
+        .compose-field .cc-bcc-toggle { font-size: 12px; color: #0078d4; cursor: pointer; margin-left: 8px; }
+        .compose-subject { padding: 8px 16px; border-bottom: 1px solid #edebe9; }
+        .compose-subject input { width: 100%; border: none; outline: none; font-size: 14px; font-family: inherit; }
+        .compose-toolbar { display: flex; padding: 4px 12px; border-bottom: 1px solid #edebe9; gap: 2px; flex-wrap: wrap; }
+        .compose-toolbar button { background: none; border: none; cursor: pointer; padding: 6px 8px; border-radius: 4px; font-size: 13px; color: #444; }
+        .compose-toolbar button:hover { background: #f0f0f0; }
+        .compose-toolbar select { border: 1px solid #d1d1d1; border-radius: 4px; padding: 2px 6px; font-size: 12px; cursor: pointer; }
+        .compose-toolbar .sep { width: 1px; height: 24px; background: #e0e0e0; margin: 0 4px; align-self: center; }
+        .compose-body { flex: 1; padding: 12px 16px; min-height: 200px; overflow-y: auto; }
+        .compose-body-editor { min-height: 180px; outline: none; font-size: 14px; line-height: 1.6; }
+        .compose-footer { display: flex; align-items: center; padding: 8px 16px; border-top: 1px solid #edebe9; gap: 8px; }
+        .compose-send-btn { background: #0078d4; color: white; border: none; padding: 8px 24px; border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .compose-send-btn:hover { background: #106ebe; }
+        .compose-footer-actions { display: flex; gap: 4px; margin-left: auto; }
+        .compose-footer-actions button { background: none; border: none; cursor: pointer; padding: 6px 8px; color: #666; font-size: 14px; border-radius: 4px; }
+        .compose-footer-actions button:hover { background: #f0f0f0; }
+
+        /* Settings Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 600; display: none; align-items: center; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 640px; width: 90%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #edebe9; }
+        .modal-header h2 { flex: 1; font-size: 18px; font-weight: 600; }
+        .modal-header button { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; padding: 4px 8px; border-radius: 4px; }
+        .modal-header button:hover { background: #f0f0f0; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
+        .modal-footer { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid #edebe9; gap: 8px; }
+        .modal-footer button { padding: 8px 20px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+        .btn-primary { background: #0078d4; color: white; border: 1px solid #0078d4; }
+        .btn-primary:hover { background: #106ebe; }
+        .btn-secondary { background: white; color: #333; border: 1px solid #d1d1d1; }
+        .btn-secondary:hover { background: #f0f0f0; }
+        .btn-danger { background: #d13438; color: white; border: 1px solid #d13438; }
+        .btn-danger:hover { background: #a4262c; }
+
+        /* Form styles */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 13px; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #0078d4; outline: none; box-shadow: 0 0 0 2px rgba(0,120,212,0.1); }
+        .form-row { display: flex; gap: 12px; }
+        .form-row .form-group { flex: 1; }
+        .form-check { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+        .form-check input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .form-check label { font-weight: normal; margin-bottom: 0; cursor: pointer; }
+        .form-help { font-size: 11px; color: #888; margin-top: 2px; }
+        .form-divider { border: none; border-top: 1px solid #edebe9; margin: 16px 0; }
+        .preset-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .preset-btn { padding: 6px 12px; border: 1px solid #d1d1d1; background: white; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .preset-btn:hover { background: #f0f0f0; border-color: #0078d4; }
+
+        /* Contacts Panel */
+        .contacts-panel { display: none; flex: 1; flex-direction: column; background: white; }
+        .contacts-panel.show { display: flex; }
+        .contacts-header { padding: 12px 16px; border-bottom: 1px solid #edebe9; display: flex; align-items: center; gap: 8px; }
+        .contacts-header h3 { flex: 1; font-size: 16px; }
+        .contacts-search { padding: 8px 16px; border-bottom: 1px solid #edebe9; }
+        .contacts-search input { width: 100%; padding: 6px 10px; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 13px; }
+        .contacts-list { flex: 1; overflow-y: auto; }
+        .contact-item { display: flex; align-items: center; padding: 10px 16px; gap: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .contact-item:hover { background: #f5f5f5; }
+        .contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: #0078d4; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+        .contact-info { flex: 1; }
+        .contact-name { font-size: 13px; font-weight: 600; }
+        .contact-email { font-size: 12px; color: #666; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 24px; border-radius: 8px; font-size: 13px; z-index: 9999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast.show { display: block; animation: fadeInUp 0.3s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+        /* Loading */
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #e0e0e0; border-top-color: #0078d4; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; z-index: 10; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+
+        /* Mobile */
+        .mobile-title-bar { display: none; }
+        .mobile-bottom-bar { display: none; }
+
+        @media (max-width: 768px) {
+            .top-bar { display: none; }
+            .nav-sidebar { display: none; }
+            .folder-panel { display: none; }
+            .email-list-panel { width: 100%; display: flex; }
+            .reading-pane { display: none; }
+
+            .mobile-title-bar {
+                display: flex;
+                align-items: center;
+                background: #0078d4;
+                color: white;
+                height: 48px;
+                padding: 0 8px;
+                gap: 6px;
+                flex-shrink: 0;
+            }
+            .mobile-title-bar button { background: none; border: none; color: white; font-size: 18px; padding: 6px 8px; cursor: pointer; border-radius: 4px; }
+            .mobile-title-bar button:active { background: rgba(255,255,255,0.2); }
+            .mobile-title-bar .mob-title { flex: 1; font-size: 16px; font-weight: 600; }
+            .mobile-title-bar .mob-search { flex: 1; padding: 6px 10px; border: none; border-radius: 4px; background: rgba(255,255,255,0.2); color: white; font-size: 13px; outline: none; display: none; }
+            .mobile-title-bar .mob-search::placeholder { color: rgba(255,255,255,0.7); }
+
+            .mobile-bottom-bar {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                background: white;
+                border-top: 1px solid #e0e0e0;
+                height: 56px;
+                flex-shrink: 0;
+            }
+            .mob-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 4px 12px; color: #666; font-size: 10px; }
+            .mob-nav-btn i { font-size: 20px; }
+            .mob-nav-btn.active { color: #0078d4; }
+            .mob-nav-btn .badge { position: absolute; top: -2px; right: -2px; background: #d13438; color: white; font-size: 9px; min-width: 14px; height: 14px; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+
+            /* Mobile views */
+            body.mobile-reading .email-list-panel { display: none; }
+            body.mobile-reading .reading-pane { display: flex; }
+            body.mobile-folders .email-list-panel { display: none; }
+            body.mobile-folders .folder-panel { display: flex; width: 100%; }
+            body.mobile-contacts .email-list-panel { display: none; }
+            body.mobile-contacts .contacts-panel { display: flex; width: 100%; }
+
+            .compose-modal { width: 100%; right: 0; max-height: 100vh; border-radius: 0; }
+        }
+
+        /* Auth Modal */
+        .auth-modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 999999;
+            align-items: center; justify-content: center; backdrop-filter: blur(4px);
+        }
+        .auth-modal-overlay.active { display: flex; }
+        .auth-modal {
+            background: white; border-radius: 16px; padding: 28px;
+            max-width: 380px; width: 90%;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2); position: relative;
+            animation: authFadeIn 0.25s ease;
+        }
+        @keyframes authFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .auth-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 22px; color: #aaa; cursor: pointer; padding: 4px; line-height: 1; }
+        .auth-close:hover { color: #d32f2f; }
+
+        /* ===== Modalità scura ===== */
+        body.dark-mode { background: #1b1a19; color: #e6e6e6; }
+        body.dark-mode .folder-panel,
+        body.dark-mode .email-list-panel,
+        body.dark-mode .reading-pane,
+        body.dark-mode .contacts-panel,
+        body.dark-mode .calendar-panel { background: #252423; color: #e6e6e6; border-color: #3b3a39; }
+        body.dark-mode .email-item { border-bottom-color: #3b3a39; }
+        body.dark-mode .email-item:hover, body.dark-mode .folder-item:hover { background: #323130; }
+        body.dark-mode .email-item.active, body.dark-mode .folder-item.active { background: #3b3a39; }
+        body.dark-mode .reading-body, body.dark-mode .email-snippet, body.dark-mode .email-preview { color: #c8c6c4; }
+        body.dark-mode .calendar-header, body.dark-mode .calendar-grid-head { background: #252423 !important; border-color:#3b3a39 !important; }
+        body.dark-mode #calendarGrid > div { border-color: #3b3a39 !important; background: #252423; }
+        body.dark-mode .compose-modal, body.dark-mode .modal, body.dark-mode #olModalOverlay > div { background: #252423; color: #e6e6e6; }
+        body.dark-mode input, body.dark-mode textarea, body.dark-mode select,
+        body.dark-mode .compose-body-editor { background: #1b1a19; color: #e6e6e6; border-color: #3b3a39; }
+        body.dark-mode .search-bar input, body.dark-mode .contacts-search input { background: #1b1a19; color:#e6e6e6; }
+
+        /* ===== Riga menu (File/Home/Visualizza/Guida) e command bar — stile Outlook online ===== */
+        .ol-menu-row { display:flex; align-items:center; gap:0; background:#fff; border-bottom:1px solid #edebe9; padding:0 6px; height:38px; flex-shrink:0; }
+        .ol-hamburger { background:none; border:none; font-size:15px; color:#444; padding:8px 12px; cursor:pointer; border-radius:4px; }
+        .ol-hamburger:hover { background:#f3f2f1; }
+        .ol-menu-tab { background:none; border:none; font-size:13px; color:#333; padding:9px 12px; cursor:pointer; border-bottom:2px solid transparent; }
+        .ol-menu-tab:hover { background:#f3f2f1; }
+        .ol-menu-tab.active { color:#0f6cbd; border-bottom-color:#0f6cbd; font-weight:600; }
+        .ol-command-bar { display:flex; align-items:center; gap:1px; background:#fff; border-bottom:1px solid #edebe9; padding:6px 8px; flex-shrink:0; overflow-x:auto; }
+        .ol-cmd { display:flex; align-items:center; gap:7px; background:none; border:none; font-size:13px; color:#333; padding:7px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; }
+        .ol-cmd:hover { background:#f3f2f1; }
+        .ol-cmd i { color:#444; font-size:14px; }
+        .ol-cmd .ol-caret { font-size:9px; color:#888; margin-left:-2px; }
+        .ol-cmd-new { background:#0f6cbd; color:#fff !important; font-weight:600; padding:8px 16px; border-radius:4px; margin-right:6px; }
+        .ol-cmd-new i { color:#fff; }
+        .ol-cmd-new:hover { background:#0c5aa6; }
+        .ol-cmd-sep { width:1px; height:22px; background:#e6e6e6; margin:0 5px; flex-shrink:0; }
+        body.dark-mode .ol-menu-row, body.dark-mode .ol-command-bar { background:#252423; border-color:#3b3a39; }
+        body.dark-mode .ol-menu-tab, body.dark-mode .ol-cmd { color:#e6e6e6; }
+        body.dark-mode .ol-cmd i, body.dark-mode .ol-hamburger { color:#c8c6c4; }
+        @media (max-width:768px){ .ol-menu-row .ol-menu-tab { padding:9px 9px; } .ol-cmd span { display:none; } .ol-cmd-new span { display:inline; } }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Title Bar -->
+    <div class="mobile-title-bar">
+        <a href="../index.html" title="Torna alla Home" style="color:white;text-decoration:none;font-size:18px;padding:6px 8px;display:flex;align-items:center;"><i class="fas fa-arrow-left"></i></a>
+        <span class="mob-title" id="mobTitle">Posta in arrivo</span>
+        <input type="text" class="mob-search" id="mobSearch" placeholder="Cerca email..." style="display:none" onkeydown="if(event.key==='Enter'){searchEmails(this.value);this.blur();}">
+        <button onclick="toggleMobileSearch()" title="Cerca"><i class="fas fa-search"></i></button>
+        <button onclick="openCompose()" title="Nuova email"><i class="fas fa-pen"></i></button>
+        <button onclick="if(typeof OfficeLauncher!=='undefined')OfficeLauncher.toggle()" title="App Office Suite"><i class="fas fa-th"></i></button>
+        <button onclick="syncCurrentFolder()" title="Aggiorna"><i class="fas fa-sync-alt"></i></button>
+    </div>
+
+    <!-- Top Bar (Desktop) -->
+    <div class="top-bar">
+        <button class="waffle-btn" onclick="if(typeof OfficeLauncher!=='undefined')OfficeLauncher.toggle()" title="App Office Suite">
+            <div class="waffle-grid"><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span></div>
+        </button>
+        <div class="app-logo"><i class="fas fa-envelope"></i> Clone-Outlook</div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Cerca posta, persone, file..." onkeydown="if(event.key==='Enter')searchEmails(this.value)" title="Cerca email">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="top-right">
+            <button class="top-btn" onclick="syncCurrentFolder()" title="Sincronizza posta"><i class="fas fa-sync-alt"></i></button>
+            <button class="top-btn" onclick="showSettings()" title="Impostazioni"><i class="fas fa-cog"></i></button>
+            <button class="top-btn" onclick="showHelp()" title="Guida"><i class="fas fa-question-circle"></i></button>
+            <div class="user-avatar" title="Account utente" id="userAvatar">U</div>
+            <button id="btn-auth-outlook" style="padding:4px 10px;background:none;border:1px solid rgba(255,255,255,0.2);color:white;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;margin-left:4px;" onclick="toggleAuthOutlook()"><i class="fas fa-user"></i> <span id="auth-label-outlook">Utente</span></button>
+        </div>
+    </div>
+
+    <!-- Riga menu (stile Outlook online) -->
+    <div class="ol-menu-row">
+        <button class="ol-hamburger" onclick="toggleFolderPanelOL()" title="Riquadro spostamento"><i class="fas fa-bars"></i></button>
+        <button class="ol-menu-tab" onclick="showOutlookFileMenu(this)">File</button>
+        <button class="ol-menu-tab active" id="olTabHome" onclick="olMenuActivate(this)">Home</button>
+        <button class="ol-menu-tab" onclick="olMenuActivate(this)">Visualizza</button>
+        <button class="ol-menu-tab" onclick="openOutlookGuide()">Guida</button>
+    </div>
+
+    <!-- Command bar (stile Outlook online) -->
+    <div class="ol-command-bar">
+        <button class="ol-cmd ol-cmd-new" onclick="openCompose()"><i class="fas fa-edit"></i> <span>Nuovo messaggio</span></button>
+        <button class="ol-cmd" onclick="deleteCurrentEmail()" title="Elimina"><i class="fas fa-trash-can"></i> <span>Elimina</span> <i class="fas fa-chevron-down ol-caret"></i></button>
+        <button class="ol-cmd" onclick="archiveCurrentEmail()" title="Archivia"><i class="fas fa-box-archive"></i> <span>Archivia</span></button>
+        <button class="ol-cmd" onclick="reportCurrentEmail()" title="Segnala"><i class="fas fa-circle-exclamation"></i> <span>Segnala</span> <i class="fas fa-chevron-down ol-caret"></i></button>
+        <button class="ol-cmd" onclick="moveCurrentEmail()" title="Sposta in"><i class="fas fa-folder-open"></i> <span>Sposta in</span> <i class="fas fa-chevron-down ol-caret"></i></button>
+        <div class="ol-cmd-sep"></div>
+        <button class="ol-cmd" onclick="replyAllToEmail()" title="Rispondi a tutti"><i class="fas fa-reply-all"></i> <span>Rispondi a tutti</span> <i class="fas fa-chevron-down ol-caret"></i></button>
+        <button class="ol-cmd" onclick="markSelectedRead()" title="Già letto/Da leggere"><i class="fas fa-envelope-open"></i> <span>Già letto/Da leggere</span></button>
+        <button class="ol-cmd" onclick="flagCurrentEmail()" title="Aggiungi/rimuovi contrassegno"><i class="fas fa-flag"></i> <span>Aggiungi/rimuovi contrassegno</span> <i class="fas fa-chevron-down ol-caret"></i></button>
+        <div class="ol-cmd-sep"></div>
+        <button class="ol-cmd" onclick="showToast('Scopri gruppi')" title="Scopri gruppi"><i class="fas fa-user-group"></i> <span>Scopri gruppi</span></button>
+        <button class="ol-cmd" onclick="syncCurrentFolder()" title="Annulla/Aggiorna"><i class="fas fa-rotate-left"></i> <span>Annulla</span></button>
+        <button class="ol-cmd" onclick="showSettings()" title="Altro"><i class="fas fa-ellipsis"></i></button>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Nav Sidebar -->
+        <div class="nav-sidebar">
+            <button class="nav-btn active" onclick="switchView('mail')" title="Posta"><i class="fas fa-envelope"></i><span class="badge" id="navInboxBadge" style="display:none">0</span></button>
+            <button class="nav-btn" onclick="switchView('calendar')" title="Calendario"><i class="fas fa-calendar-alt"></i></button>
+            <button class="nav-btn" onclick="switchView('contacts')" title="Contatti"><i class="fas fa-user-friends"></i></button>
+            <div class="nav-spacer"></div>
+            <button class="nav-btn" onclick="showAccountSettings()" title="Gestisci account"><i class="fas fa-user-cog"></i></button>
+        </div>
+
+        <!-- Folder Panel -->
+        <div class="folder-panel" id="folderPanel">
+            <div class="folder-header">
+                <h3>Cartelle</h3>
+            </div>
+            <div class="account-selector" id="accountSelector" style="display:none">
+                <select id="accountSelect" onchange="switchAccount(this.value)" title="Seleziona account"></select>
+            </div>
+            <div class="folder-list" id="folderList">
+                <div style="padding:20px;text-align:center;color:#888;">
+                    <i class="fas fa-user-plus" style="font-size:32px;color:#ccc;display:block;margin-bottom:8px;"></i>
+                    Configura un account email per iniziare
+                    <br><br>
+                    <button class="btn-primary" onclick="showAccountSettings()" style="padding:8px 16px;border-radius:4px;border:none;cursor:pointer;">Aggiungi account</button>
+                </div>
+            </div>
+            <div class="folder-actions">
+                <button onclick="createFolder()" title="Nuova cartella"><i class="fas fa-plus"></i> Nuova cartella</button>
+            </div>
+        </div>
+
+        <!-- Email List -->
+        <div class="email-list-panel" id="emailListPanel">
+            <div class="email-list-header">
+                <h3 id="emailListTitle">Posta in arrivo</h3>
+                <div class="email-list-actions">
+                    <button onclick="selectAllEmails()" title="Seleziona tutto"><i class="fas fa-check-square"></i></button>
+                    <button onclick="markSelectedRead()" title="Segna come letto"><i class="fas fa-envelope-open"></i></button>
+                    <button onclick="deleteSelectedEmails()" title="Elimina selezionati"><i class="fas fa-trash"></i></button>
+                    <button onclick="syncCurrentFolder()" title="Aggiorna"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <div class="email-list-filter">
+                <button class="filter-btn active" onclick="setFilter('all')" title="Tutti">Tutti</button>
+                <button class="filter-btn" onclick="setFilter('unread')" title="Non letti">Non letti</button>
+                <button class="filter-btn" onclick="setFilter('starred')" title="Preferiti">Preferiti</button>
+                <button class="filter-btn" onclick="setFilter('attachments')" title="Con allegati">Allegati</button>
+            </div>
+            <div class="email-list" id="emailList">
+                <div class="email-list-empty">
+                    <i class="fas fa-inbox"></i>
+                    <p>Nessuna email in questa cartella</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Pane -->
+        <div class="reading-pane" id="readingPane">
+            <div class="reading-empty" id="readingEmpty">
+                <i class="fas fa-envelope-open-text"></i>
+                <p>Seleziona un messaggio per leggerlo</p>
+            </div>
+            <div id="readingContent" style="display:none;flex:1;display:flex;flex-direction:column;overflow:hidden;">
+                <div class="reading-header">
+                    <div class="reading-subject" id="readingSubject"></div>
+                    <div class="reading-from">
+                        <div class="reading-from-avatar" id="readingAvatar">?</div>
+                        <div class="reading-from-info">
+                            <div class="reading-from-name" id="readingFromName"></div>
+                            <div class="reading-from-email" id="readingFromEmail"></div>
+                        </div>
+                        <div class="reading-date" id="readingDate"></div>
+                    </div>
+                    <div class="reading-to" id="readingTo"></div>
+                    <div class="reading-actions">
+                        <button class="primary" onclick="replyToEmail()" title="Rispondi"><i class="fas fa-reply"></i> Rispondi</button>
+                        <button onclick="replyAllToEmail()" title="Rispondi a tutti"><i class="fas fa-reply-all"></i> Rispondi a tutti</button>
+                        <button onclick="forwardEmail()" title="Inoltra"><i class="fas fa-share"></i> Inoltra</button>
+                        <button onclick="deleteCurrentEmail()" title="Elimina"><i class="fas fa-trash"></i></button>
+                        <button onclick="moveCurrentEmail()" title="Sposta"><i class="fas fa-folder"></i></button>
+                        <button onclick="toggleCurrentStar()" title="Preferito"><i class="fas fa-star" id="readingStarIcon"></i></button>
+                        <button onclick="exportEmailToPdf('server')" title="Salva PDF su OneDrive"><i class="fas fa-cloud-upload-alt"></i></button>
+                        <button onclick="exportEmailToPdf('download')" title="Scarica PDF"><i class="fas fa-file-pdf"></i></button>
+                    </div>
+                </div>
+                <div class="reading-attachments" id="readingAttachments" style="display:none">
+                    <h4><i class="fas fa-paperclip"></i> Allegati</h4>
+                    <div class="attachment-list" id="attachmentList"></div>
+                </div>
+                <div class="reading-body">
+                    <div id="readingBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacts Panel -->
+        <div class="contacts-panel" id="contactsPanel">
+            <div class="contacts-header">
+                <h3>Contatti</h3>
+                <button class="btn-primary" onclick="showAddContact()" style="padding:6px 12px;border-radius:4px;border:none;cursor:pointer;font-size:12px;"><i class="fas fa-plus"></i> Nuovo</button>
+            </div>
+            <div class="contacts-search">
+                <input type="text" placeholder="Cerca contatti..." oninput="filterContacts(this.value)" title="Cerca contatti">
+            </div>
+            <div class="contacts-list" id="contactsList"></div>
+        </div>
+
+        <!-- Calendario -->
+        <div class="calendar-panel" id="calendarPanel" style="display:none;flex:1;flex-direction:column;background:#fff;min-width:0;">
+            <div class="calendar-header" style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #edebe9;">
+                <button onclick="calNav(-1)" title="Mese precedente" style="border:1px solid #ddd;background:#fff;border-radius:6px;width:32px;height:32px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
+                <h3 id="calTitle" style="margin:0;font-size:18px;min-width:200px;text-align:center;"></h3>
+                <button onclick="calNav(1)" title="Mese successivo" style="border:1px solid #ddd;background:#fff;border-radius:6px;width:32px;height:32px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
+                <button onclick="calToday()" style="border:1px solid #ddd;background:#fff;border-radius:6px;padding:6px 12px;cursor:pointer;">Oggi</button>
+                <button class="btn-primary" onclick="addCalendarEvent()" style="margin-left:auto;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;"><i class="fas fa-plus"></i> Nuovo evento</button>
+            </div>
+            <div class="calendar-grid-head" style="display:grid;grid-template-columns:repeat(7,1fr);background:#faf9f8;border-bottom:1px solid #edebe9;">
+                <div style="padding:8px;text-align:center;font-size:12px;color:#666;font-weight:600;">Lun</div>
+                <div style="padding:8px;text-align:center;font-size:12px;color:#666;font-weight:600;">Mar</div>
+                <div style="padding:8px;text-align:center;font-size:12px;color:#666;font-weight:600;">Mer</div>
+                <div style="padding:8px;text-align:center;font-size:12px;color:#666;font-weight:600;">Gio</div>
+                <div style="padding:8px;text-align:center;font-size:12px;color:#666;font-weight:600;">Ven</div>
+                <div style="padding:8px;text-align:center;font-size:12px;color:#666;font-weight:600;">Sab</div>
+                <div style="padding:8px;text-align:center;font-size:12px;color:#666;font-weight:600;">Dom</div>
+            </div>
+            <div id="calendarGrid" style="flex:1;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Bar -->
+    <div class="mobile-bottom-bar">
+        <button class="mob-nav-btn active" onclick="mobileNav('mail')" title="Posta"><i class="fas fa-envelope"></i><span>Posta</span></button>
+        <button class="mob-nav-btn" onclick="mobileNav('folders')" title="Cartelle"><i class="fas fa-folder"></i><span>Cartelle</span></button>
+        <button class="mob-nav-btn" onclick="mobileNav('contacts')" title="Contatti"><i class="fas fa-users"></i><span>Contatti</span></button>
+        <button class="mob-nav-btn" onclick="showAccountSettings()" title="Account"><i class="fas fa-cog"></i><span>Account</span></button>
+    </div>
+
+    <!-- Compose Modal -->
+    <div class="compose-overlay" id="composeOverlay" onclick="minimizeCompose()"></div>
+    <div class="compose-modal" id="composeModal">
+        <div class="compose-header">
+            <span id="composeTitle">Nuovo messaggio</span>
+            <button onclick="minimizeCompose()" title="Riduci"><i class="fas fa-minus"></i></button>
+            <button onclick="maximizeCompose()" title="Espandi"><i class="fas fa-expand"></i></button>
+            <button onclick="closeCompose()" title="Elimina bozza"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="compose-fields">
+            <div class="compose-field">
+                <label>A</label>
+                <input type="text" id="composeTo" placeholder="Destinatario" title="Destinatario">
+                <span class="cc-bcc-toggle" onclick="toggleCcBcc()">Cc/Ccn</span>
+            </div>
+            <div class="compose-field" id="ccField" style="display:none">
+                <label>Cc</label>
+                <input type="text" id="composeCc" placeholder="Copia conoscenza" title="Copia conoscenza">
+            </div>
+            <div class="compose-field" id="bccField" style="display:none">
+                <label>Ccn</label>
+                <input type="text" id="composeBcc" placeholder="Copia nascosta" title="Copia nascosta">
+            </div>
+        </div>
+        <div class="compose-subject">
+            <input type="text" id="composeSubject" placeholder="Aggiungi un oggetto" title="Oggetto">
+        </div>
+        <div class="compose-toolbar">
+            <select onchange="document.execCommand('fontName',false,this.value)" title="Carattere">
+                <option>Calibri</option><option>Arial</option><option>Times New Roman</option><option>Verdana</option><option>Georgia</option><option>Courier New</option>
+            </select>
+            <select onchange="document.execCommand('fontSize',false,this.value)" title="Dimensione">
+                <option value="2">10</option><option value="3" selected>12</option><option value="4">14</option><option value="5">18</option><option value="6">24</option>
+            </select>
+            <div class="sep"></div>
+            <button onclick="document.execCommand('bold')" title="Grassetto"><i class="fas fa-bold"></i></button>
+            <button onclick="document.execCommand('italic')" title="Corsivo"><i class="fas fa-italic"></i></button>
+            <button onclick="document.execCommand('underline')" title="Sottolineato"><i class="fas fa-underline"></i></button>
+            <div class="sep"></div>
+            <button onmousedown="event.preventDefault()" onclick="pickComposeColor('foreColor','Colore testo')" title="Colore testo"><i class="fas fa-font" style="color:#d13438"></i></button>
+            <button onmousedown="event.preventDefault()" onclick="pickComposeColor('hiliteColor','Colore evidenziatore')" title="Evidenziatore"><i class="fas fa-highlighter"></i></button>
+            <div class="sep"></div>
+            <button onclick="document.execCommand('insertUnorderedList')" title="Elenco puntato"><i class="fas fa-list-ul"></i></button>
+            <button onclick="document.execCommand('insertOrderedList')" title="Elenco numerato"><i class="fas fa-list-ol"></i></button>
+            <div class="sep"></div>
+            <button onclick="document.execCommand('justifyLeft')" title="Allinea a sinistra"><i class="fas fa-align-left"></i></button>
+            <button onclick="document.execCommand('justifyCenter')" title="Allinea al centro"><i class="fas fa-align-center"></i></button>
+            <button onclick="document.execCommand('justifyRight')" title="Allinea a destra"><i class="fas fa-align-right"></i></button>
+            <div class="sep"></div>
+            <button onclick="insertLink()" title="Inserisci link"><i class="fas fa-link"></i></button>
+        </div>
+        <div class="compose-attachments" id="composeAttachments" style="display:none;padding:8px 16px;border-bottom:1px solid #edebe9;background:#fafafa;">
+            <div style="font-size:12px;color:#666;margin-bottom:6px;"><i class="fas fa-paperclip"></i> Allegati</div>
+            <div id="composeAttachmentList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+        <div class="compose-body">
+            <div class="compose-body-editor" id="composeBody" contenteditable="true"></div>
+        </div>
+        <div class="compose-footer">
+            <button class="compose-send-btn" onclick="sendEmail()" title="Invia messaggio"><i class="fas fa-paper-plane"></i> Invia</button>
+            <input type="file" id="composeFileInput" multiple style="display:none" onchange="handleAttachmentSelect(this)">
+            <button onclick="document.getElementById('composeFileInput').click()" title="Allega file" style="background:none;border:1px solid #d1d1d1;cursor:pointer;padding:6px 14px;border-radius:4px;font-size:13px;display:flex;align-items:center;gap:4px;color:#444;"><i class="fas fa-paperclip"></i> Allega</button>
+            <div class="compose-footer-actions">
+                <button onclick="saveDraft()" title="Salva bozza"><i class="fas fa-save"></i></button>
+                <button onclick="closeCompose()" title="Elimina bozza"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Settings Modal -->
+    <div class="modal-overlay" id="accountModal">
+        <div class="modal" style="max-width:560px;">
+            <div class="modal-header">
+                <h2 id="accountModalTitle">Gestisci Account</h2>
+                <button onclick="closeModal('accountModal')" title="Chiudi"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="accountModalBody">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Impostazioni</h2>
+                <button onclick="closeModal('settingsModal')" title="Chiudi"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="settingsModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal" style="max-width:480px;">
+            <div class="modal-header">
+                <h2 id="contactModalTitle">Nuovo contatto</h2>
+                <button onclick="closeModal('contactModal')" title="Chiudi"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="contactModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Move Email Modal -->
+    <div class="modal-overlay" id="moveModal">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-header">
+                <h2>Sposta in...</h2>
+                <button onclick="closeModal('moveModal')" title="Chiudi"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="moveModalBody"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="../shared/app-launcher.js"></script>
+    <script>if(typeof OfficeLauncher!=='undefined')OfficeLauncher.init();</script>
+    <script>
+    // ==================== STATO APPLICAZIONE ====================
+    const APP = {
+        currentAccount: null,
+        currentFolder: null,
+        currentEmail: null,
+        accounts: [],
+        folders: [],
+        emails: [],
+        contacts: [],
+        filter: 'all',
+        composeDraftId: null,
+        composeReplyTo: null,
+        composeAttachments: [],
+        selectedEmails: new Set(),
+        idbReady: false
+    };
+
+    const API_URL = 'api.php';
+
+    // ==================== INDEXEDDB ====================
+    let idb = null;
+
+    function openIndexedDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('OutlookClone', 2);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('emails')) {
+                    const store = db.createObjectStore('emails', { keyPath: 'id' });
+                    store.createIndex('folder_id', 'folder_id');
+                    store.createIndex('account_id', 'account_id');
+                    store.createIndex('date', 'date');
+                }
+                if (!db.objectStoreNames.contains('folders')) {
+                    db.createObjectStore('folders', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('accounts')) {
+                    db.createObjectStore('accounts', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('contacts')) {
+                    db.createObjectStore('contacts', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('cache')) {
+                    db.createObjectStore('cache', { keyPath: 'key' });
+                }
+            };
+            req.onsuccess = (e) => { idb = e.target.result; APP.idbReady = true; resolve(idb); };
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    function idbPut(store, data) {
+        if (!idb) return;
+        const tx = idb.transaction(store, 'readwrite');
+        const s = tx.objectStore(store);
+        if (Array.isArray(data)) data.forEach(d => s.put(d));
+        else s.put(data);
+    }
+
+    function idbGet(store, key) {
+        return new Promise((resolve) => {
+            if (!idb) { resolve(null); return; }
+            const tx = idb.transaction(store, 'readonly');
+            const req = tx.objectStore(store).get(key);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(null);
+        });
+    }
+
+    function idbGetAll(store, indexName, value) {
+        return new Promise((resolve) => {
+            if (!idb) { resolve([]); return; }
+            const tx = idb.transaction(store, 'readonly');
+            const s = tx.objectStore(store);
+            let req;
+            if (indexName && value !== undefined) {
+                const idx = s.index(indexName);
+                req = idx.getAll(IDBKeyRange.only(value));
+            } else {
+                req = s.getAll();
+            }
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => resolve([]);
+        });
+    }
+
+    function idbClear(store) {
+        if (!idb) return;
+        const tx = idb.transaction(store, 'readwrite');
+        tx.objectStore(store).clear();
+    }
+
+    // ==================== API CALLS ====================
+    async function apiCall(action, data = {}) {
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, ...data })
+            });
+            const result = await response.json();
+            if (!result.success) throw new Error(result.error || 'Errore sconosciuto');
+            return result.data;
+        } catch (e) {
+            if (e.message.includes('Failed to fetch')) {
+                showToast('Errore di connessione al server', 'error');
+                throw e;
+            }
+            throw e;
+        }
+    }
+
+    // ==================== INIZIALIZZAZIONE ====================
+    async function init() {
+        try {
+            await openIndexedDB();
+        } catch(e) {
+            console.warn('IndexedDB non disponibile, uso solo server');
+        }
+
+        try {
+            await loadAccounts();
+            if (APP.accounts.length > 0) {
+                APP.currentAccount = APP.accounts.find(a => a.is_default) || APP.accounts[0];
+                await loadFolders();
+                // Seleziona Posta in arrivo
+                const inbox = APP.folders.find(f => f.type === 'inbox' && f.account_id == APP.currentAccount.id);
+                if (inbox) {
+                    APP.currentFolder = inbox;
+                    await loadEmails();
+                }
+            }
+            renderAll();
+        } catch(e) {
+            console.error('Init error:', e);
+            renderAll();
+        }
+
+        // Close app launcher on outside click
+        document.addEventListener('click', function(e) {
+            if (typeof OfficeLauncher !== 'undefined' && !e.target.closest('.waffle-btn') && !e.target.closest('[onclick*="OfficeLauncher"]') && !e.target.closest('.app-launcher-panel') && !e.target.closest('.fa-th')) {
+                OfficeLauncher.close();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'n') { e.preventDefault(); openCompose(); }
+            if (e.key === 'Delete' && APP.currentEmail && !document.querySelector('.compose-modal[style*="flex"]')) { deleteCurrentEmail(); }
+            if (e.ctrlKey && e.key === 'r') { e.preventDefault(); replyToEmail(); }
+            if (e.ctrlKey && e.key === 'f') { e.preventDefault(); document.getElementById('searchInput')?.focus(); }
+        });
+    }
+
+    // ==================== DATA LOADING ====================
+    async function loadAccounts() {
+        try {
+            APP.accounts = await apiCall('account_list');
+            idbPut('accounts', APP.accounts);
+            renderAccountSelector();
+        } catch(e) {
+            // Try IndexedDB cache
+            APP.accounts = await idbGetAll('accounts');
+        }
+    }
+
+    async function loadFolders() {
+        if (!APP.currentAccount) return;
+        try {
+            APP.folders = await apiCall('folder_list', { account_id: APP.currentAccount.id });
+            idbPut('folders', APP.folders);
+        } catch(e) {
+            APP.folders = await idbGetAll('folders', 'account_id', APP.currentAccount.id);
+        }
+        renderFolders();
+    }
+
+    async function loadEmails(page = 1) {
+        if (!APP.currentFolder) return;
+        try {
+            const result = await apiCall('email_list', {
+                folder_id: APP.currentFolder.id,
+                account_id: APP.currentAccount.id,
+                page: page,
+                per_page: 50
+            });
+            APP.emails = result.emails || [];
+            idbPut('emails', APP.emails);
+        } catch(e) {
+            APP.emails = await idbGetAll('emails', 'folder_id', APP.currentFolder.id);
+        }
+        renderEmailList();
+    }
+
+    async function loadContacts() {
+        if (!APP.currentAccount) return;
+        try {
+            APP.contacts = await apiCall('contact_list', { account_id: APP.currentAccount.id });
+            idbPut('contacts', APP.contacts);
+        } catch(e) {
+            APP.contacts = await idbGetAll('contacts');
+        }
+        renderContacts();
+    }
+
+    // ==================== SYNC ====================
+    async function syncCurrentFolder() {
+        if (!APP.currentAccount || !APP.currentFolder) {
+            showToast('Nessun account o cartella selezionata');
+            return;
+        }
+        showToast('Sincronizzazione in corso...');
+        try {
+            const result = await apiCall('email_fetch', {
+                account_id: APP.currentAccount.id,
+                folder_id: APP.currentFolder.id,
+                limit: 50
+            });
+            showToast('Scaricate ' + result.fetched + ' nuove email');
+            await loadEmails();
+            await loadFolders();
+        } catch(e) {
+            showToast('Errore: ' + e.message, 'error');
+        }
+    }
+
+    // ==================== RENDERING ====================
+    function renderAll() {
+        renderAccountSelector();
+        renderFolders();
+        renderEmailList();
+        updateBadges();
+    }
+
+    function renderAccountSelector() {
+        const sel = document.getElementById('accountSelect');
+        const container = document.getElementById('accountSelector');
+        if (APP.accounts.length <= 1) { container.style.display = 'none'; return; }
+        container.style.display = 'block';
+        sel.innerHTML = APP.accounts.map(a =>
+            '<option value="' + a.id + '"' + (APP.currentAccount && a.id == APP.currentAccount.id ? ' selected' : '') + '>' + escHtml(a.email) + '</option>'
+        ).join('');
+    }
+
+    function renderFolders() {
+        const list = document.getElementById('folderList');
+        if (APP.accounts.length === 0) {
+            list.innerHTML = '<div style="padding:20px;text-align:center;color:#888;"><i class="fas fa-user-plus" style="font-size:32px;color:#ccc;display:block;margin-bottom:8px;"></i>Configura un account email per iniziare<br><br><button class="btn-primary" onclick="showAccountSettings()" style="padding:8px 16px;border-radius:4px;border:none;cursor:pointer;">Aggiungi account</button></div>';
+            return;
+        }
+
+        const accountFolders = APP.folders.filter(f => f.account_id == APP.currentAccount?.id);
+        const system = accountFolders.filter(f => f.type !== 'custom').sort((a,b) => a.sort_order - b.sort_order);
+        const custom = accountFolders.filter(f => f.type === 'custom');
+
+        let html = '';
+        system.forEach(f => {
+            const isActive = APP.currentFolder && APP.currentFolder.id == f.id;
+            html += '<div class="folder-item' + (isActive ? ' active' : '') + '" onclick="selectFolder(' + f.id + ')" title="' + escHtml(f.name) + '">';
+            html += '<i class="fas ' + (f.icon || 'fa-folder') + '"></i>';
+            html += '<span class="folder-name">' + escHtml(f.name) + '</span>';
+            if (f.unread_count > 0) html += '<span class="folder-count">' + f.unread_count + '</span>';
+            html += '</div>';
+        });
+
+        if (custom.length > 0) {
+            html += '<div class="folder-section">Cartelle personalizzate</div>';
+            custom.forEach(f => {
+                const isActive = APP.currentFolder && APP.currentFolder.id == f.id;
+                html += '<div class="folder-item' + (isActive ? ' active' : '') + '" onclick="selectFolder(' + f.id + ')" title="' + escHtml(f.name) + '">';
+                html += '<i class="fas fa-folder"></i>';
+                html += '<span class="folder-name">' + escHtml(f.name) + '</span>';
+                if (f.unread_count > 0) html += '<span class="folder-count">' + f.unread_count + '</span>';
+                html += '</div>';
+            });
+        }
+
+        list.innerHTML = html;
+    }
+
+    function renderEmailList() {
+        const container = document.getElementById('emailList');
+        const title = document.getElementById('emailListTitle');
+        const mobTitle = document.getElementById('mobTitle');
+
+        if (APP.currentFolder) {
+            title.textContent = APP.currentFolder.name;
+            if (mobTitle) mobTitle.textContent = APP.currentFolder.name;
+        }
+
+        let emails = [...APP.emails];
+
+        // Filtri
+        if (APP.filter === 'unread') emails = emails.filter(e => !e.is_read);
+        if (APP.filter === 'starred') emails = emails.filter(e => e.is_starred);
+        if (APP.filter === 'attachments') emails = emails.filter(e => e.has_attachments);
+
+        if (emails.length === 0) {
+            container.innerHTML = '<div class="email-list-empty"><i class="fas fa-inbox"></i><p>' +
+                (APP.filter !== 'all' ? 'Nessuna email con questo filtro' : 'Nessuna email in questa cartella') +
+                '</p></div>';
+            return;
+        }
+
+        container.innerHTML = emails.map(email => {
+            const isActive = APP.currentEmail && APP.currentEmail.id == email.id;
+            const initials = getInitials(email.from_name || email.from_email);
+            const color = stringToColor(email.from_email || '');
+            const dateStr = formatDate(email.date);
+            const preview = escHtml((email.preview || '').replace(/\s+/g, ' ').trim());
+
+            return '<div class="email-item' + (!email.is_read ? ' unread' : '') + (isActive ? ' active' : '') + '" onclick="openEmail(' + email.id + ')" data-id="' + email.id + '">' +
+                '<div class="email-avatar" style="background:' + color + '">' + initials + '</div>' +
+                '<div class="email-content">' +
+                '<div class="email-top-row"><span class="email-sender">' + escHtml(email.from_name || email.from_email || 'Sconosciuto') + '</span><span class="email-date">' + dateStr + '</span></div>' +
+                '<div class="email-subject">' + escHtml(email.subject || '(nessun oggetto)') + '</div>' +
+                '<div class="email-preview">' + preview + '</div>' +
+                '<div class="email-indicators">' +
+                (email.has_attachments ? '<i class="fas fa-paperclip" title="Allegati"></i>' : '') +
+                (email.is_starred ? '<i class="fas fa-star starred" title="Preferito"></i>' : '') +
+                (email.priority && email.priority < 3 ? '<i class="fas fa-exclamation-circle" style="color:#d13438" title="Alta priorita"></i>' : '') +
+                '</div></div>' +
+                '<button class="email-star-btn' + (email.is_starred ? ' starred' : '') + '" onclick="event.stopPropagation();toggleStar(' + email.id + ')" title="Preferito"><i class="fa' + (email.is_starred ? 's' : 'r') + ' fa-star"></i></button>' +
+                '</div>';
+        }).join('');
+    }
+
+    function renderReadingPane(email) {
+        if (!email) {
+            document.getElementById('readingEmpty').style.display = 'flex';
+            document.getElementById('readingContent').style.display = 'none';
+            return;
+        }
+
+        document.getElementById('readingEmpty').style.display = 'none';
+        document.getElementById('readingContent').style.display = 'flex';
+
+        document.getElementById('readingSubject').textContent = email.subject || '(nessun oggetto)';
+        document.getElementById('readingFromName').textContent = email.from_name || email.from_email || 'Sconosciuto';
+        document.getElementById('readingFromEmail').textContent = '<' + (email.from_email || '') + '>';
+        document.getElementById('readingAvatar').textContent = getInitials(email.from_name || email.from_email);
+        document.getElementById('readingAvatar').style.background = stringToColor(email.from_email || '');
+        document.getElementById('readingTo').innerHTML = '<strong>A:</strong> ' + escHtml(email.to_addresses || '');
+        if (email.cc_addresses) {
+            document.getElementById('readingTo').innerHTML += '<br><strong>Cc:</strong> ' + escHtml(email.cc_addresses);
+        }
+        document.getElementById('readingDate').textContent = formatDateFull(email.date);
+        document.getElementById('readingStarIcon').className = 'fas fa-star' + (email.is_starred ? '' : '');
+        document.getElementById('readingStarIcon').style.color = email.is_starred ? '#ffc107' : '#ccc';
+
+        // Body
+        const bodyDiv = document.getElementById('readingBody');
+        if (email.body_html) {
+            // Sanitize and display HTML
+            bodyDiv.innerHTML = sanitizeHtml(email.body_html);
+        } else {
+            bodyDiv.innerHTML = '<pre style="white-space:pre-wrap;font-family:inherit;">' + escHtml(email.body_text || '') + '</pre>';
+        }
+
+        // Allegati
+        const attDiv = document.getElementById('readingAttachments');
+        const attList = document.getElementById('attachmentList');
+        if (email.attachments && email.attachments.length > 0) {
+            attDiv.style.display = 'block';
+            attList.innerHTML = email.attachments.map(att =>
+                '<div class="attachment-item" onclick="downloadAttachment(' + att.id + ')" title="' + escHtml(att.filename) + '">' +
+                '<i class="fas ' + getFileIcon(att.mime_type) + '"></i>' +
+                '<span>' + escHtml(att.filename) + '</span>' +
+                '<span style="color:#888;font-size:11px;">(' + formatSize(att.size) + ')</span></div>'
+            ).join('');
+        } else {
+            attDiv.style.display = 'none';
+        }
+    }
+
+    function renderContacts() {
+        const list = document.getElementById('contactsList');
+        if (APP.contacts.length === 0) {
+            list.innerHTML = '<div style="padding:30px;text-align:center;color:#888;"><i class="fas fa-address-book" style="font-size:32px;color:#ccc;display:block;margin-bottom:8px;"></i>Nessun contatto salvato</div>';
+            return;
+        }
+        list.innerHTML = APP.contacts.map(c => {
+            const initials = getInitials(c.name || c.email);
+            const color = stringToColor(c.email);
+            return '<div class="contact-item" onclick="showContactDetail(' + c.id + ')">' +
+                '<div class="contact-avatar" style="background:' + color + '">' + initials + '</div>' +
+                '<div class="contact-info"><div class="contact-name">' + escHtml(c.name || c.email) + '</div>' +
+                '<div class="contact-email">' + escHtml(c.email) + '</div></div>' +
+                (c.is_favorite ? '<i class="fas fa-star" style="color:#ffc107"></i>' : '') +
+                '</div>';
+        }).join('');
+    }
+
+    function updateBadges() {
+        const inbox = APP.folders.find(f => f.type === 'inbox' && f.account_id == APP.currentAccount?.id);
+        const badge = document.getElementById('navInboxBadge');
+        if (inbox && inbox.unread_count > 0) {
+            badge.textContent = inbox.unread_count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    // ==================== AZIONI ====================
+    async function selectFolder(folderId) {
+        const folder = APP.folders.find(f => f.id == folderId);
+        if (!folder) return;
+        APP.currentFolder = folder;
+        APP.currentEmail = null;
+        APP.filter = 'all';
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.filter-btn')?.classList.add('active');
+        renderFolders();
+        renderReadingPane(null);
+        await loadEmails();
+
+        // Mobile: torna alla lista email
+        document.body.classList.remove('mobile-folders', 'mobile-reading', 'mobile-contacts');
+    }
+
+    async function openEmail(emailId) {
+        try {
+            const email = await apiCall('email_get', { id: emailId });
+            APP.currentEmail = email;
+            renderReadingPane(email);
+            renderEmailList();
+
+            // Segna come letto
+            if (!email.is_read) {
+                await apiCall('email_mark_read', { id: emailId, is_read: 1 });
+                const idx = APP.emails.findIndex(e => e.id == emailId);
+                if (idx > -1) APP.emails[idx].is_read = 1;
+                renderEmailList();
+                await loadFolders();
+            }
+
+            // Mobile: mostra reading pane
+            document.body.classList.add('mobile-reading');
+            document.body.classList.remove('mobile-folders', 'mobile-contacts');
+        } catch(e) {
+            showToast('Errore: ' + e.message, 'error');
+        }
+    }
+
+    async function toggleStar(emailId) {
+        const email = APP.emails.find(e => e.id == emailId);
+        if (!email) return;
+        const newStar = email.is_starred ? 0 : 1;
+        try {
+            await apiCall('email_star', { id: emailId, is_starred: newStar });
+            email.is_starred = newStar;
+            if (APP.currentEmail && APP.currentEmail.id == emailId) APP.currentEmail.is_starred = newStar;
+            renderEmailList();
+            renderReadingPane(APP.currentEmail);
+        } catch(e) {
+            showToast('Errore: ' + e.message, 'error');
+        }
+    }
+
+    function toggleCurrentStar() {
+        if (APP.currentEmail) toggleStar(APP.currentEmail.id);
+    }
+
+    // --- Azioni command bar (stile Outlook online) ---
+    function flagCurrentEmail() {
+        if (!APP.currentEmail) { showToast('Seleziona un messaggio'); return; }
+        toggleCurrentStar();
+        showToast(APP.currentEmail.is_starred ? 'Contrassegno aggiunto' : 'Contrassegno rimosso');
+    }
+    async function archiveCurrentEmail() {
+        if (!APP.currentEmail) { showToast('Seleziona un messaggio'); return; }
+        const arch = APP.folders.find(f => (f.type === 'archive' || /archi/i.test(f.name)) && f.account_id == APP.currentAccount?.id);
+        if (!arch) { showToast('Nessuna cartella Archivio configurata'); return; }
+        try {
+            await apiCall('email_move', { id: APP.currentEmail.id, folder_id: arch.id });
+            APP.currentEmail = null;
+            await loadFolders(); await loadEmails();
+            showToast('Messaggio archiviato');
+        } catch (e) { showToast('Errore: ' + e.message, 'error'); }
+    }
+    async function reportCurrentEmail() {
+        if (!APP.currentEmail) { showToast('Seleziona un messaggio'); return; }
+        const junk = APP.folders.find(f => (f.type === 'junk' || /indesider|spam/i.test(f.name)) && f.account_id == APP.currentAccount?.id);
+        if (junk) {
+            try { await apiCall('email_move', { id: APP.currentEmail.id, folder_id: junk.id }); APP.currentEmail = null; await loadFolders(); await loadEmails(); showToast('Segnalato come indesiderato'); return; }
+            catch (e) {}
+        }
+        showToast('Messaggio segnalato');
+    }
+    // mostra/nascondi il riquadro cartelle (icona ☰ della riga menu)
+    function toggleFolderPanelOL() {
+        const fp = document.getElementById('folderPanel');
+        if (!fp) return;
+        fp.style.display = (getComputedStyle(fp).display === 'none') ? '' : 'none';
+    }
+
+    // riga menu: sposta la sottolineatura (tab attivo) sul tab cliccato
+    function olMenuActivate(btn) {
+        document.querySelectorAll('.ol-menu-tab').forEach(t => t.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+    }
+
+    // apre la guida dedicata (come le altre app della suite)
+    function openOutlookGuide() {
+        window.open('guida.html', '_blank');
+    }
+
+    // tab File: piccolo menu backstage (non apre direttamente le impostazioni)
+    function showOutlookFileMenu(btn) {
+        const old = document.getElementById('olFileMenu');
+        if (old) { old.remove(); return; }
+        const r = btn.getBoundingClientRect();
+        const m = document.createElement('div');
+        m.id = 'olFileMenu';
+        m.style.cssText = `position:fixed;top:${r.bottom + 2}px;left:${r.left}px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.18);z-index:100000;min-width:230px;padding:6px;font-size:13px;`;
+        const item = (icon, label, fn) => `<button onclick="document.getElementById('olFileMenu').remove(); ${fn}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;background:none;padding:9px 12px;border-radius:6px;cursor:pointer;font-size:13px;color:#333;" onmouseenter="this.style.background='#f3f2f1'" onmouseleave="this.style.background='none'"><i class="fas ${icon}" style="width:16px;color:#0f6cbd;"></i> ${label}</button>`;
+        m.innerHTML =
+            item('fa-pen-to-square', 'Nuovo messaggio', 'openCompose()') +
+            item('fa-user-gear', 'Impostazioni account', 'showAccountSettings()') +
+            item('fa-gear', 'Impostazioni', 'showSettings()') +
+            item('fa-circle-question', 'Guida', 'openOutlookGuide()') +
+            `<div style="height:1px;background:#eee;margin:4px 0;"></div>` +
+            item('fa-house', 'Torna alla Home', "window.location.href='../index.html'");
+        document.body.appendChild(m);
+        setTimeout(() => {
+            const close = (e) => { if (!m.contains(e.target) && e.target !== btn) { m.remove(); document.removeEventListener('click', close); } };
+            document.addEventListener('click', close);
+        }, 0);
+    }
+
+    async function deleteCurrentEmail() {
+        if (!APP.currentEmail) return;
+        const trashFolder = APP.folders.find(f => f.type === 'trash' && f.account_id == APP.currentAccount?.id);
+        if (trashFolder && APP.currentFolder?.type !== 'trash') {
+            // Sposta nel cestino
+            try {
+                await apiCall('email_move', { id: APP.currentEmail.id, folder_id: trashFolder.id });
+                showToast('Spostato nel cestino');
+            } catch(e) { showToast('Errore: ' + e.message, 'error'); return; }
+        } else {
+            // Elimina definitivamente
+            if (!confirm('Eliminare definitivamente questa email?')) return;
+            try {
+                await apiCall('email_delete', { id: APP.currentEmail.id });
+                showToast('Email eliminata');
+            } catch(e) { showToast('Errore: ' + e.message, 'error'); return; }
+        }
+        APP.currentEmail = null;
+        renderReadingPane(null);
+        await loadEmails();
+        await loadFolders();
+        document.body.classList.remove('mobile-reading');
+    }
+
+    async function deleteSelectedEmails() {
+        if (APP.selectedEmails.size === 0) { showToast('Nessuna email selezionata'); return; }
+        const ids = Array.from(APP.selectedEmails);
+        const trashFolder = APP.folders.find(f => f.type === 'trash' && f.account_id == APP.currentAccount?.id);
+        try {
+            if (trashFolder && APP.currentFolder?.type !== 'trash') {
+                await apiCall('email_move', { id: ids, folder_id: trashFolder.id });
+            } else {
+                await apiCall('email_delete', { id: ids });
+            }
+            APP.selectedEmails.clear();
+            await loadEmails();
+            await loadFolders();
+            showToast(ids.length + ' email spostate');
+        } catch(e) { showToast('Errore: ' + e.message, 'error'); }
+    }
+
+    function moveCurrentEmail() {
+        if (!APP.currentEmail) return;
+        const body = document.getElementById('moveModalBody');
+        const accountFolders = APP.folders.filter(f => f.account_id == APP.currentAccount?.id);
+        body.innerHTML = accountFolders.map(f =>
+            '<div class="folder-item" onclick="doMoveEmail(' + APP.currentEmail.id + ',' + f.id + ')" style="cursor:pointer">' +
+            '<i class="fas ' + (f.icon || 'fa-folder') + '"></i> ' + escHtml(f.name) + '</div>'
+        ).join('');
+        showModal('moveModal');
+    }
+
+    async function doMoveEmail(emailId, folderId) {
+        try {
+            await apiCall('email_move', { id: emailId, folder_id: folderId });
+            closeModal('moveModal');
+            showToast('Email spostata');
+            APP.currentEmail = null;
+            renderReadingPane(null);
+            await loadEmails();
+            await loadFolders();
+        } catch(e) { showToast('Errore: ' + e.message, 'error'); }
+    }
+
+    async function markSelectedRead() {
+        const ids = APP.selectedEmails.size > 0 ? Array.from(APP.selectedEmails) : APP.emails.filter(e => !e.is_read).map(e => e.id);
+        if (ids.length === 0) return;
+        try {
+            await apiCall('email_mark_read', { id: ids, is_read: 1 });
+            await loadEmails();
+            await loadFolders();
+            showToast(ids.length + ' email segnate come lette');
+        } catch(e) { showToast('Errore: ' + e.message, 'error'); }
+    }
+
+    function selectAllEmails() {
+        if (APP.selectedEmails.size === APP.emails.length) {
+            APP.selectedEmails.clear();
+        } else {
+            APP.emails.forEach(e => APP.selectedEmails.add(e.id));
+        }
+        renderEmailList();
+    }
+
+    async function searchEmails(query) {
+        if (!query.trim()) { await loadEmails(); return; }
+        try {
+            const result = await apiCall('email_search', { query, account_id: APP.currentAccount?.id });
+            APP.emails = result.emails || [];
+            document.getElementById('emailListTitle').textContent = 'Risultati: "' + query + '"';
+            renderEmailList();
+        } catch(e) { showToast('Errore ricerca: ' + e.message, 'error'); }
+    }
+
+    function setFilter(filter) {
+        APP.filter = filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        renderEmailList();
+    }
+
+    // ==================== COMPOSE ====================
+    function openCompose(options = {}) {
+        APP.composeDraftId = null;
+        APP.composeReplyTo = null;
+        APP.composeAttachments = [];
+
+        document.getElementById('composeTo').value = options.to || '';
+        document.getElementById('composeCc').value = options.cc || '';
+        document.getElementById('composeBcc').value = options.bcc || '';
+        document.getElementById('composeSubject').value = options.subject || '';
+        document.getElementById('composeBody').innerHTML = options.body || getSignature();
+        document.getElementById('composeTitle').textContent = options.title || 'Nuovo messaggio';
+        document.getElementById('composeFileInput').value = '';
+        document.getElementById('composeAttachments').style.display = 'none';
+        document.getElementById('composeAttachmentList').innerHTML = '';
+
+        if (options.inReplyTo) APP.composeReplyTo = options.inReplyTo;
+        if (options.draftId) APP.composeDraftId = options.draftId;
+
+        document.getElementById('composeModal').style.display = 'flex';
+        document.getElementById('composeOverlay').style.display = 'block';
+
+        if (!options.to) document.getElementById('composeTo').focus();
+    }
+
+    function handleAttachmentSelect(input) {
+        const files = Array.from(input.files);
+        files.forEach(file => {
+            // Limite 25MB per file
+            if (file.size > 25 * 1024 * 1024) {
+                showToast('File troppo grande (max 25MB): ' + file.name, 'error');
+                return;
+            }
+            APP.composeAttachments.push(file);
+        });
+        renderComposeAttachments();
+        input.value = '';
+    }
+
+    function removeComposeAttachment(index) {
+        APP.composeAttachments.splice(index, 1);
+        renderComposeAttachments();
+    }
+
+    function renderComposeAttachments() {
+        const container = document.getElementById('composeAttachmentList');
+        const wrapper = document.getElementById('composeAttachments');
+        if (APP.composeAttachments.length === 0) {
+            wrapper.style.display = 'none';
+            return;
+        }
+        wrapper.style.display = 'block';
+        container.innerHTML = APP.composeAttachments.map((file, i) =>
+            '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:white;border:1px solid #d1d1d1;border-radius:4px;font-size:12px;">' +
+            '<i class="fas ' + getFileIcon(file.type) + '" style="color:#0078d4;"></i>' +
+            '<span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(file.name) + '</span>' +
+            '<span style="color:#888;">(' + formatSize(file.size) + ')</span>' +
+            '<button onclick="removeComposeAttachment(' + i + ')" style="background:none;border:none;cursor:pointer;color:#d13438;padding:2px 4px;font-size:12px;" title="Rimuovi"><i class="fas fa-times"></i></button>' +
+            '</div>'
+        ).join('');
+    }
+
+    function closeCompose() {
+        document.getElementById('composeModal').style.display = 'none';
+        document.getElementById('composeOverlay').style.display = 'none';
+    }
+
+    function minimizeCompose() {
+        const modal = document.getElementById('composeModal');
+        if (modal.style.maxHeight === '48px') {
+            modal.style.maxHeight = '';
+            modal.style.overflow = '';
+        } else {
+            modal.style.maxHeight = '48px';
+            modal.style.overflow = 'hidden';
+        }
+    }
+
+    function maximizeCompose() {
+        const modal = document.getElementById('composeModal');
+        const isMobile = window.innerWidth <= 768;
+        if (modal.dataset.maximized === '1') {
+            // Ripristina
+            modal.dataset.maximized = '0';
+            modal.style.width = '';
+            modal.style.height = '';
+            modal.style.top = '';
+            modal.style.right = isMobile ? '0' : '20px';
+            modal.style.left = '';
+            modal.style.bottom = '0';
+            modal.style.borderRadius = isMobile ? '0' : '8px 8px 0 0';
+            modal.style.maxHeight = isMobile ? '100vh' : '80vh';
+        } else {
+            // Fullscreen
+            modal.dataset.maximized = '1';
+            modal.style.width = '100%';
+            modal.style.height = '100vh';
+            modal.style.maxHeight = '100vh';
+            modal.style.top = '0';
+            modal.style.right = '0';
+            modal.style.left = '0';
+            modal.style.bottom = '0';
+            modal.style.borderRadius = '0';
+        }
+    }
+
+    function toggleCcBcc() {
+        const cc = document.getElementById('ccField');
+        const bcc = document.getElementById('bccField');
+        cc.style.display = cc.style.display === 'none' ? 'flex' : 'none';
+        bcc.style.display = bcc.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function insertLink() {
+        const sel = window.getSelection();
+        const range = (sel && sel.rangeCount) ? sel.getRangeAt(0).cloneRange() : null;
+        olFormModal('Inserisci link', [{ name: 'url', label: 'URL del link', value: 'https://' }], (v) => {
+            if (!v.url) return;
+            const body = document.getElementById('composeBody');
+            body.focus();
+            if (range) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(range); }
+            document.execCommand('createLink', false, v.url);
+        }, { icon: 'fa-link' });
+    }
+
+    function getSignature() {
+        if (APP.currentAccount && APP.currentAccount.signature) {
+            return '<br><br><div style="color:#888;border-top:1px solid #eee;padding-top:8px;margin-top:8px;">' + APP.currentAccount.signature + '</div>';
+        }
+        return '<br>';
+    }
+
+    async function sendEmail() {
+        const to = document.getElementById('composeTo').value.trim();
+        const cc = document.getElementById('composeCc').value.trim();
+        const bcc = document.getElementById('composeBcc').value.trim();
+        const subject = document.getElementById('composeSubject').value.trim();
+        const bodyHtml = document.getElementById('composeBody').innerHTML;
+
+        if (!to) { showToast('Inserisci un destinatario', 'error'); return; }
+        if (!APP.currentAccount) { showToast('Nessun account configurato', 'error'); return; }
+
+        showToast('Invio in corso...');
+
+        try {
+            // Usa FormData se ci sono allegati
+            if (APP.composeAttachments && APP.composeAttachments.length > 0) {
+                const formData = new FormData();
+                formData.append('action', 'email_send');
+                formData.append('account_id', APP.currentAccount.id);
+                formData.append('to', to);
+                formData.append('cc', cc);
+                formData.append('bcc', bcc);
+                formData.append('subject', subject);
+                formData.append('body_html', bodyHtml);
+                formData.append('in_reply_to', APP.composeReplyTo || '');
+                APP.composeAttachments.forEach((file, i) => {
+                    formData.append('attachments[]', file);
+                });
+
+                const response = await fetch(API_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Errore invio');
+            } else {
+                await apiCall('email_send', {
+                    account_id: APP.currentAccount.id,
+                    to, cc, bcc, subject, body_html: bodyHtml,
+                    in_reply_to: APP.composeReplyTo || ''
+                });
+            }
+            showToast('Email inviata!');
+            closeCompose();
+
+            // Se bozza, elimina
+            if (APP.composeDraftId) {
+                await apiCall('email_delete', { id: APP.composeDraftId });
+            }
+        } catch(e) {
+            showToast('Errore invio: ' + e.message, 'error');
+        }
+    }
+
+    async function saveDraft() {
+        if (!APP.currentAccount) { showToast('Nessun account configurato', 'error'); return; }
+
+        try {
+            const result = await apiCall('email_save_draft', {
+                account_id: APP.currentAccount.id,
+                draft_id: APP.composeDraftId || null,
+                to: document.getElementById('composeTo').value,
+                cc: document.getElementById('composeCc').value,
+                bcc: document.getElementById('composeBcc').value,
+                subject: document.getElementById('composeSubject').value,
+                body_html: document.getElementById('composeBody').innerHTML
+            });
+            APP.composeDraftId = result.id;
+            showToast('Bozza salvata');
+        } catch(e) {
+            showToast('Errore: ' + e.message, 'error');
+        }
+    }
+
+    function replyToEmail() {
+        if (!APP.currentEmail) return;
+        openCompose({
+            to: APP.currentEmail.from_email,
+            subject: 'Re: ' + (APP.currentEmail.subject || '').replace(/^Re:\s*/i, ''),
+            body: '<br><br><div style="border-left:2px solid #0078d4;padding-left:12px;margin-left:4px;color:#666;">' +
+                '<p><strong>Il ' + formatDateFull(APP.currentEmail.date) + ', ' + escHtml(APP.currentEmail.from_name || APP.currentEmail.from_email) + ' ha scritto:</strong></p>' +
+                (APP.currentEmail.body_html || '<pre>' + escHtml(APP.currentEmail.body_text || '') + '</pre>') + '</div>' + getSignature(),
+            title: 'Rispondi',
+            inReplyTo: APP.currentEmail.message_id
+        });
+    }
+
+    function replyAllToEmail() {
+        if (!APP.currentEmail) return;
+        let allTo = APP.currentEmail.from_email;
+        if (APP.currentEmail.to_addresses) {
+            const others = APP.currentEmail.to_addresses.split(',').filter(a => !a.includes(APP.currentAccount?.email)).join(', ');
+            if (others.trim()) allTo += ', ' + others;
+        }
+        openCompose({
+            to: allTo,
+            cc: APP.currentEmail.cc_addresses || '',
+            subject: 'Re: ' + (APP.currentEmail.subject || '').replace(/^Re:\s*/i, ''),
+            body: '<br><br><div style="border-left:2px solid #0078d4;padding-left:12px;margin-left:4px;color:#666;">' +
+                '<p><strong>Il ' + formatDateFull(APP.currentEmail.date) + ', ' + escHtml(APP.currentEmail.from_name || APP.currentEmail.from_email) + ' ha scritto:</strong></p>' +
+                (APP.currentEmail.body_html || '<pre>' + escHtml(APP.currentEmail.body_text || '') + '</pre>') + '</div>' + getSignature(),
+            title: 'Rispondi a tutti',
+            inReplyTo: APP.currentEmail.message_id
+        });
+    }
+
+    function forwardEmail() {
+        if (!APP.currentEmail) return;
+        openCompose({
+            subject: 'Fwd: ' + (APP.currentEmail.subject || '').replace(/^Fwd:\s*/i, ''),
+            body: '<br><br><div style="border-top:1px solid #ccc;padding-top:12px;margin-top:8px;">' +
+                '<p><strong>---------- Messaggio inoltrato ----------</strong></p>' +
+                '<p>Da: ' + escHtml(APP.currentEmail.from_name || '') + ' &lt;' + escHtml(APP.currentEmail.from_email || '') + '&gt;</p>' +
+                '<p>Data: ' + formatDateFull(APP.currentEmail.date) + '</p>' +
+                '<p>Oggetto: ' + escHtml(APP.currentEmail.subject || '') + '</p>' +
+                '<p>A: ' + escHtml(APP.currentEmail.to_addresses || '') + '</p><br>' +
+                (APP.currentEmail.body_html || '<pre>' + escHtml(APP.currentEmail.body_text || '') + '</pre>') + '</div>' + getSignature(),
+            title: 'Inoltra'
+        });
+    }
+
+    // ==================== ACCOUNT MANAGEMENT ====================
+    function showAccountSettings() {
+        const body = document.getElementById('accountModalBody');
+        document.getElementById('accountModalTitle').textContent = 'Gestisci Account';
+
+        let html = '<div id="accountsList">';
+        if (APP.accounts.length === 0) {
+            html += '<p style="text-align:center;color:#888;margin:16px 0;">Nessun account configurato</p>';
+        } else {
+            APP.accounts.forEach(a => {
+                html += '<div style="display:flex;align-items:center;padding:10px;border:1px solid #e0e0e0;border-radius:6px;margin-bottom:8px;gap:10px;">';
+                html += '<div style="width:40px;height:40px;border-radius:50%;background:#0078d4;color:white;display:flex;align-items:center;justify-content:center;font-weight:600;">' + getInitials(a.name) + '</div>';
+                html += '<div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + escHtml(a.name) + '</div><div style="font-size:12px;color:#666;">' + escHtml(a.email) + '</div></div>';
+                html += '<button class="btn-secondary" onclick="editAccount(' + a.id + ')" style="padding:4px 10px;font-size:12px;cursor:pointer;border-radius:4px;" title="Modifica"><i class="fas fa-edit"></i></button>';
+                html += '<button class="btn-danger" onclick="removeAccount(' + a.id + ')" style="padding:4px 10px;font-size:12px;cursor:pointer;border-radius:4px;" title="Elimina"><i class="fas fa-trash"></i></button>';
+                html += '</div>';
+            });
+        }
+        html += '</div>';
+        html += '<hr class="form-divider">';
+        html += '<button class="btn-primary" onclick="showAddAccount()" style="width:100%;padding:10px;border-radius:4px;border:none;cursor:pointer;font-size:13px;"><i class="fas fa-plus"></i> Aggiungi account</button>';
+
+        body.innerHTML = html;
+        showModal('accountModal');
+    }
+
+    function showAddAccount() {
+        const body = document.getElementById('accountModalBody');
+        document.getElementById('accountModalTitle').textContent = 'Aggiungi Account';
+
+        body.innerHTML = `
+        <div class="preset-btns">
+            <button class="preset-btn" onclick="presetProvider('gmail')">Gmail</button>
+            <button class="preset-btn" onclick="presetProvider('outlook')">Outlook / Hotmail</button>
+            <button class="preset-btn" onclick="presetProvider('yahoo')">Yahoo</button>
+            <button class="preset-btn" onclick="presetProvider('icloud')">iCloud</button>
+            <button class="preset-btn" onclick="presetProvider('aruba')">Aruba</button>
+            <button class="preset-btn" onclick="presetProvider('libero')">Libero</button>
+            <button class="preset-btn" onclick="presetProvider('custom')">Altro / Personalizzato</button>
+        </div>
+        <form id="accountForm" onsubmit="event.preventDefault();saveAccount();">
+            <div class="form-group">
+                <label>Nome visualizzato *</label>
+                <input type="text" id="accName" placeholder="Mario Rossi" required>
+            </div>
+            <div class="form-group">
+                <label>Indirizzo email *</label>
+                <input type="email" id="accEmail" placeholder="mario@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>Password / Password app *</label>
+                <input type="password" id="accPassword" required>
+                <div class="form-help">Per Gmail/Outlook con 2FA, usa una "Password per le app"</div>
+            </div>
+            <hr class="form-divider">
+            <h4 style="margin-bottom:8px;">Server posta in arrivo (IMAP)</h4>
+            <div class="form-row">
+                <div class="form-group"><label>Server IMAP *</label><input type="text" id="accImapHost" placeholder="imap.gmail.com" required></div>
+                <div class="form-group" style="max-width:100px;"><label>Porta</label><input type="number" id="accImapPort" value="993"></div>
+                <div class="form-group" style="max-width:100px;"><label>Sicurezza</label><select id="accImapEnc"><option value="ssl">SSL</option><option value="tls">TLS</option><option value="none">Nessuna</option></select></div>
+            </div>
+            <h4 style="margin-bottom:8px;">Server posta in uscita (SMTP)</h4>
+            <div class="form-row">
+                <div class="form-group"><label>Server SMTP *</label><input type="text" id="accSmtpHost" placeholder="smtp.gmail.com" required></div>
+                <div class="form-group" style="max-width:100px;"><label>Porta</label><input type="number" id="accSmtpPort" value="587"></div>
+                <div class="form-group" style="max-width:100px;"><label>Sicurezza</label><select id="accSmtpEnc"><option value="tls">TLS</option><option value="ssl">SSL</option><option value="none">Nessuna</option></select></div>
+            </div>
+            <div class="form-group">
+                <label>Nome utente (se diverso dall'email)</label>
+                <input type="text" id="accUsername" placeholder="Lascia vuoto per usare l'email">
+            </div>
+            <hr class="form-divider">
+            <div class="form-check">
+                <input type="checkbox" id="accDeleteFromServer">
+                <label for="accDeleteFromServer">Elimina email dal server dopo il download</label>
+            </div>
+            <div class="form-help" style="margin-left:24px;margin-bottom:12px;color:#d13438;">Attenzione: se attivato, le email scaricate verranno rimosse dal server. Lascia disattivato per conservare una copia sul server.</div>
+            <div class="form-check">
+                <input type="checkbox" id="accDefault" checked>
+                <label for="accDefault">Imposta come account predefinito</label>
+            </div>
+            <div class="form-group">
+                <label>Firma email</label>
+                <textarea id="accSignature" rows="3" placeholder="La tua firma..."></textarea>
+            </div>
+            <input type="hidden" id="accEditId" value="">
+            <div style="display:flex;gap:8px;margin-top:16px;">
+                <button type="button" class="btn-secondary" onclick="testAccountConnection()" style="padding:8px 16px;border-radius:4px;cursor:pointer;">Verifica connessione</button>
+                <button type="submit" class="btn-primary" style="flex:1;padding:8px;border-radius:4px;cursor:pointer;">Salva account</button>
+            </div>
+            <div id="accountTestResult" style="margin-top:8px;"></div>
+        </form>
+        `;
+    }
+
+    function presetProvider(provider) {
+        const presets = {
+            gmail: { imap: 'imap.gmail.com', imapPort: 993, imapEnc: 'ssl', smtp: 'smtp.gmail.com', smtpPort: 587, smtpEnc: 'tls' },
+            outlook: { imap: 'outlook.office365.com', imapPort: 993, imapEnc: 'ssl', smtp: 'smtp.office365.com', smtpPort: 587, smtpEnc: 'tls' },
+            yahoo: { imap: 'imap.mail.yahoo.com', imapPort: 993, imapEnc: 'ssl', smtp: 'smtp.mail.yahoo.com', smtpPort: 587, smtpEnc: 'tls' },
+            icloud: { imap: 'imap.mail.me.com', imapPort: 993, imapEnc: 'ssl', smtp: 'smtp.mail.me.com', smtpPort: 587, smtpEnc: 'tls' },
+            aruba: { imap: 'imaps.pec.aruba.it', imapPort: 993, imapEnc: 'ssl', smtp: 'smtps.pec.aruba.it', smtpPort: 465, smtpEnc: 'ssl' },
+            libero: { imap: 'imapmail.libero.it', imapPort: 993, imapEnc: 'ssl', smtp: 'smtp.libero.it', smtpPort: 465, smtpEnc: 'ssl' },
+            custom: { imap: '', imapPort: 993, imapEnc: 'ssl', smtp: '', smtpPort: 587, smtpEnc: 'tls' }
+        };
+        const p = presets[provider] || presets.custom;
+        document.getElementById('accImapHost').value = p.imap;
+        document.getElementById('accImapPort').value = p.imapPort;
+        document.getElementById('accImapEnc').value = p.imapEnc;
+        document.getElementById('accSmtpHost').value = p.smtp;
+        document.getElementById('accSmtpPort').value = p.smtpPort;
+        document.getElementById('accSmtpEnc').value = p.smtpEnc;
+    }
+
+    async function testAccountConnection() {
+        const resultDiv = document.getElementById('accountTestResult');
+        resultDiv.innerHTML = '<div class="loading-spinner"></div> Verifica in corso...';
+
+        try {
+            const result = await apiCall('account_test', {
+                imap_host: document.getElementById('accImapHost').value,
+                imap_port: parseInt(document.getElementById('accImapPort').value),
+                imap_encryption: document.getElementById('accImapEnc').value,
+                smtp_host: document.getElementById('accSmtpHost').value,
+                smtp_port: parseInt(document.getElementById('accSmtpPort').value),
+                smtp_encryption: document.getElementById('accSmtpEnc').value,
+                username: document.getElementById('accUsername').value || document.getElementById('accEmail').value,
+                password: document.getElementById('accPassword').value
+            });
+            resultDiv.innerHTML = '<div style="color:green;"><i class="fas fa-check-circle"></i> IMAP: OK' + (result.messages ? ' (' + result.messages + ' messaggi)' : '') + ' | SMTP: ' + (result.smtp ? 'OK' : 'Non verificato') + '</div>';
+        } catch(e) {
+            resultDiv.innerHTML = '<div style="color:#d13438;"><i class="fas fa-times-circle"></i> ' + escHtml(e.message) + '</div>';
+        }
+    }
+
+    async function saveAccount() {
+        const editId = document.getElementById('accEditId').value;
+        const data = {
+            name: document.getElementById('accName').value,
+            email: document.getElementById('accEmail').value,
+            password: document.getElementById('accPassword').value,
+            imap_host: document.getElementById('accImapHost').value,
+            imap_port: parseInt(document.getElementById('accImapPort').value),
+            imap_encryption: document.getElementById('accImapEnc').value,
+            smtp_host: document.getElementById('accSmtpHost').value,
+            smtp_port: parseInt(document.getElementById('accSmtpPort').value),
+            smtp_encryption: document.getElementById('accSmtpEnc').value,
+            username: document.getElementById('accUsername').value || document.getElementById('accEmail').value,
+            delete_from_server: document.getElementById('accDeleteFromServer').checked ? 1 : 0,
+            is_default: document.getElementById('accDefault').checked ? 1 : 0,
+            signature: document.getElementById('accSignature').value
+        };
+
+        try {
+            if (editId) {
+                data.id = parseInt(editId);
+                await apiCall('account_update', data);
+                showToast('Account aggiornato');
+            } else {
+                await apiCall('account_add', data);
+                showToast('Account aggiunto!');
+            }
+            closeModal('accountModal');
+            await loadAccounts();
+            if (!APP.currentAccount && APP.accounts.length > 0) {
+                APP.currentAccount = APP.accounts[0];
+            }
+            await loadFolders();
+            const inbox = APP.folders.find(f => f.type === 'inbox' && f.account_id == APP.currentAccount?.id);
+            if (inbox) {
+                APP.currentFolder = inbox;
+                await loadEmails();
+            }
+            renderAll();
+        } catch(e) {
+            showToast('Errore: ' + e.message, 'error');
+        }
+    }
+
+    async function editAccount(id) {
+        const account = APP.accounts.find(a => a.id == id);
+        if (!account) return;
+        showAddAccount();
+        document.getElementById('accountModalTitle').textContent = 'Modifica Account';
+        document.getElementById('accEditId').value = id;
+        document.getElementById('accName').value = account.name;
+        document.getElementById('accEmail').value = account.email;
+        document.getElementById('accImapHost').value = account.imap_host;
+        document.getElementById('accImapPort').value = account.imap_port;
+        document.getElementById('accImapEnc').value = account.imap_encryption;
+        document.getElementById('accSmtpHost').value = account.smtp_host;
+        document.getElementById('accSmtpPort').value = account.smtp_port;
+        document.getElementById('accSmtpEnc').value = account.smtp_encryption;
+        document.getElementById('accUsername').value = account.username;
+        document.getElementById('accDeleteFromServer').checked = !!account.delete_from_server;
+        document.getElementById('accDefault').checked = !!account.is_default;
+        document.getElementById('accSignature').value = account.signature || '';
+    }
+
+    async function removeAccount(id) {
+        if (!confirm('Eliminare questo account e tutte le email scaricate?')) return;
+        try {
+            await apiCall('account_delete', { id });
+            showToast('Account eliminato');
+            await loadAccounts();
+            if (APP.currentAccount && APP.currentAccount.id == id) {
+                APP.currentAccount = APP.accounts[0] || null;
+                if (APP.currentAccount) {
+                    await loadFolders();
+                    const inbox = APP.folders.find(f => f.type === 'inbox');
+                    if (inbox) { APP.currentFolder = inbox; await loadEmails(); }
+                } else {
+                    APP.folders = [];
+                    APP.emails = [];
+                    APP.currentFolder = null;
+                }
+            }
+            renderAll();
+            showAccountSettings();
+        } catch(e) { showToast('Errore: ' + e.message, 'error'); }
+    }
+
+    async function switchAccount(accountId) {
+        APP.currentAccount = APP.accounts.find(a => a.id == accountId);
+        await loadFolders();
+        const inbox = APP.folders.find(f => f.type === 'inbox' && f.account_id == accountId);
+        if (inbox) {
+            APP.currentFolder = inbox;
+            await loadEmails();
+        }
+        APP.currentEmail = null;
+        renderAll();
+        renderReadingPane(null);
+    }
+
+    // ==================== FOLDER MANAGEMENT ====================
+    function createFolder() {
+        if (!APP.currentAccount) { showToast('Nessun account selezionato'); return; }
+        olFormModal('Nuova cartella', [{ name: 'name', label: 'Nome della cartella', placeholder: 'Es. Progetti' }], async (v) => {
+            if (!v.name) return;
+            try {
+                await apiCall('folder_create', { account_id: APP.currentAccount.id, name: v.name });
+                await loadFolders();
+                showToast('Cartella creata');
+            } catch (e) { showToast('Errore: ' + e.message, 'error'); }
+        }, { icon: 'fa-folder-plus' });
+    }
+
+    // ==================== CONTACTS ====================
+    function showAddContact(contact = null) {
+        document.getElementById('contactModalTitle').textContent = contact ? 'Modifica contatto' : 'Nuovo contatto';
+        document.getElementById('contactModalBody').innerHTML = `
+            <form onsubmit="event.preventDefault();saveContact();">
+                <div class="form-group"><label>Nome</label><input type="text" id="ctName" value="${escHtml(contact?.name || '')}"></div>
+                <div class="form-group"><label>Email *</label><input type="email" id="ctEmail" value="${escHtml(contact?.email || '')}" required></div>
+                <div class="form-group"><label>Telefono</label><input type="text" id="ctPhone" value="${escHtml(contact?.phone || '')}"></div>
+                <div class="form-group"><label>Azienda</label><input type="text" id="ctCompany" value="${escHtml(contact?.company || '')}"></div>
+                <div class="form-group"><label>Note</label><textarea id="ctNotes" rows="2">${escHtml(contact?.notes || '')}</textarea></div>
+                <input type="hidden" id="ctEditId" value="${contact?.id || ''}">
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    ${contact ? '<button type="button" class="btn-danger" onclick="deleteContact(' + contact.id + ')" style="padding:8px 16px;border-radius:4px;cursor:pointer;">Elimina</button>' : ''}
+                    <button type="submit" class="btn-primary" style="flex:1;padding:8px;border-radius:4px;cursor:pointer;">Salva</button>
+                </div>
+            </form>
+        `;
+        showModal('contactModal');
+    }
+
+    async function saveContact() {
+        const editId = document.getElementById('ctEditId').value;
+        const data = {
+            account_id: APP.currentAccount?.id,
+            name: document.getElementById('ctName').value,
+            email: document.getElementById('ctEmail').value,
+            phone: document.getElementById('ctPhone').value,
+            company: document.getElementById('ctCompany').value,
+            notes: document.getElementById('ctNotes').value
+        };
+        try {
+            if (editId) {
+                data.id = parseInt(editId);
+                await apiCall('contact_update', data);
+            } else {
+                await apiCall('contact_add', data);
+            }
+            closeModal('contactModal');
+            showToast('Contatto salvato');
+            await loadContacts();
+        } catch(e) { showToast('Errore: ' + e.message, 'error'); }
+    }
+
+    async function deleteContact(id) {
+        if (!confirm('Eliminare questo contatto?')) return;
+        try {
+            await apiCall('contact_delete', { id });
+            closeModal('contactModal');
+            showToast('Contatto eliminato');
+            await loadContacts();
+        } catch(e) { showToast('Errore: ' + e.message, 'error'); }
+    }
+
+    function showContactDetail(id) {
+        const c = APP.contacts.find(ct => ct.id == id);
+        if (c) showAddContact(c);
+    }
+
+    function filterContacts(query) {
+        const items = document.querySelectorAll('.contact-item');
+        const q = query.toLowerCase();
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+
+    // ==================== SETTINGS ====================
+    function showSettings() {
+        const body = document.getElementById('settingsModalBody');
+        body.innerHTML = `
+            <h3 style="margin-bottom:12px;">Impostazioni generali</h3>
+            <div class="form-group">
+                <label>Pannello di lettura</label>
+                <select id="settReadingPane" onchange="saveSetting('reading_pane', this.value)">
+                    <option value="right">A destra</option>
+                    <option value="bottom">In basso</option>
+                    <option value="off">Disattivato</option>
+                </select>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="settAutoSync" onchange="saveSetting('auto_sync', this.checked?'1':'0')">
+                <label for="settAutoSync">Sincronizzazione automatica (ogni 5 minuti)</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="settNotifications" onchange="saveSetting('notifications', this.checked?'1':'0')">
+                <label for="settNotifications">Notifiche desktop per nuove email</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="settDarkMode" onchange="applyDarkMode(this.checked); saveSetting('dark_mode', this.checked?'1':'0')">
+                <label for="settDarkMode">Modalità scura</label>
+            </div>
+            <hr class="form-divider">
+            <h3 style="margin-bottom:12px;">Cancellazione dal server</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:8px;">Per impostazione predefinita, le email scaricate <strong>NON vengono eliminate dal server</strong>. Puoi cambiare questa impostazione singolarmente per ogni account dalla gestione account.</p>
+            <hr class="form-divider">
+            <h3 style="margin-bottom:12px;">Dati locali</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:8px;">Le email sono memorizzate localmente in SQLite (server) e IndexedDB (browser) per accesso rapido.</p>
+            <button class="btn-secondary" onclick="clearLocalCache()" style="padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;">Pulisci cache locale</button>
+        `;
+        showModal('settingsModal');
+    }
+
+    async function saveSetting(key, value) {
+        if (key === 'dark_mode') { try { localStorage.setItem('outlook_dark', value); } catch(e) {} }
+        try {
+            await apiCall('settings_set', { key, value });
+        } catch(e) { console.error(e); }
+    }
+
+    // Applica/rimuove la modalità scura
+    function applyDarkMode(on) {
+        document.body.classList.toggle('dark-mode', !!on);
+    }
+    // Ripristina la preferenza al caricamento
+    (function initDarkMode() {
+        try {
+            const on = localStorage.getItem('outlook_dark') === '1';
+            if (on) {
+                const apply = () => { applyDarkMode(true); const c = document.getElementById('settDarkMode'); if (c) c.checked = true; };
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply); else apply();
+            }
+        } catch (e) {}
+    })();
+
+    function clearLocalCache() {
+        if (!confirm('Pulire la cache locale? Le email verranno riscaricate dal server.')) return;
+        if (idb) {
+            idbClear('emails');
+            idbClear('folders');
+            idbClear('contacts');
+        }
+        showToast('Cache pulita');
+    }
+
+    function showHelp() {
+        const body = document.getElementById('settingsModalBody');
+        body.innerHTML = `
+            <h3 style="margin-bottom:12px;">Guida - Outlook Clone</h3>
+            <h4 style="margin:12px 0 6px;">Configurazione account</h4>
+            <p style="font-size:13px;line-height:1.6;">Clicca su <strong>Gestisci Account</strong> nella barra laterale o nelle impostazioni per aggiungere il tuo account email. Sono supportati Gmail, Outlook.com, Yahoo, iCloud, Aruba, Libero e qualsiasi server IMAP/SMTP.</p>
+            <h4 style="margin:12px 0 6px;">Password per le app</h4>
+            <p style="font-size:13px;line-height:1.6;">Se usi Gmail o Outlook con autenticazione a due fattori, devi generare una <strong>password per le app</strong> nelle impostazioni di sicurezza del tuo provider.</p>
+            <h4 style="margin:12px 0 6px;">Scorciatoie da tastiera</h4>
+            <ul style="font-size:13px;line-height:2;">
+                <li><strong>Ctrl+N</strong> - Nuovo messaggio</li>
+                <li><strong>Ctrl+R</strong> - Rispondi</li>
+                <li><strong>Ctrl+F</strong> - Cerca</li>
+                <li><strong>Canc</strong> - Elimina email selezionata</li>
+            </ul>
+            <h4 style="margin:12px 0 6px;">Cancellazione dal server</h4>
+            <p style="font-size:13px;line-height:1.6;">Per impostazione predefinita, le email scaricate <strong>restano sul server</strong>. Puoi scegliere di eliminarle dal server solo manualmente, o abilitare l'eliminazione automatica nelle impostazioni dell'account.</p>
+        `;
+        showModal('settingsModal');
+    }
+
+    // ==================== ATTACHMENT ====================
+    async function downloadAttachment(attId) {
+        try {
+            const att = await apiCall('attachment_get', { id: attId });
+            if (att.content_base64) {
+                const blob = b64toBlob(att.content_base64, att.mime_type);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = att.filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        } catch(e) { showToast('Errore download: ' + e.message, 'error'); }
+    }
+
+    function b64toBlob(b64Data, contentType) {
+        const byteCharacters = atob(b64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        return new Blob([new Uint8Array(byteNumbers)], { type: contentType });
+    }
+
+    // ==================== NAVIGATION ====================
+    function switchView(view) {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        document.getElementById('folderPanel').style.display = (view === 'mail' || view === 'calendar') ? '' : 'none';
+        document.getElementById('emailListPanel').style.display = view === 'mail' ? '' : 'none';
+        document.getElementById('readingPane').style.display = view === 'mail' ? '' : 'none';
+        document.getElementById('contactsPanel').style.display = 'none';
+        document.getElementById('contactsPanel').classList.remove('show');
+        document.getElementById('calendarPanel').style.display = 'none';
+
+        if (view === 'contacts') {
+            document.getElementById('contactsPanel').style.display = 'flex';
+            document.getElementById('contactsPanel').classList.add('show');
+            document.getElementById('folderPanel').style.display = 'none';
+            document.getElementById('emailListPanel').style.display = 'none';
+            document.getElementById('readingPane').style.display = 'none';
+            loadContacts();
+        }
+        if (view === 'calendar') {
+            document.getElementById('folderPanel').style.display = 'none';
+            document.getElementById('calendarPanel').style.display = 'flex';
+            renderCalendar();
+        }
+    }
+
+    // ==================== CALENDARIO ====================
+    let _calDate = new Date();
+    let calEvents = JSON.parse(localStorage.getItem('outlook_events') || '{}'); // { 'YYYY-MM-DD': [ {title,time} ] }
+    const CAL_MONTHS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+    function calKey(y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
+    function calNav(delta) { _calDate.setMonth(_calDate.getMonth() + delta); renderCalendar(); }
+    function calToday() { _calDate = new Date(); renderCalendar(); }
+
+    function renderCalendar() {
+        const y = _calDate.getFullYear(), m = _calDate.getMonth();
+        document.getElementById('calTitle').textContent = CAL_MONTHS[m] + ' ' + y;
+        const grid = document.getElementById('calendarGrid');
+        const first = new Date(y, m, 1);
+        let startDow = (first.getDay() + 6) % 7; // lun=0
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
+        const today = new Date();
+        let cells = '';
+        for (let i = 0; i < startDow; i++) cells += `<div style="border:1px solid #f0f0f0;background:#fafafa;"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+            const key = calKey(y, m, d);
+            const isToday = (d === today.getDate() && m === today.getMonth() && y === today.getFullYear());
+            const evs = (calEvents[key] || []).map(e => `<div title="${(e.title||'').replace(/"/g,'&quot;')}" style="background:#0078d4;color:#fff;border-radius:3px;font-size:11px;padding:1px 5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.time ? e.time + ' ' : ''}${esc(e.title)}</div>`).join('');
+            cells += `<div onclick="addCalendarEvent('${key}')" title="Aggiungi evento" style="border:1px solid #f0f0f0;padding:4px 6px;cursor:pointer;min-height:70px;overflow:hidden;${isToday ? 'background:#fff4ce;' : ''}">
+                <div style="font-size:13px;font-weight:${isToday ? '700' : '500'};color:${isToday ? '#0078d4' : '#333'};">${d}</div>${evs}</div>`;
+        }
+        grid.innerHTML = cells;
+    }
+
+    function addCalendarEvent(dateKey) {
+        const today = new Date();
+        const def = dateKey || calKey(today.getFullYear(), today.getMonth(), today.getDate());
+        olFormModal('Nuovo evento', [
+            { name: 'title', label: 'Titolo evento', placeholder: 'Es. Riunione team' },
+            { name: 'date', label: 'Data', value: def, type: 'date' },
+            { name: 'time', label: 'Ora (facoltativa)', placeholder: 'es. 14:30', type: 'time' }
+        ], (v) => {
+            if (!v.title) { showToast('Inserisci un titolo'); return; }
+            const key = v.date || def;
+            if (!calEvents[key]) calEvents[key] = [];
+            calEvents[key].push({ title: v.title, time: v.time || '' });
+            localStorage.setItem('outlook_events', JSON.stringify(calEvents));
+            // posiziona il calendario sul mese dell'evento
+            const parts = key.split('-'); _calDate = new Date(+parts[0], +parts[1] - 1, 1);
+            renderCalendar();
+            showToast('Evento aggiunto');
+        }, { icon: 'fa-calendar-plus' });
+    }
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+    // Mobile navigation
+    function mobileNav(view) {
+        document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        document.body.classList.remove('mobile-folders', 'mobile-reading', 'mobile-contacts');
+
+        if (view === 'folders') {
+            document.body.classList.add('mobile-folders');
+        } else if (view === 'contacts') {
+            document.body.classList.add('mobile-contacts');
+            loadContacts();
+        }
+    }
+
+    function toggleMobileMenu() {
+        document.body.classList.toggle('mobile-folders');
+        document.body.classList.remove('mobile-reading', 'mobile-contacts');
+    }
+
+    function toggleMobileSearch() {
+        const search = document.getElementById('mobSearch');
+        const title = document.getElementById('mobTitle');
+        if (search.style.display === 'none') {
+            search.style.display = 'block';
+            title.style.display = 'none';
+            search.focus();
+        } else {
+            search.style.display = 'none';
+            title.style.display = 'block';
+            search.value = '';
+            loadEmails();
+        }
+    }
+
+    // ==================== MODALS ====================
+    function showModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // ==================== UTILITY ====================
+    function showToast(msg, type = 'info') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.background = type === 'error' ? '#d13438' : '#333';
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ===== Modale elegante riutilizzabile (sostituisce prompt/alert nativi) =====
+    function olModal(title, bodyHtml, opts) {
+        opts = opts || {};
+        const old = document.getElementById('olModalOverlay'); if (old) old.remove();
+        const ov = document.createElement('div');
+        ov.id = 'olModalOverlay';
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100000;display:flex;align-items:center;justify-content:center;';
+        ov.innerHTML = `<div style="background:#fff;border-radius:8px;width:${opts.width||400}px;max-width:92vw;max-height:84vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 36px rgba(0,0,0,0.3);font-family:'Segoe UI',Arial;">
+            <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #eee;font-weight:600;font-size:15px;color:#0078d4;">
+                <i class="fas ${opts.icon||'fa-circle-info'}"></i><span style="flex:1;">${title}</span>
+                <button onclick="document.getElementById('olModalOverlay').remove()" style="border:none;background:none;font-size:18px;color:#888;cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding:16px 18px;overflow-y:auto;font-size:14px;color:#333;">${bodyHtml}</div>
+        </div>`;
+        ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+        document.body.appendChild(ov);
+    }
+    function olCloseModal() { const o = document.getElementById('olModalOverlay'); if (o) o.remove(); }
+
+    let _olFormCb = null;
+    function olFormModal(title, fields, cb, opts) {
+        opts = opts || {}; _olFormCb = cb;
+        const rows = fields.map(f => `<label style="display:block;font-size:13px;color:#555;font-weight:600;margin:10px 0 4px;">${f.label}</label>
+            <input id="olf_${f.name}" type="${f.type||'text'}" value="${(f.value||'').replace(/"/g,'&quot;')}" placeholder="${f.placeholder||''}" style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;box-sizing:border-box;">`).join('');
+        olModal(title, `${rows}<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;">
+            <button onclick="olCloseModal()" style="padding:8px 16px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;">Annulla</button>
+            <button onclick="olSubmitForm(${JSON.stringify(fields.map(f=>f.name)).replace(/"/g,'&quot;')})" style="padding:8px 16px;border:none;background:#0078d4;color:#fff;border-radius:6px;cursor:pointer;">${opts.okLabel||'OK'}</button></div>`, opts);
+        setTimeout(() => { const i = document.getElementById('olf_' + fields[0].name); if (i) i.focus(); }, 50);
+    }
+    function olSubmitForm(names) {
+        const vals = {}; names.forEach(n => { const el = document.getElementById('olf_' + n); vals[n] = el ? el.value.trim() : ''; });
+        const cb = _olFormCb; olCloseModal(); if (cb) cb(vals);
+    }
+
+    const OL_PALETTE = ['#000000','#444444','#888888','#c00000','#d13438','#ff8c00','#ffd400','#107c10','#00b294','#0078d4','#004e8c','#5c2d91','#b4009e','#e3008c','#ffffff'];
+    let _olColorCb = null;
+    function olColorPicker(title, cb) {
+        _olColorCb = cb;
+        const sw = OL_PALETTE.map(c => `<button onclick="olPickColor('${c}')" title="${c}" style="width:26px;height:26px;border:1px solid rgba(0,0,0,0.2);border-radius:5px;background:${c};cursor:pointer;"></button>`).join('');
+        olModal(title, `<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;">${sw}</div>
+            <div style="margin-top:14px;display:flex;gap:8px;align-items:center;">
+                <span style="font-size:13px;color:#666;">Codice</span>
+                <input id="olColorHex" type="text" value="#000000" style="flex:1;padding:7px 9px;border:1px solid #ccc;border-radius:6px;font-family:monospace;" onkeydown="if(event.key==='Enter')olPickColor(this.value)">
+                <button onclick="olPickColor(document.getElementById('olColorHex').value)" style="padding:7px 14px;border:none;background:#0078d4;color:#fff;border-radius:6px;cursor:pointer;">OK</button>
+            </div>`, { icon: 'fa-palette' });
+    }
+    function olPickColor(c) { const cb = _olColorCb; olCloseModal(); if (cb && c) cb(c); }
+
+    // Applica un colore (testo/evidenziatore) alla selezione nel corpo email,
+    // preservando la selezione che il modale farebbe perdere.
+    function pickComposeColor(cmd, title) {
+        const sel = window.getSelection();
+        const range = (sel && sel.rangeCount) ? sel.getRangeAt(0).cloneRange() : null;
+        olColorPicker(title, (c) => {
+            const body = document.getElementById('composeBody');
+            body.focus();
+            if (range) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(range); }
+            document.execCommand(cmd, false, c);
+        });
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    function sanitizeHtml(html) {
+        // Basic sanitization - remove scripts and event handlers
+        return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+            .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
+            .replace(/\son\w+\s*=\s*[^\s>]*/gi, '')
+            .replace(/javascript:/gi, '');
+    }
+
+    function getInitials(name) {
+        if (!name) return '?';
+        const parts = name.split(/[\s@.]+/).filter(Boolean);
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return (parts[0] || '?').substring(0, 2).toUpperCase();
+    }
+
+    function stringToColor(str) {
+        const colors = ['#0078d4','#107c10','#d13438','#8764b8','#008272','#ca5010','#4f6bed','#986f0b','#498205','#c239b3'];
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        return colors[Math.abs(hash) % colors.length];
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const emailDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+        if (emailDate.getTime() === today.getTime()) {
+            return d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+        }
+        const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+        if (emailDate.getTime() === yesterday.getTime()) return 'Ieri';
+
+        if (d.getFullYear() === now.getFullYear()) {
+            return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+        }
+        return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function formatDateFull(dateStr) {
+        if (!dateStr) return '';
+        return new Date(dateStr).toLocaleDateString('it-IT', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    function formatSize(bytes) {
+        if (!bytes) return '0 B';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function getFileIcon(mimeType) {
+        if (!mimeType) return 'fa-file';
+        if (mimeType.includes('image')) return 'fa-file-image';
+        if (mimeType.includes('pdf')) return 'fa-file-pdf';
+        if (mimeType.includes('word') || mimeType.includes('document')) return 'fa-file-word';
+        if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'fa-file-excel';
+        if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return 'fa-file-powerpoint';
+        if (mimeType.includes('zip') || mimeType.includes('archive')) return 'fa-file-archive';
+        if (mimeType.includes('audio')) return 'fa-file-audio';
+        if (mimeType.includes('video')) return 'fa-file-video';
+        if (mimeType.includes('text')) return 'fa-file-alt';
+        return 'fa-file';
+    }
+
+    // ==================== PDF EXPORT ====================
+    function exportEmailToPdf(mode) {
+        mode = mode || 'download';
+        if (!APP.currentEmail) return;
+        const email = APP.currentEmail;
+        const subject = email.subject || 'Email';
+        const from = email.from_name ? (email.from_name + ' <' + email.from_email + '>') : (email.from_email || '');
+        const to = email.to_email || '';
+        const date = email.date ? new Date(email.date).toLocaleString('it-IT') : '';
+        const body = document.getElementById('readingBody').innerHTML || '';
+
+        const container = document.createElement('div');
+        container.innerHTML =
+            '<div style="font-family: Segoe UI, Tahoma, sans-serif; padding: 20px; color: #333;">' +
+                '<h2 style="margin:0 0 16px 0; font-size:20px; color:#0078d4;">' + subject.replace(/</g, '&lt;') + '</h2>' +
+                '<table style="font-size:13px; margin-bottom:16px; border-collapse:collapse;">' +
+                    '<tr><td style="padding:4px 12px 4px 0; font-weight:600; color:#555;">Da:</td><td>' + from.replace(/</g, '&lt;') + '</td></tr>' +
+                    '<tr><td style="padding:4px 12px 4px 0; font-weight:600; color:#555;">A:</td><td>' + to.replace(/</g, '&lt;') + '</td></tr>' +
+                    '<tr><td style="padding:4px 12px 4px 0; font-weight:600; color:#555;">Data:</td><td>' + date + '</td></tr>' +
+                '</table>' +
+                '<hr style="border:none; border-top:1px solid #e0e0e0; margin:0 0 16px 0;">' +
+                '<div style="font-size:14px; line-height:1.6;">' + body + '</div>' +
+            '</div>';
+
+        const filename = subject.replace(/[^a-zA-Z0-9àèéìòùÀÈÉÌÒÙ _-]/g, '').trim().substring(0, 60) || 'Email';
+
+        var pdfFilename = filename + '.pdf';
+        html2pdf().set({
+            margin: 10,
+            filename: pdfFilename,
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).from(container).outputPdf('blob').then(function(pdfBlob) {
+            if (mode === 'server') {
+                var fd = new FormData();
+                fd.append('files', new File([pdfBlob], pdfFilename, {type: 'application/pdf'}));
+                fd.append('path', 'I miei file');
+                fetch('../onedrive-clone/api.php?action=upload', { method: 'POST', body: fd })
+                    .then(function(r) { return r.json(); })
+                    .then(function(res) {
+                        if (res.success) {
+                            showToast('PDF salvato su OneDrive!', 'success');
+                        } else {
+                            showToast('Errore salvataggio su OneDrive', 'error');
+                        }
+                    })
+                    .catch(function() {
+                        showToast('Errore connessione a OneDrive', 'error');
+                    });
+            } else {
+                var url = URL.createObjectURL(pdfBlob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = pdfFilename;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('PDF scaricato!', 'success');
+            }
+        }).catch(function(err) {
+            console.error('Errore PDF:', err);
+            showToast('Errore esportazione PDF', 'error');
+        });
+    }
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModal" onclick="if(event.target===this) closeAuthOutlook()">
+        <div class="auth-modal">
+            <button class="auth-close" onclick="closeAuthOutlook()">&times;</button>
+            <div id="auth-container"></div>
+        </div>
+    </div>
+
+    <style>
+    .auth-modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5); z-index: 999999;
+        align-items: center; justify-content: center; backdrop-filter: blur(4px);
+    }
+    .auth-modal-overlay.active { display: flex; }
+    .auth-modal {
+        background: white; border-radius: 16px; padding: 28px;
+        max-width: 380px; width: 90%;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.2); position: relative;
+        animation: authFadeIn 0.25s ease;
+    }
+    @keyframes authFadeIn {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .auth-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 22px; color: #aaa; cursor: pointer; padding: 4px; line-height: 1; }
+    .auth-close:hover { color: #d32f2f; }
+    </style>
+
+    <script>
+    let authInitOutlook = false;
+    function toggleAuthOutlook() {
+        const a = window.CloneOfficeAuth; if (!a) return;
+        document.getElementById('authModal').classList.add('active');
+        const c = document.getElementById('auth-container');
+        a.isAuthenticated() ? a.showUserUI(c) : a.showLoginUI(c);
+    }
+    function closeAuthOutlook() { document.getElementById('authModal').classList.remove('active'); }
+    function initAuthOutlookFn() {
+        if (authInitOutlook) return; authInitOutlook = true;
+        const a = window.CloneOfficeAuth; if (!a) return;
+        const btn = document.getElementById('btn-auth-outlook');
+        if (btn) btn.onclick = toggleAuthOutlook;
+        a.onAuthChange(function(u) {
+            const l = document.getElementById('auth-label-outlook');
+            if (l) l.textContent = u ? u.name.split(' ')[0] : 'Utente';
+            if (u) { hideAuthBlockerOutlook(); hideSessionLimitBlockerOutlook(); }
+        });
+        a.onSessionLimit(function(d) { showSessionLimitBlockerOutlook(d); });
+        a.init().then(function(u) {
+            if (u) { const l = document.getElementById('auth-label-outlook'); if (l) l.textContent = u.name.split(' ')[0]; hideAuthBlockerOutlook(); }
+            else { showAuthBlockerOutlook(); }
+        });
+    }
+    function showAuthBlockerOutlook() {
+        let b = document.getElementById('auth-blocker-outlook');
+        if (b) return;
+        b = document.createElement('div'); b.id = 'auth-blocker-outlook';
+        b.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#f0f2f5;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;"><div style="font-size:64px;margin-bottom:20px;">🔐</div><h2 style="font-size:24px;color:#1a1a2e;margin-bottom:8px;">Accesso richiesto</h2><p style="color:#888;font-size:14px;margin-bottom:24px;">Devi effettuare l\'accesso per utilizzare questa applicazione.</p><button onclick="toggleAuthOutlook()" style="padding:12px 32px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Accedi con QR Code</button><br><br><a href="../index.html" style="color:#e94560;font-size:13px;text-decoration:none;">Torna alla Home</a></div></div>';
+        document.body.appendChild(b);
+    }
+    function hideAuthBlockerOutlook() { const b = document.getElementById('auth-blocker-outlook'); if (b) b.remove(); }
+    function showSessionLimitBlockerOutlook(d) {
+        let b = document.getElementById('session-limit-blocker-outlook');
+        if (b) return;
+        b = document.createElement('div'); b.id = 'session-limit-blocker-outlook';
+        b.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(26,26,46,0.97);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;max-width:420px;"><div style="font-size:64px;margin-bottom:20px;">📵</div><h2 style="font-size:24px;color:#fff;margin-bottom:8px;">Limite dispositivi raggiunto</h2><p style="color:#ccc;font-size:14px;margin-bottom:8px;">Hai '+d.active_sessions+' sessione/i attiva/e su un massimo di '+d.max_devices+' consentiti dalla licenza.</p><p style="color:#999;font-size:12px;margin-bottom:24px;">Per utilizzare questa applicazione su un nuovo dispositivo, disconnetti una sessione esistente o acquista una licenza con pi&ugrave; dispositivi.</p><button onclick="logoutAndCloseOutlook()" style="padding:12px 32px;background:#e94560;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Esci e torna alla Home</button></div></div>';
+        document.body.appendChild(b);
+    }
+    function hideSessionLimitBlockerOutlook() { const b = document.getElementById('session-limit-blocker-outlook'); if (b) b.remove(); }
+    function logoutAndCloseOutlook() {
+        const a = window.CloneOfficeAuth;
+        if (a) a.logout().then(function() { window.location.href = "../index.html"; });
+        else window.location.href = "../index.html";
+    }
+    if (document.readyState === 'complete') initAuthOutlookFn(); else window.addEventListener('load', initAuthOutlookFn);
+    </script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guida · Clone-PowerPoint</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #243; background: #f3f4f6; line-height: 1.6; }
+    header {
+        background: #b7472a; color: #fff; padding: 0 24px; height: 56px;
+        display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    header .logo { font-size: 22px; }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header .home-link { margin-left: auto; color: #fff; text-decoration: none; font-size: 13px; opacity: .9; display: flex; align-items: center; gap: 6px; }
+    header .home-link:hover { opacity: 1; text-decoration: underline; }
+    .layout { display: flex; max-width: 1180px; margin: 0 auto; }
+    nav.sidebar {
+        width: 250px; flex: 0 0 250px; background: #fff; border-right: 1px solid #e5e7eb;
+        padding: 18px 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto;
+    }
+    nav.sidebar a {
+        display: block; padding: 9px 24px; color: #374151; text-decoration: none; font-size: 14px;
+        border-left: 3px solid transparent;
+    }
+    nav.sidebar a:hover { background: #fdf1ed; color: #b7472a; }
+    nav.sidebar a.active { background: #fbe9e3; color: #b7472a; border-left-color: #b7472a; font-weight: 600; }
+    nav.sidebar .sec-label { padding: 14px 24px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #9ca3af; font-weight: 700; }
+    main { flex: 1; padding: 32px 40px; min-width: 0; background: #f3f4f6; }
+    .search-box { padding: 0 24px 12px; }
+    .search-box input { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
+    section.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 26px 30px; margin-bottom: 22px; scroll-margin-top: 70px; }
+    section.card h2 { font-size: 21px; color: #97391f; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    section.card h3 { font-size: 16px; color: #243; margin: 18px 0 8px; }
+    section.card p { margin-bottom: 10px; color: #374151; }
+    ul, ol { margin: 8px 0 12px 22px; }
+    li { margin-bottom: 6px; }
+    kbd {
+        background: #f3f4f6; border: 1px solid #d1d5db; border-bottom-width: 2px; border-radius: 4px;
+        padding: 1px 7px; font-family: 'Segoe UI', sans-serif; font-size: 12px; color: #111; white-space: nowrap;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eef0f2; }
+    th { background: #fdf6f4; color: #555; font-weight: 600; }
+    code { background: #f3f4f6; padding: 1px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; color: #b5360b; }
+    .tip { background: #eef6ff; border-left: 4px solid #2196f3; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .note { background: #fff8e6; border-left: 4px solid #f0ad4e; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 14px; }
+    .feedback-form label { display: block; font-size: 13px; font-weight: 600; color: #555; margin: 12px 0 4px; }
+    .feedback-form input, .feedback-form select, .feedback-form textarea {
+        width: 100%; padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: inherit;
+    }
+    .feedback-form button { margin-top: 16px; padding: 10px 24px; background: #b7472a; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .feedback-form button:hover { background: #97391f; }
+    .feedback-ok { display: none; background: #fbe9e3; color: #97391f; border: 1px solid #e6c3b6; border-radius: 6px; padding: 12px; margin-top: 14px; font-size: 14px; }
+    .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; margin-top: 14px; }
+    .mini-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; background: #fafbfc; }
+    .mini-card i { font-size: 22px; color: #b7472a; margin-bottom: 8px; }
+    .mini-card h4 { font-size: 15px; margin-bottom: 4px; }
+    .mini-card p { font-size: 13px; color: #6b7280; }
+    @media (max-width: 760px) { nav.sidebar { display: none; } main { padding: 20px; } }
+</style>
+</head>
+<body>
+<header>
+    <span class="logo"><i class="fas fa-display"></i></span>
+    <h1>Guida di Clone-PowerPoint</h1>
+    <a class="home-link" href="index.html" onclick="return tornaAllaPresentazione(event)"><i class="fas fa-arrow-left"></i> Torna alla presentazione</a>
+</header>
+
+<div class="layout">
+    <nav class="sidebar">
+        <div class="search-box"><input type="text" id="guide-search" placeholder="Cerca nella guida..."></div>
+        <div class="sec-label">Per iniziare</div>
+        <a href="#introduzione" class="active">Introduzione</a>
+        <a href="#diapositive">Gestire le diapositive</a>
+        <a href="#oggetti">Testo, forme e immagini</a>
+        <a href="#progettazione">Progettazione e temi</a>
+        <div class="sec-label">Effetti</div>
+        <a href="#transizioni">Transizioni</a>
+        <a href="#animazioni">Animazioni</a>
+        <div class="sec-label">Presentare</div>
+        <a href="#presentazione">Presentazione</a>
+        <div class="sec-label">Strumenti</div>
+        <a href="#revisione">Revisione</a>
+        <a href="#visualizza">Visualizza</a>
+        <a href="#disegno">Disegno</a>
+        <div class="sec-label">File</div>
+        <a href="#file">File e salvataggio</a>
+        <a href="#condivisione">Condivisione</a>
+        <div class="sec-label">Risorse</div>
+        <a href="#scorciatoie">Scelte rapide da tastiera</a>
+        <a href="#novita">Novità</a>
+        <a href="#commenti">Commenti e suggerimenti</a>
+    </nav>
+
+    <main>
+        <section class="card" id="introduzione">
+            <h2><i class="fas fa-circle-info"></i> Introduzione</h2>
+            <p>Benvenuto in <strong>Clone-PowerPoint</strong>, l'applicazione per presentazioni della suite Clone Office. Permette di creare diapositive, inserire testo, forme e immagini, applicare temi, transizioni e animazioni, e avviare la presentazione a schermo intero — tutto nel browser.</p>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-rectangle-list"></i><h4>Diapositive</h4><p>Aggiungi, duplica, riordina ed elimina diapositive con un clic.</p></div>
+                <div class="mini-card"><i class="fas fa-wand-magic-sparkles"></i><h4>Transizioni e animazioni</h4><p>Effetti di passaggio tra diapositive e di ingresso degli elementi.</p></div>
+                <div class="mini-card"><i class="fas fa-play"></i><h4>Presentazione</h4><p>Schermo intero, Vista Relatore con note e timer, show personalizzato.</p></div>
+            </div>
+            <div class="tip"><strong>Suggerimento:</strong> il lavoro viene salvato automaticamente nel browser; puoi anche salvarlo sul server o esportarlo.</div>
+        </section>
+
+        <section class="card" id="diapositive">
+            <h2><i class="fas fa-rectangle-list"></i> Gestire le diapositive</h2>
+            <p>Dalla scheda <strong>Home</strong> e dal pannello miniature a sinistra:</p>
+            <ul>
+                <li><strong>Nuova diapositiva</strong>: aggiunge una diapositiva dopo quella corrente.</li>
+                <li><strong>Duplica</strong> ed <strong>Elimina</strong> diapositiva.</li>
+                <li>Fai clic su una miniatura per aprirla; il numero indica la posizione.</li>
+                <li>Dalla scheda <strong>Progettazione ▸ Layout</strong> scegli la disposizione (Titolo, Titolo e contenuto, Due contenuti, Solo titolo, Vuoto).</li>
+            </ul>
+        </section>
+
+        <section class="card" id="oggetti">
+            <h2><i class="fas fa-shapes"></i> Testo, forme e immagini</h2>
+            <h3>Caselle di testo</h3>
+            <p>Dalla scheda <strong>Inserisci ▸ Casella di testo</strong> (o Home). Fai <strong>doppio clic</strong> per modificare il testo, <strong>trascina</strong> per spostarlo e usa le <strong>maniglie</strong> agli angoli per ridimensionarlo. Carattere, dimensione, <kbd>G</kbd>rassetto, <kbd>C</kbd>orsivo, <kbd>S</kbd>ottolineato, colore e allineamento sono nella scheda Home.</p>
+            <h3>Forme</h3>
+            <p>Dal pulsante <strong>Forme</strong> scegli tra rettangolo, cerchio, triangolo, rombo, stella, freccia, cuore e altre. La forma viene inserita nella diapositiva e può essere spostata e ridimensionata.</p>
+            <h3>Immagini e tabelle</h3>
+            <p>Dalla scheda <strong>Inserisci</strong> aggiungi immagini, tabelle, grafici, SmartArt, icone, video e audio.</p>
+        </section>
+
+        <section class="card" id="progettazione">
+            <h2><i class="fas fa-palette"></i> Progettazione e temi</h2>
+            <p>Dalla scheda <strong>Progettazione</strong> applichi <strong>temi</strong> e sfondi alle diapositive. Il pannello <strong>Designer</strong> a destra propone idee di design già pronte: fai clic su una proposta per applicarla.</p>
+            <div class="tip"><strong>Suggerimento:</strong> usa <em>Modifica sfondo</em> per impostare un colore o un gradiente personalizzato.</div>
+        </section>
+
+        <section class="card" id="transizioni">
+            <h2><i class="fas fa-arrow-right-arrow-left"></i> Transizioni</h2>
+            <p>Le transizioni sono gli effetti di passaggio <strong>tra una diapositiva e la successiva</strong> durante la presentazione. Dalla scheda <strong>Transizioni</strong>:</p>
+            <ul>
+                <li>Scegli un effetto: <strong>Nessuna, Morphing, Taglio, Dissolvenza, Spinta, Tendina</strong>. Cliccandolo parte un'anteprima immediata.</li>
+                <li>Imposta la <strong>direzione</strong> (da sinistra/destra/alto/basso) e la <strong>durata</strong> in secondi.</li>
+                <li><strong>Applica a tutte</strong> propaga la transizione a ogni diapositiva.</li>
+                <li><strong>Anteprima</strong> riproduce l'effetto sulla diapositiva corrente.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="animazioni">
+            <h2><i class="fas fa-wand-magic-sparkles"></i> Animazioni</h2>
+            <p>Le animazioni regolano <strong>come compaiono i singoli elementi</strong> in una diapositiva. Seleziona prima un elemento, poi dalla scheda <strong>Animazioni</strong>:</p>
+            <ul>
+                <li>Scegli l'effetto di ingresso: <strong>Comparsa, Dissolvenza, Entrata veloce</strong>.</li>
+                <li>Imposta <strong>direzione</strong>, <strong>avvio</strong> (Al clic, Con precedente, Dopo precedente), <strong>durata</strong> e <strong>ritardo</strong>.</li>
+                <li>Usa <strong>Sposta su/giù</strong> per cambiare l'ordine, oppure apri il <strong>Riquadro animazione</strong> per gestirle tutte in elenco (con anteprima ▶).</li>
+                <li>Gli elementi animati mostrano un <strong>badge numerato</strong> nell'editor.</li>
+            </ul>
+            <div class="note"><strong>Nota:</strong> nella presentazione, gli elementi con avvio "Al clic" compaiono uno per clic; quelli "Con/Dopo precedente" partono automaticamente.</div>
+        </section>
+
+        <section class="card" id="presentazione">
+            <h2><i class="fas fa-play"></i> Presentazione</h2>
+            <p>Dalla scheda <strong>Presentazione</strong> (o dal pulsante <strong>Presenta</strong> in alto):</p>
+            <ul>
+                <li><strong>Dall'inizio</strong> (<kbd>F5</kbd>) o <strong>Dalla diapositiva corrente</strong>: show a schermo intero.</li>
+                <li><strong>Vista Relatore</strong>: diapositiva corrente grande, anteprima della successiva, <strong>note del relatore</strong> e <strong>timer</strong>.</li>
+                <li><strong>Personalizzata</strong>: scegli con le caselle quali diapositive includere, poi avvia.</li>
+            </ul>
+            <p>Durante lo show: <kbd>→</kbd>/<kbd>Spazio</kbd>/clic avanti, <kbd>←</kbd> indietro, <kbd>Esc</kbd> per uscire.</p>
+        </section>
+
+        <section class="card" id="revisione">
+            <h2><i class="fas fa-clipboard-check"></i> Revisione</h2>
+            <ul>
+                <li><strong>Controlla diapositiva</strong>: riepilogo degli elementi, animazioni e transizione.</li>
+                <li><strong>Verifica accessibilità</strong>: segnala testo troppo piccolo, immagini senza testo alternativo, contrasto insufficiente.</li>
+                <li><strong>Commenti</strong>: aggiungi, naviga (Avanti/Indietro), segna come letti o elimina tutti.</li>
+                <li><strong>Cerca</strong>: trova un testo nelle diapositive e salta direttamente a quella giusta.</li>
+            </ul>
+        </section>
+
+        <section class="card" id="visualizza">
+            <h2><i class="fas fa-eye"></i> Visualizza</h2>
+            <ul>
+                <li><strong>Note</strong>: pannello per le note del relatore della diapositiva corrente.</li>
+                <li><strong>Righello</strong>: righelli orizzontale e verticale allineati alla diapositiva.</li>
+                <li><strong>Sequenza diapositive</strong>: tutte le diapositive in griglia, clic per aprirne una.</li>
+                <li><strong>Normale</strong>: ripristina la vista di modifica standard.</li>
+                <li><strong>Zoom</strong> e <strong>Adatta alla finestra</strong>: regolano l'ingrandimento (anche con lo slider in basso a destra).</li>
+            </ul>
+        </section>
+
+        <section class="card" id="disegno">
+            <h2><i class="fas fa-pencil"></i> Disegno</h2>
+            <p>Dalla scheda <strong>Disegno</strong> scegli uno strumento — <strong>Matita</strong>, <strong>Pennarello</strong> (semitrasparente) o <strong>Penna</strong> — imposta colore e spessore, poi <strong>trascina sulla diapositiva</strong> per disegnare a mano libera. <strong>Cancella</strong> rimuove i tratti; <strong>Seleziona</strong> torna alla modalità di modifica normale.</p>
+        </section>
+
+        <section class="card" id="file">
+            <h2><i class="fas fa-folder-open"></i> File e salvataggio</h2>
+            <p>Dal menu <strong>File</strong>:</p>
+            <ul>
+                <li><strong>Nuovo</strong>, <strong>Apri</strong>, <strong>Salva</strong> (<kbd>Ctrl</kbd>+<kbd>S</kbd>) e <strong>Salva con nome</strong>.</li>
+                <li><strong>Salva sul server</strong> per archiviare la presentazione lato server.</li>
+                <li><strong>Esporta</strong> in PDF, immagine o ODP, oppure scarica il file.</li>
+                <li><strong>Stampa</strong> (<kbd>Ctrl</kbd>+<kbd>P</kbd>).</li>
+            </ul>
+        </section>
+
+        <section class="card" id="condivisione">
+            <h2><i class="fas fa-share-nodes"></i> Condivisione</h2>
+            <p>Il pulsante <strong>Condividi</strong> in alto a destra consente di invitare altri, copiare il collegamento alla presentazione e ottenere un codice di incorporamento (iframe) per pubblicarla in una pagina web.</p>
+        </section>
+
+        <section class="card" id="scorciatoie">
+            <h2><i class="fas fa-keyboard"></i> Scelte rapide da tastiera</h2>
+            <table>
+                <tr><th>Comando</th><th>Tasti</th></tr>
+                <tr><td>Salva sul server</td><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+                <tr><td>Annulla / Ripristina</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> · <kbd>Ctrl</kbd>+<kbd>Y</kbd></td></tr>
+                <tr><td>Copia / Incolla elemento</td><td><kbd>Ctrl</kbd>+<kbd>C</kbd> · <kbd>Ctrl</kbd>+<kbd>V</kbd></td></tr>
+                <tr><td>Grassetto / Corsivo / Sottolineato</td><td><kbd>Ctrl</kbd>+<kbd>G</kbd> · <kbd>Ctrl</kbd>+<kbd>I</kbd> · <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+                <tr><td>Elimina elemento</td><td><kbd>Canc</kbd></td></tr>
+                <tr><td>Presentazione dall'inizio</td><td><kbd>F5</kbd></td></tr>
+                <tr><td>Avanti / Indietro nello show</td><td><kbd>→</kbd> · <kbd>Spazio</kbd> · <kbd>←</kbd></td></tr>
+                <tr><td>Esci dalla presentazione</td><td><kbd>Esc</kbd></td></tr>
+            </table>
+        </section>
+
+        <section class="card" id="novita">
+            <h2><i class="fas fa-bullhorn"></i> Novità</h2>
+            <p>Le ultime aggiunte a Clone-PowerPoint:</p>
+            <div class="cards-row">
+                <div class="mini-card"><i class="fas fa-wand-magic-sparkles"></i><h4>Transizioni e animazioni reali</h4><p>Riprodotte durante lo show, con direzione, durata, avvio e ordine.</p></div>
+                <div class="mini-card"><i class="fas fa-chalkboard-user"></i><h4>Vista Relatore</h4><p>Diapositiva successiva, note e timer durante la presentazione.</p></div>
+                <div class="mini-card"><i class="fas fa-list-check"></i><h4>Presentazione personalizzata</h4><p>Scegli quali diapositive mostrare.</p></div>
+                <div class="mini-card"><i class="fas fa-pencil"></i><h4>Strumenti di disegno</h4><p>Matita, pennarello e penna a mano libera sulle diapositive.</p></div>
+                <div class="mini-card"><i class="fas fa-ruler-combined"></i><h4>Righelli</h4><p>Righelli orizzontale e verticale allineati alla diapositiva.</p></div>
+                <div class="mini-card"><i class="fas fa-table-cells"></i><h4>Sequenza diapositive</h4><p>Vista a griglia di tutte le diapositive.</p></div>
+            </div>
+        </section>
+
+        <section class="card" id="commenti">
+            <h2><i class="fas fa-comment-dots"></i> Commenti e suggerimenti</h2>
+            <p>Il tuo parere ci aiuta a migliorare Clone-PowerPoint. Inviaci un commento, una segnalazione o un'idea.</p>
+            <form class="feedback-form" id="feedbackForm" onsubmit="return inviaFeedback(event)">
+                <label for="fb-type">Tipo</label>
+                <select id="fb-type">
+                    <option>Mi piace qualcosa</option>
+                    <option>Non mi piace qualcosa</option>
+                    <option>Ho un suggerimento</option>
+                    <option>Segnalazione di un problema</option>
+                </select>
+                <label for="fb-msg">Messaggio</label>
+                <textarea id="fb-msg" rows="5" placeholder="Scrivi qui il tuo commento..."></textarea>
+                <label for="fb-email">Email (facoltativa)</label>
+                <input id="fb-email" type="email" placeholder="nome@esempio.com">
+                <button type="submit"><i class="fas fa-paper-plane"></i> Invia commento</button>
+                <div class="feedback-ok" id="fb-ok"><i class="fas fa-check-circle"></i> Grazie! Il tuo commento è stato registrato.</div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+    // "Torna alla presentazione": se la guida è stata aperta in un nuovo tab,
+    // chiude il tab e riporta il focus alla presentazione già aperta; altrimenti naviga.
+    function tornaAllaPresentazione(e) {
+        e.preventDefault();
+        if (window.opener && !window.opener.closed) {
+            try { window.opener.focus(); } catch (err) {}
+            window.close();
+        } else {
+            window.location.href = 'index.html';
+        }
+        return false;
+    }
+
+    // Evidenzia la voce di menu durante lo scroll
+    const links = document.querySelectorAll('nav.sidebar a');
+    const sections = [...document.querySelectorAll('section.card')];
+    function onScroll() {
+        let current = sections[0].id;
+        const y = window.scrollY + 90;
+        for (const s of sections) { if (s.offsetTop <= y) current = s.id; }
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+    }
+    window.addEventListener('scroll', onScroll);
+
+    // Ricerca semplice: nasconde le sezioni che non contengono il testo
+    document.getElementById('guide-search').addEventListener('input', function(e) {
+        const q = e.target.value.trim().toLowerCase();
+        sections.forEach(s => {
+            s.style.display = (!q || s.textContent.toLowerCase().includes(q)) ? '' : 'none';
+        });
+    });
+
+    // Form commenti — salva in localStorage e ringrazia
+    async function inviaFeedback(ev) {
+        ev.preventDefault();
+        const fb = {
+            app: 'Clone-PowerPoint',
+            type: document.getElementById('fb-type').value,
+            msg: document.getElementById('fb-msg').value.trim(),
+            email: document.getElementById('fb-email').value.trim()
+        };
+        if (!fb.msg) { document.getElementById('fb-msg').focus(); return false; }
+        const ok = document.getElementById('fb-ok');
+        try {
+            const res = await fetch('../backend/api.php?action=send-feedback', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fb)
+            });
+            const data = await res.json();
+            if (data.error) { ok.style.display = 'block'; ok.style.background = '#fdecea'; ok.style.color = '#b71c1c'; ok.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + data.error; return false; }
+            ok.style.display = 'block';
+            ok.innerHTML = data.mailed
+                ? '<i class="fas fa-check-circle"></i> Grazie! Il commento è stato inviato via email.'
+                : '<i class="fas fa-check-circle"></i> Grazie! Il commento è stato registrato' + (data.configured ? '' : ' (email destinatario non ancora configurata dall\'amministratore)') + '.';
+        } catch (e) {
+            // fallback offline: salva in locale
+            try { const all = JSON.parse(localStorage.getItem('powerpoint-feedback') || '[]'); all.push({ ...fb, date: new Date().toISOString() }); localStorage.setItem('powerpoint-feedback', JSON.stringify(all)); } catch (_) {}
+            ok.style.display = 'block';
+            ok.innerHTML = '<i class="fas fa-check-circle"></i> Grazie! Commento salvato (server non raggiungibile).';
+        }
+        document.getElementById('feedbackForm').reset();
+        return false;
+    }
+
+    // Apertura diretta su una sezione (es. guida.html#scorciatoie)
+    if (location.hash) {
+        const t = document.querySelector(location.hash);
+        if (t) setTimeout(() => t.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+</script>
+</body>
+</html>
