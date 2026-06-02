@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = requireAuth();
     $input = json_decode(file_get_contents('php://input'), true);
     $content = $input['content'] ?? '';
-    $filename = $input['filename'] ?? 'document_' . date('Y-m-d_H-i-s');
+    $filename = $input['filename'] ?? 'document_' . gmdate('Y-m-d_H-i-s');
     $format = $input['format'] ?? 'html';
     $metadata = $input['metadata'] ?? null;
 
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'wordCount' => $metadata['wordCount'] ?? 0,
                 'orientation' => $metadata['orientation'] ?? 'portrait',
                 'margins' => $metadata['margins'] ?? ['top' => 25, 'right' => 25, 'bottom' => 25, 'left' => 25],
-                'savedAt' => $metadata['savedAt'] ?? date('Y-m-d H:i:s')
+                'savedAt' => $metadata['savedAt'] ?? gmdate('Y-m-d H:i:s')
             ];
             $filepath = $storageDir . '/' . $filename . '.json';
             $contentToSave = json_encode($documentData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'message' => 'Documento salvato con successo',
                 'filepath' => $filepath,
                 'format' => $format,
-                'saved_at' => date('Y-m-d H:i:s'),
+                'saved_at' => gmdate('Y-m-d H:i:s'),
                 'filename' => basename($filepath)
             ]);
         } else {

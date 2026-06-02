@@ -10,11 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = requireAuth();
     $input = json_decode(file_get_contents('php://input'), true);
     $data = $input['data'] ?? '';
-    $filename = $input['filename'] ?? 'report_' . date('Y-m-d_H-i-s');
+    $filename = $input['filename'] ?? 'report_' . gmdate('Y-m-d_H-i-s');
 
     $filename = preg_replace('/[^a-zA-Z0-9_\- ]/', '_', $filename);
     $filename = trim($filename);
-    if ($filename === '') $filename = 'report_' . date('Y-m-d_H-i-s');
+    if ($filename === '') $filename = 'report_' . gmdate('Y-m-d_H-i-s');
 
     try {
         $storageDir = getUserStorageDir((int)$user['id'], 'powerbi');
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode([
                 'success' => true,
                 'message' => 'Report salvato con successo',
-                'saved_at' => date('Y-m-d H:i:s'),
+                'saved_at' => gmdate('Y-m-d H:i:s'),
                 'filename' => basename($filepath)
             ]);
         } else {

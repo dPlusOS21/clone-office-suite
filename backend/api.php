@@ -592,7 +592,7 @@ switch ($action) {
         $mailed = false;
         if ($recipient !== '' && filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
             $subject = "[Feedback $app] $type";
-            $body = "Tipo: $type\nApp: $app\nDa: " . ($from ?: 'anonimo') . "\nData: " . date('Y-m-d H:i:s') . "\n\nMessaggio:\n$msg\n";
+            $body = "Tipo: $type\nApp: $app\nDa: " . ($from ?: 'anonimo') . "\nData: " . gmdate('Y-m-d H:i:s') . "\n\nMessaggio:\n$msg\n";
             $headers = "From: noreply@" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "\r\n";
             if ($from !== '') $headers .= "Reply-To: $from\r\n";
             $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";

@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'content' => $content,
             'filename' => basename($filename, '.html'),
             'filepath' => $filepath,
-            'loaded_at' => date('Y-m-d H:i:s')
+            'loaded_at' => gmdate('Y-m-d H:i:s')
         ]);
 
     } catch (Exception $e) {

@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'name' => pathinfo($file, PATHINFO_FILENAME),
                 'size' => filesize($filepath),
                 'modified' => filemtime($filepath),
-                'modified_formatted' => date('d/m/Y H:i', filemtime($filepath))
+                'modified_formatted' => gmdate('d/m/Y H:i', filemtime($filepath))
             ];
         }
         usort($reports, function($a, $b) { return $b['modified'] - $a['modified']; });

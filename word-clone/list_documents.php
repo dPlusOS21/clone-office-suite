@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     'type' => $extension,
                     'size' => filesize($filepath),
                     'modified' => filemtime($filepath),
-                    'modified_formatted' => date('d/m/Y H:i:s', filemtime($filepath))
+                    'modified_formatted' => gmdate('d/m/Y H:i:s', filemtime($filepath))
                 ];
             }
         }

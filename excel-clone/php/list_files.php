@@ -19,7 +19,7 @@ if (is_dir($storageDir)) {
                 'type' => 'json',
                 'size' => filesize($filepath),
                 'modified' => filemtime($filepath),
-                'modified_formatted' => date('d/m/Y H:i:s', filemtime($filepath))
+                'modified_formatted' => gmdate('d/m/Y H:i:s', filemtime($filepath))
             ];
         }
     }

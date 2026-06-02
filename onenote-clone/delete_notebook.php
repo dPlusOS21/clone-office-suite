@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'success' => true,
                 'message' => 'Blocco appunti eliminato con successo',
                 'filename' => $safeName,
-                'deleted_at' => date('Y-m-d H:i:s')
+                'deleted_at' => gmdate('Y-m-d H:i:s')
             ]);
         } else {
             throw new Exception('Errore durante l\'eliminazione del file');

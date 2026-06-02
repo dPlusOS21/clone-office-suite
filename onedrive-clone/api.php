@@ -246,8 +246,8 @@ function listFiles($input, $roots) {
             'path' => $path . '/' . $entry,
             'type' => $isDir ? 'folder' : 'file',
             'size' => $isDir ? 0 : ($stat['size'] ?? 0),
-            'modified' => date('Y-m-d H:i:s', $stat['mtime'] ?? time()),
-            'created' => date('Y-m-d H:i:s', $stat['ctime'] ?? time()),
+            'modified' => gmdate('Y-m-d H:i:s', $stat['mtime'] ?? time()),
+            'created' => gmdate('Y-m-d H:i:s', $stat['ctime'] ?? time()),
         ];
 
         if (!$isDir) {
@@ -541,7 +541,7 @@ function searchFiles($input, $roots) {
                         'path' => str_replace('\\', '/', $relPath),
                         'type' => $file->isDir() ? 'folder' : 'file',
                         'size' => $file->isDir() ? 0 : $file->getSize(),
-                        'modified' => date('Y-m-d H:i:s', $file->getMTime()),
+                        'modified' => gmdate('Y-m-d H:i:s', $file->getMTime()),
                         'extension' => $file->isDir() ? '' : strtolower($file->getExtension()),
                         'icon' => $file->isDir() ? 'fa-folder' : getFileIconClass(strtolower($file->getExtension())),
                         'root' => $rootName,
@@ -571,8 +571,8 @@ function fileInfo($input, $roots) {
         'path' => $path,
         'type' => $isDir ? 'folder' : 'file',
         'size' => $isDir ? dirSize($realPath) : $stat['size'],
-        'created' => date('Y-m-d H:i:s', $stat['ctime']),
-        'modified' => date('Y-m-d H:i:s', $stat['mtime']),
+        'created' => gmdate('Y-m-d H:i:s', $stat['ctime']),
+        'modified' => gmdate('Y-m-d H:i:s', $stat['mtime']),
         'permissions' => substr(sprintf('%o', fileperms($realPath)), -4),
     ];
 
@@ -762,7 +762,7 @@ function shareCreate($input, $pdo) {
     $path = $input['path'] ?? '';
     if (empty($path)) throw new Exception('Percorso richiesto');
     $token = bin2hex(random_bytes(16));
-    $expires = $input['expires_hours'] ? date('Y-m-d H:i:s', time() + ($input['expires_hours'] * 3600)) : null;
+    $expires = $input['expires_hours'] ? gmdate('Y-m-d H:i:s', time() + ($input['expires_hours'] * 3600)) : null;
     $pdo->prepare('INSERT INTO shares (path, token, expires_at) VALUES (?, ?, ?)')->execute([$path, $token, $expires]);
     return ['token' => $token, 'url' => 'api.php?action=download&path=' . urlencode($path)];
 }

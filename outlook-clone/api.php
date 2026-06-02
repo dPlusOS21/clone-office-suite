@@ -386,7 +386,7 @@ function emailFetch($input, $pdo, $db) {
         $ccAddresses = formatAddressList($header->cc ?? []);
 
         // Data
-        $date = isset($header->date) ? date('Y-m-d H:i:s', strtotime($header->date)) : date('Y-m-d H:i:s');
+        $date = isset($header->date) ? gmdate('Y-m-d H:i:s', strtotime($header->date)) : gmdate('Y-m-d H:i:s');
 
         // Corpo - usa PEEK
         $bodyText = '';
@@ -667,7 +667,7 @@ function emailSend($input, $pdo, $db) {
     $headers .= "Message-ID: $messageId\r\n";
     if ($inReplyTo) $headers .= "In-Reply-To: $inReplyTo\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Date: " . date('r') . "\r\n";
+    $headers .= "Date: " . gmdate('r') . "\r\n";
     $headers .= "X-Mailer: Outlook Clone\r\n";
 
     if (count($attachments) > 0) {
