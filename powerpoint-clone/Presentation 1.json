@@ -1,0 +1,46 @@
+{
+  "slides": [
+    {
+      "id": 1763019656187,
+      "elements": [
+        {
+          "id": 1763019656188,
+          "type": "text",
+          "x": 60,
+          "y": 100,
+          "width": 840,
+          "height": 120,
+          "content": "Fare clic per inserire il titolo",
+          "fontSize": 44,
+          "color": "#000000",
+          "bgColor": "transparent",
+          "bold": false,
+          "italic": false,
+          "underline": false,
+          "fontFamily": "Calibri",
+          "isPlaceholder": true
+        },
+        {
+          "id": 1763019656189,
+          "type": "text",
+          "x": 60,
+          "y": 280,
+          "width": 840,
+          "height": 200,
+          "content": "Fare clic per inserire il sottotitolo",
+          "fontSize": 20,
+          "color": "#000000",
+          "bgColor": "transparent",
+          "bold": false,
+          "italic": false,
+          "underline": false,
+          "fontFamily": "Calibri",
+          "isPlaceholder": true
+        }
+      ],
+      "background": "#ffffff"
+    }
+  ],
+  "currentSlide": 0,
+  "name": "Presentation 1"
+}

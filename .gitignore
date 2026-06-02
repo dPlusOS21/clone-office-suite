@@ -1,0 +1,26 @@
+# ===== Dati sensibili e generati (NON pubblicare) =====
+# Database SQLite (utenti, chiavi segrete, sessioni, dati utente)
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Chiave amministratore e note locali
+Utente Admin.txt
+claude session
+.claude/
+
+# Dati/contenuti utente delle app
+onedrive-clone/files/
+onedrive-clone/trash/
+onenote-clone/saved_notebooks/
+powerpoint-clone/saved_presentations/
+**/saved_reports/
+
+# ===== Sistema / build =====
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

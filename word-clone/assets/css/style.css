@@ -1,0 +1,1230 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f8f9fa;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.word-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Barra del Titolo - Stile Microsoft Word */
+.title-bar {
+    background: #2b579a;
+    color: white;
+    padding: 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 32px;
+    -webkit-app-region: drag;
+    font-size: 12px;
+}
+
+.title-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.word-logo {
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.document-name {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.title-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+}
+
+.search-box {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 3px;
+    padding: 2px 8px;
+    width: 300px;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    font-size: 11px;
+    outline: none;
+}
+
+.search-box input::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+
+.title-right {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    -webkit-app-region: no-drag;
+}
+
+.title-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.title-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.title-btn.close:hover {
+    background: #e81123;
+}
+
+/* Barra dei Menu Superiore */
+.top-menu-bar {
+    background: #f3f3f3;
+    padding: 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 36px;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+}
+
+.menu-items {
+    display: flex;
+    gap: 0;
+}
+
+.menu-item {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 400;
+    color: #333;
+    border-radius: 0;
+}
+
+.menu-item:hover {
+    background: #e6e6e6;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.quick-btn {
+    background: none;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    color: #333;
+    border-radius: 3px;
+}
+
+.quick-btn:hover {
+    background: #e6e6e6;
+}
+
+.buy-button {
+    background: #d83b01;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Ribbon Menu - Stile Microsoft Word */
+.ribbon {
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.ribbon-tabs {
+    display: flex;
+    gap: 0;
+    background: #f8f9fa;
+    padding: 0 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.ribbon-tab {
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 400;
+    color: #333;
+    border-bottom: 2px solid transparent;
+}
+
+.ribbon-tab.active {
+    background: white;
+    border-bottom: 2px solid #2b579a;
+    font-weight: 600;
+}
+
+.ribbon-content {
+    background: white;
+    padding: 8px 12px;
+    display: none;
+    border-bottom: 1px solid #ddd;
+}
+
+.ribbon-content.active {
+    display: flex;
+    gap: 20px;
+}
+
+.ribbon-group {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 0;
+}
+
+.group-title {
+    font-size: 10px;
+    color: #666;
+    margin-bottom: 6px;
+    text-align: center;
+    font-weight: 400;
+}
+
+.group-buttons {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.ribbon-btn {
+    background: white;
+    border: 1px solid transparent;
+    padding: 4px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    min-width: auto;
+    justify-content: flex-start;
+    color: #333;
+}
+
+.ribbon-btn:hover {
+    background: #f0f0f0;
+    border-color: #ddd;
+}
+
+.ribbon-btn i {
+    font-size: 14px;
+    color: #444;
+}
+
+.ribbon-btn.has-dropdown {
+    position: relative;
+    padding-right: 20px;
+}
+
+.ribbon-btn.has-dropdown::after {
+    content: "▾";
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #666;
+}
+
+/* Area Editor */
+.editor-container {
+    flex: 1;
+    background: #e6e6e6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.editor-toolbar {
+    padding: 6px 12px;
+    border-bottom: 1px solid #ddd;
+    background: #f8f9fa;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 11px;
+}
+
+.editor-toolbar select,
+.editor-toolbar button,
+.editor-toolbar input {
+    padding: 3px 6px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    background: white;
+    font-size: 11px;
+}
+
+/* Foglio con margini e orientamento */
+.paper-container {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+    background: #e6e6e6;
+}
+
+.paper {
+    background: white;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.paper.portrait {
+    width: 210mm;
+    min-height: 297mm;
+    max-width: 95%;
+}
+
+.paper.landscape {
+    width: 297mm;
+    min-height: 210mm;
+    max-width: 95%;
+}
+
+.paper-content {
+    padding: 25mm;
+    min-height: 100%;
+    line-height: 1.6;
+    outline: none;
+    overflow-y: auto;
+    max-height: calc(100vh - 250px);
+    /* NASCONDE LA BARRA DI SCORRIMENTO MA MANTIENE LO SCROLL */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.paper-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Barra di Stato - Stile Microsoft Word */
+.status-bar {
+    background: #f0f0f0;
+    padding: 4px 12px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #666;
+    height: 24px;
+}
+
+.status-left, .status-right {
+    display: flex;
+    gap: 12px;
+}
+
+.status-item {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+.status-item:hover {
+    background: #e0e0e0;
+}
+
+/* Modal e altri stili rimangono simili */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 4px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* Stili per i modal dei margini e orientamento */
+.margin-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.margin-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.margin-input-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.margin-presets {
+    margin: 20px 0;
+    text-align: center;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.margin-presets h4 {
+    margin-bottom: 10px;
+}
+
+.orientation-options {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 20px 0;
+}
+
+.orientation-option {
+    text-align: center;
+    cursor: pointer;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.orientation-option.selected {
+    border-color: #2b579a;
+    background-color: #f0f5ff;
+}
+
+.orientation-option:hover {
+    border-color: #2b579a;
+}
+
+.orientation-preview-large {
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.page-preview {
+    width: 150px;
+    height: 200px;
+    margin: 0 auto;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.page-preview.portrait {
+    width: 150px;
+    height: 200px;
+}
+
+.page-preview.landscape {
+    width: 200px;
+    height: 150px;
+}
+
+.orientation-preview {
+    width: 80px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    border: 1px solid #ddd;
+    background: white;
+}
+
+.orientation-preview.portrait {
+    width: 60px;
+    height: 80px;
+}
+
+.orientation-preview.landscape {
+    width: 80px;
+    height: 60px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.ribbon-btn.primary {
+    background: #2b579a;
+    color: white;
+}
+
+/* Stili per evidenziazione testo */
+.highlight-yellow { background-color: yellow; }
+.highlight-green { background-color: #90EE90; }
+.highlight-pink { background-color: #FFB6C1; }
+.highlight-blue { background-color: #ADD8E6; }
+.highlight-orange { background-color: #FFA500; }
+
+/* Stili per controllo ortografico */
+.spell-check-error {
+    background-color: #ffcccc;
+    border-bottom: 2px dashed red;
+    cursor: pointer;
+    position: relative;
+}
+
+.spell-check-error:hover::after {
+    content: "✎ Correggi";
+    position: absolute;
+    top: -20px;
+    left: 0;
+    background: #2b579a;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-size: 10px;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+.spell-check-suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 11px;
+}
+
+.spell-check-suggestion {
+    padding: 6px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.spell-check-suggestion:hover {
+    background: #f0f0f0;
+}
+
+.spell-check-suggestion:last-child {
+    border-bottom: none;
+}
+
+/* Stili per selezione font e dimensioni più compatte */
+.font-selector {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.font-selector select {
+    padding: 2px 4px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    background: white;
+    font-size: 11px;
+    min-width: 80px;
+}
+
+/* Pulsanti più compatti */
+.compact-btn {
+    padding: 3px 6px !important;
+    min-width: auto !important;
+    font-size: 10px !important;
+}
+
+/* Modal Inserisci Immagine - Stile Migliorato */
+#imageModal .modal-content {
+    max-width: 600px;
+}
+
+.image-insert-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.image-option-tab {
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.image-option-tab:hover {
+    border-color: #2b579a;
+    background-color: #f8f9fa;
+}
+
+.image-option-tab.active {
+    border-color: #2b579a;
+    background-color: #f0f5ff;
+}
+
+.image-option-tab i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #2b579a;
+}
+
+.image-url-section, .image-upload-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #2b579a;
+}
+
+.image-preview-container {
+    margin: 15px 0;
+    text-align: center;
+    padding: 20px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview-container img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.image-properties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.property-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.property-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.property-group input,
+.property-group select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.property-group input:focus,
+.property-group select:focus {
+    border-color: #2b579a;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(43, 87, 154, 0.1);
+}
+
+/* Modal Inserisci Tabella - Stile Migliorato */
+#tableModal .modal-content {
+    max-width: 700px;
+}
+
+.table-creation-wizard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 20px 0;
+}
+
+.table-settings {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.table-preview-section {
+    padding: 20px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.table-preview-grid {
+    display: inline-grid;
+    gap: 1px;
+    background: #ddd;
+    padding: 2px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.preview-cell {
+    width: 25px;
+    height: 25px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.2s;
+}
+
+.preview-cell.highlighted {
+    background: #2b579a;
+    border: 2px solid #1e3d6f;
+}
+
+.table-style-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.style-option {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.style-option:hover {
+    border-color: #2b579a;
+}
+
+.style-option.selected {
+    border-color: #2b579a;
+    background: #f0f5ff;
+}
+
+.style-preview {
+    width: 100%;
+    height: 40px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+}
+
+.style-preview.basic {
+    background: white;
+}
+
+.style-preview.striped {
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 10px,
+        #f8f9fa 10px,
+        #f8f9fa 20px
+    );
+}
+
+.style-preview.bordered {
+    border: 2px solid #333;
+}
+
+/* Modal Modifica Immagine/Tabella - Stile Migliorato */
+.edit-toolbar {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    flex-wrap: wrap;
+}
+
+.edit-toolbar button {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-toolbar button:hover {
+    background: #e9ecef;
+    border-color: #2b579a;
+}
+
+.edit-toolbar button.danger {
+    background: #e74c3c;
+    color: white;
+    border-color: #c0392b;
+}
+
+.edit-toolbar button.danger:hover {
+    background: #c0392b;
+}
+
+/* Stili per le tabelle nell'editor */
+table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+table.basic {
+    background: white;
+}
+
+table.basic td, table.basic th {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+}
+
+table.striped {
+    background: white;
+}
+
+table.striped tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+table.striped td, table.striped th {
+    border: 1px solid #e9ecef;
+    padding: 8px 12px;
+}
+
+table.bordered {
+    border: 2px solid #333;
+}
+
+table.bordered td, table.bordered th {
+    border: 1px solid #333;
+    padding: 8px 12px;
+}
+
+table.selected {
+    outline: 2px solid #2b579a;
+    outline-offset: 2px;
+}
+
+/* Stili per le immagini nell'editor */
+.resizable-image {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+    transition: all 0.3s;
+}
+
+.resizable-image.selected {
+    outline: 2px solid #2b579a;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.resizable-image img {
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Miglioramenti generali per i modal */
+.modal-content h3 {
+    color: #2b579a;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f5ff;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #2b579a;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(43, 87, 154, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .image-insert-options,
+    .table-creation-wizard,
+    .image-properties {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .table-style-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .edit-toolbar {
+        justify-content: center;
+    }
+}
+
+/* Stile consistente per tutti i bottoni di controllo ortografia */
+[onclick="spellCheck()"] {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+[onclick="spellCheck()"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* AGGIUNGI QUESTE REGOLE CSS ALLA FINE DEL FILE */
+
+/* Miglioramenti generali per somiglianza con Word 365 */
+.title-bar {
+    background: #2564c1 !important; /* Blu Microsoft più accurato */
+    height: 40px !important;
+    padding: 0 16px !important;
+}
+
+.word-logo {
+    font-weight: 700 !important;
+    font-size: 14px !important;
+}
+
+.word-logo i {
+    color: #41a5ee !important; /* Blu più chiaro per l'icona */
+}
+
+.document-name {
+    font-size: 13px !important;
+    opacity: 0.95 !important;
+    margin-left: 8px !important;
+    padding-left: 8px !important;
+    border-left: 1px solid rgba(255,255,255,0.3) !important;
+}
+
+.search-box {
+    width: 400px !important;
+    background: rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+    border-radius: 4px !important;
+}
+
+.search-box input::placeholder {
+    color: rgba(255,255,255,0.8) !important;
+    font-size: 12px !important;
+}
+
+.buy-button {
+    background: #d83b01 !important;
+    font-weight: 600 !important;
+    padding: 6px 16px !important;
+    border-radius: 4px !important;
+}
+
+/* Ribbon più simile a Word */
+.ribbon-tabs {
+    background: #f3f3f3 !important;
+    padding: 0 16px !important;
+}
+
+.ribbon-tab {
+    padding: 10px 20px !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+
+.ribbon-tab.active {
+    background: #ffffff !important;
+    border-bottom: 3px solid #2564c1 !important;
+    font-weight: 600 !important;
+}
+
+.ribbon-content {
+    padding: 12px 16px !important;
+    background: #ffffff !important;
+    min-height: 110px !important;
+}
+
+.ribbon-group {
+    padding: 4px 12px !important;
+}
+
+.group-title {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #444 !important;
+    margin-bottom: 8px !important;
+}
+
+.ribbon-btn {
+    padding: 6px 8px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.ribbon-btn i {
+    font-size: 16px !important;
+}
+
+.ribbon-btn:hover {
+    background: #edebe9 !important;
+    border-color: #a19f9d !important;
+}
+
+/* Barra di stato migliorata */
+.status-bar {
+    background: #f0f0f0 !important;
+    border-top: 1px solid #d0d0d0 !important;
+    height: 28px !important;
+    padding: 0 16px !important;
+    font-size: 12px !important;
+}
+
+.status-item {
+    padding: 4px 8px !important;
+    border-radius: 3px !important;
+}
+
+/* Foglio più realistico */
+.paper {
+    box-shadow: 0 0 15px rgba(0,0,0,0.1) !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+.paper-content {
+    background: white !important;
+    line-height: 1.5 !important;
+    font-family: 'Segoe UI', 'Aptos', sans-serif !important;
+}
+
+/* Pulsanti più moderni */
+.btn-primary {
+    background: #2564c1 !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.btn-primary:hover {
+    background: #215db1 !important;
+}
+
+/* Menu superiore migliorato */
+.top-menu-bar {
+    background: #faf9f8 !important;
+    padding: 0 16px !important;
+    height: 40px !important;
+    border-bottom: 1px solid #e1dfdd !important;
+}
+
+.menu-item {
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    color: #323130 !important;
+}
+
+.menu-item:hover {
+    background: #f3f2f1 !important;
+}
+
+.quick-actions {
+    gap: 8px !important;
+}
+
+.quick-btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    color: #323130 !important;
+}
+
+.quick-btn:hover {
+    background: #f3f2f1 !important;
+}
+
+/* Miglioramenti responsive */
+@media (max-width: 1200px) {
+    .search-box {
+        width: 300px !important;
+    }
+    
+    .ribbon-content {
+        gap: 15px !important;
+        padding: 10px 12px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-box {
+        width: 200px !important;
+    }
+    
+    .title-bar {
+        padding: 0 8px !important;
+    }
+}
+
+/* Animazioni smooth */
+.ribbon-btn, .menu-item, .title-btn, .quick-btn {
+    transition: all 0.15s ease !important;
+}
+
+/* Focus states per accessibilità */
+.ribbon-btn:focus, .menu-item:focus {
+    outline: 2px solid #2564c1 !important;
+    outline-offset: 1px !important;
+}
+
+/* Scrollbar personalizzata per l'editor */
+.paper-content::-webkit-scrollbar {
+    width: 12px;
+}
+
+.paper-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.paper-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 6px;
+}
+
+.paper-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* AGGIUNGI AL CSS */
+.notification {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.editor-toolbar-left, .editor-toolbar-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Miglioramenti per i selettori font */
+.compact-btn {
+    padding: 4px 8px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 3px !important;
+    background: white !important;
+    font-size: 12px !important;
+}
+
+.compact-btn:hover {
+    border-color: #2564c1 !important;
+}
+

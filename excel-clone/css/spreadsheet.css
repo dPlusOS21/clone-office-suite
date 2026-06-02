@@ -1,0 +1,394 @@
+/* Contenitori principali */
+#sheet-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #e9e9e9;
+    position: relative;
+}
+
+#column-headers-container {
+    display: flex;
+    height: 20px;
+    background-color: #f3f3f3;
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid #d6d6d6;
+    flex-shrink: 0;
+    overflow: hidden; /* il clipping avviene qui (area visibile), non su #column-headers */
+}
+
+#corner-header {
+    width: 60px;
+    height: 20px;
+    border-right: 1px solid #d6d6d6;
+    background-color: #f3f3f3;
+    flex-shrink: 0;
+}
+
+#column-headers {
+    flex: 1;
+    overflow: visible; /* le colonne oltre il box (Q..Z) non vanno clippate qui: il translate sullo scroll le rivela, clippate dal contenitore */
+    background-color: #f3f3f3;
+    position: relative;
+    display: flex;
+}
+
+/* Intestazioni colonne */
+.col-header {
+    width: 80px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #d6d6d6;
+    background-color: #f3f3f3;
+    font-size: 11px;
+    font-weight: 400;
+    user-select: none;
+    position: relative;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    color: #333;
+    cursor: pointer;
+}
+
+.col-header:hover {
+    background-color: #e8e8e8;
+}
+
+#sheet-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background-color: white;
+    position: relative;
+}
+
+#row-headers {
+    width: 60px;
+    background-color: #f3f3f3;
+    overflow: visible; /* stesso motivo delle colonne: le righe oltre il box vengono rivelate dal translate, clippate da #sheet-container */
+    flex-shrink: 0;
+    border-right: 1px solid #d6d6d6;
+    position: relative;
+}
+
+/* Intestazioni righe */
+.row-header {
+    width: 60px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #d6d6d6;
+    background-color: #f3f3f3;
+    font-size: 11px;
+    font-weight: 400;
+    user-select: none;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    color: #333;
+    cursor: pointer;
+}
+
+.row-header:hover {
+    background-color: #e8e8e8;
+}
+
+/* Handle di resize colonne */
+.col-resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 5;
+    background: transparent;
+}
+
+.col-resize-handle:hover,
+.col-resize-handle:active {
+    background: #217346;
+    opacity: 0.6;
+}
+
+/* Handle di resize righe */
+.row-resize-handle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    cursor: row-resize;
+    z-index: 5;
+    background: transparent;
+}
+
+.row-resize-handle:hover,
+.row-resize-handle:active {
+    background: #217346;
+    opacity: 0.6;
+}
+
+#spreadsheet-viewport {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background-color: white;
+    min-width: 0;
+    min-height: 0; /* consente al foglio di restringersi così la status bar resta sempre visibile */
+}
+
+#spreadsheet {
+    position: relative;
+    background-color: white;
+    display: inline-block;
+}
+
+/* Celle della griglia */
+.cell {
+    position: absolute;
+    width: 80px;
+    height: 20px;
+    border-right: 1px solid #d6d6d6;
+    border-bottom: 1px solid #d6d6d6;
+    padding: 0;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 11px;
+    overflow: hidden;
+    background-color: white;
+    user-select: none;
+    outline: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    cursor: cell;
+    color: #333;
+}
+
+.cell.selected {
+    /* Box-shadow inset crea un overlay azzurro SENZA sovrascrivere il fill color della cella */
+    box-shadow: inset 0 0 0 999px rgba(0, 120, 212, 0.06);
+    z-index: 4;
+}
+
+.cell.active {
+    outline: 2px solid #0078d4;
+    outline-offset: -1px;
+    z-index: 6;
+}
+
+.cell.selected-top {
+    border-top: 2px solid #0078d4 !important;
+}
+
+.cell.selected-bottom {
+    border-bottom: 2px solid #0078d4 !important;
+}
+
+.cell.selected-left {
+    border-left: 2px solid #0078d4 !important;
+}
+
+.cell.selected-right {
+    border-right: 2px solid #0078d4 !important;
+}
+
+/* Stili per il contenuto delle celle */
+.cell-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 1px 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cell-number {
+    justify-content: flex-end;
+}
+
+.cell-text {
+    justify-content: flex-start;
+}
+
+.cell-formula {
+    /* Le formule mostrano il risultato con lo stesso stile delle altre celle */
+}
+
+/* Stili di formattazione */
+.cell-bold {
+    font-weight: bold;
+}
+
+.cell-italic {
+    font-style: italic;
+}
+
+.cell-underline {
+    text-decoration: underline;
+}
+
+/* Gridlines toggle */
+#spreadsheet.hide-gridlines .cell {
+    border-color: transparent;
+}
+
+/* Comments & Notes indicators */
+.cell.has-comment::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-top: 6px solid #ff6b00;
+}
+.cell.has-note::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-top: 6px solid #4472c4;
+}
+
+/* View modes */
+#sheet-area.view-page-layout {
+    background: #808080;
+}
+#sheet-area.view-page-break .cell {
+    opacity: 0.9;
+}
+.page-break-line {
+    pointer-events: none;
+}
+
+/* Drawing objects */
+.drawing-object {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: box-shadow 0.2s;
+}
+.drawing-object:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    outline: 2px dashed #217346;
+}
+
+/* Split divider */
+.split-divider:hover {
+    background: #0078d4 !important;
+    height: 4px !important;
+}
+
+/* Menu dropdown */
+.menu-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #d6d6d6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    z-index: 1000;
+    display: none;
+    padding: 4px 0;
+    border-radius: 2px;
+}
+
+.menu-dropdown.show {
+    display: block;
+}
+
+.menu-option {
+    padding: 6px 32px 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    position: relative;
+    font-size: 12px;
+    user-select: none;
+    color: #333;
+}
+
+.menu-option:hover {
+    background-color: #f3f3f3;
+}
+
+.menu-option.disabled {
+    color: #a6a6a6;
+    cursor: default;
+}
+
+.menu-option.disabled:hover {
+    background-color: transparent;
+}
+
+.menu-separator {
+    height: 1px;
+    background-color: #e1e1e1;
+    margin: 4px 0;
+}
+
+.menu-shortcut {
+    margin-left: auto;
+    color: #666;
+    font-size: 11px;
+    padding-left: 20px;
+}
+
+.menu-option.has-submenu::after {
+    content: "▶";
+    position: absolute;
+    right: 8px;
+    font-size: 8px;
+    color: #666;
+}
+
+/* Submenu */
+.submenu {
+    position: absolute;
+    top: -4px;
+    left: 100%;
+    background-color: white;
+    border: 1px solid #d6d6d6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    z-index: 1001;
+    display: none;
+    padding: 4px 0;
+    border-radius: 2px;
+}
+
+.menu-option:hover > .submenu {
+    display: block;
+}
+
+/* Scrollbar personalizzate */
+#spreadsheet-viewport::-webkit-scrollbar {
+    width: 17px;
+    height: 17px;
+}
+
+#spreadsheet-viewport::-webkit-scrollbar-track {
+    background: #f3f3f3;
+}
+
+#spreadsheet-viewport::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border: 4px solid #f3f3f3;
+    border-radius: 10px;
+}
+
+#spreadsheet-viewport::-webkit-scrollbar-thumb:hover {
+    background: #a6a6a6;
+}
+
+#spreadsheet-viewport::-webkit-scrollbar-corner {
+    background: #f3f3f3;
+}

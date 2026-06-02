@@ -1,0 +1,3938 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="frame-src blob: data:;">
+    <title>Clone-OneNote</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../js/auth.js"></script>
+    <style>
+        :root {
+            --accent: #7b1fa2;
+            --accent-light: #ce93d8;
+            --accent-dark: #4a148c;
+            --accent-bg: #f3e5f5;
+            --accent-hover: #ede7f6;
+            --titlebar-bg: #7b1fa2;
+            --ribbon-tabs-bg: #7b1fa2;
+            --sidebar-bg: #4a148c;
+            --statusbar-bg: #7b1fa2;
+            --body-bg: #f3f2f1;
+            --panel-bg: #f9f9f9;
+            --panel-border: #e0e0e0;
+            --editor-bg: #ffffff;
+            --editor-text: #333333;
+            --text-primary: #333333;
+            --text-secondary: #777777;
+            --page-bg: #ffffff;
+        }
+
+        /* ====== THEME: DARK ====== */
+        [data-theme="dark"] {
+            --titlebar-bg: #1e1e1e;
+            --ribbon-tabs-bg: #1e1e1e;
+            --sidebar-bg: #111111;
+            --statusbar-bg: #1e1e1e;
+            --body-bg: #2d2d2d;
+            --panel-bg: #252525;
+            --panel-border: #3a3a3a;
+            --editor-bg: #1e1e1e;
+            --editor-text: #e0e0e0;
+            --text-primary: #e0e0e0;
+            --text-secondary: #999999;
+        }
+
+        [data-theme="dark"] .ribbon-content { background: #2d2d2d; border-color: #3a3a3a; }
+        [data-theme="dark"] .ribbon-btn { color: #e0e0e0; }
+        [data-theme="dark"] .ribbon-btn:hover { background: #3a3a3a; border-color: #555; }
+        [data-theme="dark"] .ribbon-select { background: #333; color: #e0e0e0; border-color: #555; }
+        [data-theme="dark"] .ribbon-tab { color: rgba(255,255,255,0.6); }
+        [data-theme="dark"] .ribbon-tab.active { background: #2d2d2d; color: #e0e0e0; }
+        [data-theme="dark"] .sections-header { color: #e0e0e0; border-color: #3a3a3a; }
+        [data-theme="dark"] .section-tab { color: #bbb; }
+        [data-theme="dark"] .section-tab:hover { background: #333; }
+        [data-theme="dark"] .section-tab.active { background: #2d2d2d; color: #e0e0e0; }
+        [data-theme="dark"] .sections-tabs { background: #1e1e1e; border-color: #3a3a3a; }
+        [data-theme="dark"] .page-item { border-color: #3a3a3a; }
+        [data-theme="dark"] .page-item:hover { background: #333; }
+        [data-theme="dark"] .page-item.active { background: #3a3a3a; }
+        [data-theme="dark"] .page-item-title { color: #e0e0e0; }
+        [data-theme="dark"] .page-item-preview { color: #888; }
+        [data-theme="dark"] .page-title-input { color: #e0e0e0; border-color: #3a3a3a; }
+        [data-theme="dark"] .page-title-input:focus { border-color: var(--accent); }
+        [data-theme="dark"] .page-meta { color: #777; }
+        [data-theme="dark"] .note-editor { color: #e0e0e0; }
+        [data-theme="dark"] .add-page-btn { color: var(--accent-light); }
+        [data-theme="dark"] .add-page-btn:hover { background: #333; }
+        [data-theme="dark"] .add-section-tab { color: var(--accent-light); }
+        [data-theme="dark"] .modal { background: #2d2d2d; }
+        [data-theme="dark"] .modal-header { border-color: #3a3a3a; }
+        [data-theme="dark"] .modal-header h3 { color: #e0e0e0; }
+        [data-theme="dark"] .modal-body label { color: #bbb; }
+        [data-theme="dark"] .modal-body input[type="text"],
+        [data-theme="dark"] .modal-body select { background: #333; color: #e0e0e0; border-color: #555; }
+        [data-theme="dark"] .modal-footer { border-color: #3a3a3a; }
+        [data-theme="dark"] .btn { background: #333; color: #e0e0e0; border-color: #555; }
+        [data-theme="dark"] .btn:hover { background: #444; }
+        [data-theme="dark"] .context-menu { background: #2d2d2d; border-color: #3a3a3a; }
+        [data-theme="dark"] .ctx-item { color: #e0e0e0; }
+        [data-theme="dark"] .ctx-item:hover { background: #3a3a3a; }
+        [data-theme="dark"] .note-editor.ruled { background-image: repeating-linear-gradient(transparent, transparent 27px, #3a3a3a 27px, #3a3a3a 28px); }
+        [data-theme="dark"] .note-editor.grid-bg { background-image: linear-gradient(#3a3a3a 1px, transparent 1px), linear-gradient(90deg, #3a3a3a 1px, transparent 1px); }
+        [data-theme="dark"] .drawing-toolbar { background: #2d2d2d; border-color: #3a3a3a; }
+        [data-theme="dark"] .draw-tool-btn { color: #ccc; }
+        [data-theme="dark"] .note-editor table td, [data-theme="dark"] .note-editor table th { border-color: #555; }
+        [data-theme="dark"] .note-editor table th { background: #333; }
+
+        /* ====== THEME: WHITE (clean, no accent color on bars) ====== */
+        [data-theme="white"] {
+            --titlebar-bg: #f3f2f1;
+            --ribbon-tabs-bg: #f3f2f1;
+            --sidebar-bg: #e8e8e8;
+            --statusbar-bg: #f3f2f1;
+        }
+
+        [data-theme="white"] .title-bar { color: #333; }
+        [data-theme="white"] .title-btn { color: #555; }
+        [data-theme="white"] .title-btn:hover { background: rgba(0,0,0,0.08); }
+        [data-theme="white"] .onenote-logo i { color: var(--accent); }
+        [data-theme="white"] .notebook-name-display { border-color: #ccc; color: #555; }
+        [data-theme="white"] .search-global { background: rgba(0,0,0,0.06); border-color: #ccc; }
+        [data-theme="white"] .search-global input { color: #333; }
+        [data-theme="white"] .search-global input::placeholder { color: #999; }
+        [data-theme="white"] .search-global i { color: #999; }
+        [data-theme="white"] .ribbon-tab { color: #555; }
+        [data-theme="white"] .ribbon-tab:hover { background: rgba(0,0,0,0.05); color: #333; }
+        [data-theme="white"] .ribbon-tab.active { background: #f3f2f1; color: #333; border-bottom-color: var(--accent); }
+        [data-theme="white"] .nb-icon { color: #555; }
+        [data-theme="white"] .nb-icon.active { color: var(--accent); background: rgba(0,0,0,0.08); box-shadow: inset 3px 0 0 var(--accent); }
+        [data-theme="white"] .status-bar { color: #555; }
+        [data-theme="white"] .mobile-title-bar { background: var(--accent); }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--body-bg);
+            height: 100vh;
+            height: 100dvh; /* altezza dinamica: tiene conto della barra del browser su mobile */
+            overflow: hidden;
+        }
+
+        .onenote-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* ====== TITLE BAR ====== */
+        .title-bar {
+            background: var(--titlebar-bg);
+            color: white;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 40px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .onenote-logo {
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .onenote-logo i { color: var(--accent-light); }
+
+        .notebook-name-input {
+            font-size: 13px;
+            margin-left: 8px;
+            padding: 4px 8px;
+            border: none;
+            outline: none;
+            border-radius: 2px;
+            background: transparent;
+            color: white;
+            font-family: inherit;
+            border-left: 1px solid rgba(255,255,255,0.3);
+            min-width: 60px;
+            max-width: 200px;
+        }
+        .notebook-name-input:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .notebook-name-input:focus {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .title-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .search-global {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 4px 12px;
+            width: 350px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-global input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .search-global input::placeholder { color: rgba(255,255,255,0.7); }
+        .search-global i { color: rgba(255,255,255,0.7); font-size: 12px; }
+
+        .title-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .title-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .title-btn:hover { background: rgba(255,255,255,0.15); }
+
+        /* ====== RIBBON ====== */
+        .ribbon-tabs {
+            background: var(--ribbon-tabs-bg);
+            display: flex;
+            padding: 0 8px;
+            gap: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            flex-shrink: 0;
+        }
+
+        .ribbon-tab {
+            padding: 6px 14px;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            font-size: 12px;
+            border: none;
+            background: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .ribbon-tab:hover { color: white; background: rgba(255,255,255,0.1); }
+        .ribbon-tab.active {
+            color: white;
+            background: var(--body-bg);
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--accent);
+            border-radius: 4px 4px 0 0;
+        }
+        /* riga tab in stile OneNote online (parte destra: Dimmi/Modifica/Condividi) */
+        [data-theme="white"] .ribbon-tabs { border-bottom: 1px solid #edebe9; }
+        .ribbon-tabs-spacer { flex: 1; }
+        .tellme-box { display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.04); border:1px solid #e0e0e0; border-radius:4px; padding:3px 10px; margin:4px 10px; min-width:170px; max-width:300px; flex:0 1 260px; }
+        .tellme-box i { color:#b59f00; font-size:12px; }
+        .tellme-box input { border:none; background:none; outline:none; font-size:12px; flex:1; min-width:0; color:#444; }
+        .tellme-box input::placeholder { color:#888; }
+        .modifica-pill { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #d0d0d0; border-radius:4px; padding:5px 12px; font-size:12px; color:#333; cursor:pointer; margin:4px 4px; white-space:nowrap; }
+        .modifica-pill:hover { background:#f5f5f5; }
+        .condividi-btn { display:flex; align-items:center; gap:6px; background:var(--accent); color:#fff; border:none; border-radius:4px; padding:6px 14px; font-size:12px; font-weight:600; cursor:pointer; margin:4px 8px 4px 0; white-space:nowrap; }
+        .condividi-btn:hover { background:var(--accent-dark); }
+        .ribbon-letter { font-size:15px; min-width:30px; line-height:1; }
+        .ribbon-letter em { font-style:italic; }
+        .ribbon-letter u { text-decoration:underline; }
+        .ribbon-letter strong { font-weight:700; }
+
+        .ribbon-content {
+            background: var(--body-bg);
+            border-bottom: 1px solid var(--panel-border);
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-wrap: wrap;
+            min-height: 44px;
+            flex-shrink: 0;
+        }
+
+        .ribbon-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 0 8px;
+            border-right: 1px solid #d0d0d0;
+        }
+
+        .ribbon-group:last-child { border-right: none; }
+
+        .ribbon-btn {
+            background: none;
+            border: 1px solid transparent;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .ribbon-btn:hover { background: #e0e0e0; border-color: #ccc; }
+        .ribbon-btn.active { background: #d0d0d0; border-color: #bbb; }
+        .ribbon-btn i { font-size: 13px; }
+
+        .ribbon-select {
+            padding: 3px 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .ribbon-separator {
+            width: 1px;
+            height: 28px;
+            background: #d0d0d0;
+            margin: 0 4px;
+        }
+
+        .ribbon-color-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .ribbon-color-btn:hover { border-color: #999; }
+
+        /* ====== MAIN LAYOUT ====== */
+        .main-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ====== NOTEBOOKS SIDEBAR ====== */
+        .notebooks-sidebar {
+            width: 60px;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            gap: 4px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .nb-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .nb-icon:hover { background: rgba(255,255,255,0.15); color: white; }
+        .nb-icon.active {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            box-shadow: inset 3px 0 0 white;
+        }
+
+        .nb-icon.add-nb {
+            border: 2px dashed rgba(255,255,255,0.3);
+            font-size: 18px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .nb-icon.add-nb:hover {
+            border-color: rgba(255,255,255,0.6);
+            color: white;
+        }
+
+        .nb-color-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* ====== SECTIONS PANEL ====== */
+        .sections-panel {
+            width: 220px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sections-header {
+            padding: 12px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sections-header button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .sections-header button:hover { background: var(--accent-hover); }
+
+        .sections-tabs {
+            display: flex;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--panel-border);
+            background: var(--panel-bg);
+            flex-shrink: 0;
+        }
+
+        .section-tab {
+            padding: 8px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            border: none;
+            background: none;
+            color: #555;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .section-tab:hover { background: #e8e8e8; }
+        .section-tab.active {
+            background: white;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .section-tab .section-color {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .add-section-tab {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--accent);
+            background: none;
+            border: none;
+        }
+
+        .add-section-tab:hover { background: #e8e8e8; }
+
+        /* ====== PAGES LIST ====== */
+        .pages-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+
+        .page-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background 0.1s;
+        }
+
+        .page-item:hover { background: var(--accent-hover); }
+        .page-item.active { background: var(--accent-bg); border-left: 3px solid var(--accent); }
+
+        .page-item-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .page-item-preview {
+            font-size: 11px;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .page-item-date {
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .add-page-btn {
+            padding: 10px 14px;
+            cursor: pointer;
+            color: var(--accent);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .add-page-btn:hover { background: var(--accent-hover); }
+        .add-page-btn-top { border-bottom: 1px solid var(--border-color, #e0e0e0); font-weight: 600; }
+
+        /* ====== EDITOR AREA ====== */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--editor-bg);
+            overflow: hidden;
+        }
+
+        .page-header-area {
+            padding: 20px 40px 0;
+            flex-shrink: 0;
+        }
+
+        .page-title-input {
+            font-size: 28px;
+            font-weight: 300;
+            color: var(--text-primary);
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 4px 0;
+            border-bottom: 1px solid var(--panel-border);
+            background: transparent;
+        }
+
+        .page-title-input:focus {
+            border-bottom-color: var(--accent);
+        }
+
+        .page-meta {
+            font-size: 11px;
+            color: #999;
+            padding: 6px 0;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-editor {
+            padding: 16px 40px 60px;
+            min-height: 100%;
+            outline: none;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--editor-text);
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .note-editor:empty::before {
+            content: 'Inizia a scrivere qui...';
+            color: #bbb;
+            font-style: italic;
+        }
+        /* stato "nessuna pagina": messaggio onesto invece dell'invito a scrivere */
+        .note-editor.no-page:empty::before {
+            content: 'Nessuna pagina in questa sezione. Premi “+ Aggiungi pagina” per iniziare.';
+        }
+
+        .note-editor img {
+            max-width: 100%;
+            border-radius: 4px;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+
+        .note-editor table {
+            border-collapse: collapse;
+            margin: 8px 0;
+            width: auto;
+        }
+
+        .note-editor table td, .note-editor table th {
+            border: 1px solid #d0d0d0;
+            padding: 6px 10px;
+            min-width: 60px;
+            font-size: 13px;
+        }
+
+        .note-editor table th {
+            background: #f3f2f1;
+            font-weight: 600;
+        }
+
+        .note-editor .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 4px 0;
+        }
+
+        .note-editor .todo-checkbox {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .note-editor .todo-item.done .todo-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .note-editor .note-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 0 2px;
+        }
+
+        .tag-important { background: #fce4ec; color: #c62828; }
+        .tag-question { background: #e3f2fd; color: #1565c0; }
+        .tag-remember { background: #fff3e0; color: #e65100; }
+        .tag-definition { background: #e8f5e9; color: #2e7d32; }
+        .tag-highlight { background: #fff9c4; color: #f57f17; }
+
+        /* ====== DRAWING CANVAS OVERLAY ====== */
+        .drawing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+            cursor: crosshair;
+        }
+
+        .drawing-overlay.active {
+            display: block;
+        }
+
+        .drawing-toolbar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 20;
+            display: none;
+        }
+
+        .drawing-toolbar.active { display: flex; }
+
+        .draw-tool-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .draw-tool-btn:hover { background: #ede7f6; }
+        .draw-tool-btn.active { background: var(--accent-light); color: white; border-color: var(--accent); }
+
+        .draw-color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            cursor: pointer;
+        }
+
+        .draw-color-swatch.active { border-color: #333; box-shadow: 0 0 0 2px white, 0 0 0 4px #333; }
+
+        .draw-size-slider {
+            width: 80px;
+            accent-color: var(--accent);
+        }
+
+        /* ====== RULE LINES (optional) ====== */
+        .note-editor.ruled {
+            background-image: repeating-linear-gradient(
+                transparent,
+                transparent 27px,
+                #e8e8e8 27px,
+                #e8e8e8 28px
+            );
+            background-position: 0 0;
+            line-height: 28px;
+        }
+
+        .note-editor.grid-bg {
+            background-image:
+                linear-gradient(#e8e8e8 1px, transparent 1px),
+                linear-gradient(90deg, #e8e8e8 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* ====== MODALS ====== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #999;
+            padding: 4px;
+        }
+
+        .modal-close:hover { color: #333; }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-body label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+            margin-top: 12px;
+        }
+
+        .modal-body label:first-child { margin-top: 0; }
+
+        .modal-body input[type="text"],
+        .modal-body input[type="color"],
+        .modal-body select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .modal-body input[type="text"]:focus,
+        .modal-body select:focus {
+            border-color: #7b1fa2;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #d0d0d0;
+            background: white;
+            color: #333;
+        }
+
+        .btn:hover { background: #f5f5f5; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover { background: var(--accent-dark); }
+
+        .btn-danger {
+            background: #e53935;
+            color: white;
+            border-color: #e53935;
+        }
+
+        .btn-danger:hover { background: #c62828; }
+
+        /* ====== CONTEXT MENU ====== */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            padding: 4px 0;
+            z-index: 2000;
+            display: none;
+            min-width: 180px;
+        }
+
+        .context-menu.show { display: block; }
+
+        .ctx-item {
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+        }
+
+        .ctx-item:hover { background: var(--accent-hover); }
+        .ctx-item i { width: 16px; text-align: center; color: #777; }
+        .ctx-separator { height: 1px; background: #e0e0e0; margin: 4px 0; }
+
+        /* ====== STATUS BAR ====== */
+        .status-bar {
+            background: var(--statusbar-bg);
+            color: rgba(255,255,255,0.8);
+            padding: 3px 16px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* ====== NOTIFICATION TOAST ====== */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            z-index: 3000;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ====== COLORS PANEL ====== */
+        .nb-colors-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .nb-color-opt {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .nb-color-opt:hover { border-color: #333; }
+        .nb-color-opt.selected { border-color: #333; box-shadow: 0 0 0 2px white, 0 0 0 4px #333; }
+
+        /* ====== FILE PANEL (slide from left) ====== */
+        .file-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 340px;
+            height: 100%;
+            background: #2d2d2d;
+            color: white;
+            z-index: 500;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-panel.open { transform: translateX(0); }
+
+        .file-panel-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-panel-header h2 {
+            font-size: 20px;
+            font-weight: 300;
+        }
+
+        .file-panel-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .file-menu-items {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .file-menu-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+        }
+
+        .file-menu-item:hover { background: rgba(255,255,255,0.1); }
+        .file-menu-item i { width: 20px; text-align: center; font-size: 16px; opacity: 0.7; }
+
+        .file-menu-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 4px 0;
+        }
+
+        .server-docs-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 8px;
+        }
+
+        .server-doc-item {
+            padding: 10px 20px 10px 54px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .server-doc-item:hover { background: rgba(255,255,255,0.08); }
+
+        .server-doc-item .doc-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .server-doc-item .doc-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .server-doc-item .doc-date {
+            font-size: 11px;
+            opacity: 0.5;
+        }
+
+        .server-doc-item .doc-delete {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .server-doc-item .doc-delete:hover { color: #ef5350; }
+
+        /* ====== RESPONSIVE MOBILE ====== */
+        .mobile-title-bar { display: none; }
+        .mobile-bottom-bar { display: none; }
+        .mobile-nav-header { display: none; }
+        .mobile-notebooks-list { display: none; }
+        .mobile-nav-overlay { display: none; }
+
+        @media (max-width: 768px) {
+            .title-bar { display: none; }
+            .ribbon-tabs { display: none; }
+            .ribbon-content { display: none; }
+            .notebooks-sidebar { display: none; }
+            .sections-panel { display: none; }
+            /* status bar visibile anche su mobile (zoom + info), compatta */
+            .status-bar { display: flex !important; padding: 4px 10px; font-size: 11px; }
+            .status-bar #statusCharCount { display: none; }
+            .status-bar #statusSync { display: none; }
+            .status-bar #statusZoomSlider { width: 70px; }
+
+            .mobile-title-bar {
+                display: flex !important;
+                background: var(--accent);
+                color: white;
+                padding: 8px 12px;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .mobile-title-bar .back-btn {
+                color: white;
+                text-decoration: none;
+                font-size: 18px;
+                padding: 4px;
+            }
+
+            .mobile-title-bar .mob-title {
+                flex: 1;
+                font-size: 14px;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .mobile-title-bar { gap: 2px; padding: 8px 8px; }
+            .mobile-title-bar .mob-btn {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 16px;
+                padding: 6px 5px;
+                cursor: pointer;
+                flex-shrink: 0;
+            }
+            /* su schermi stretti nascondi l'etichetta app ridondante per far stare i pulsanti */
+            .mobile-title-bar .mob-app-label { display: none; }
+
+            .page-header-area { padding: 12px 16px 0; }
+            .page-title-input { font-size: 20px; }
+            .note-editor { padding: 12px 16px 80px; font-size: 15px; }
+
+            .mobile-bottom-bar {
+                display: flex !important;
+                background: white;
+                border-top: 1px solid #e0e0e0;
+                padding: 4px 8px;
+                padding-bottom: calc(4px + env(safe-area-inset-bottom)); /* evita la barra/indicatore inferiore del telefono */
+                gap: 2px;
+                overflow-x: auto;
+                flex-shrink: 0;
+            }
+
+            .mob-bar-btn {
+                background: none;
+                border: none;
+                padding: 8px 10px;
+                font-size: 16px;
+                color: #555;
+                cursor: pointer;
+                border-radius: 4px;
+                flex-shrink: 0;
+            }
+
+            .mob-bar-btn:hover { background: #f0f0f0; }
+            .mob-bar-btn.active { color: var(--accent); background: var(--accent-hover); }
+
+            .file-panel { width: 100%; }
+
+            /* Mobile Nav Overlay */
+            .mobile-nav-overlay {
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.35);
+                z-index: 399;
+                display: none;
+            }
+            .mobile-nav-overlay.open { display: block; }
+
+            /* Mobile sections panel when opened */
+            .sections-panel.mobile-open {
+                display: flex !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 85% !important;
+                max-width: 340px !important;
+                height: 100% !important;
+                z-index: 400 !important;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.25) !important;
+                background: var(--panel-bg) !important;
+                flex-direction: column !important;
+            }
+
+            .sections-panel.mobile-open .mobile-nav-header {
+                display: flex !important;
+                padding: 14px 16px;
+                background: var(--accent);
+                color: white;
+                align-items: center;
+                justify-content: space-between;
+                flex-shrink: 0;
+            }
+            .mobile-nav-header h3 {
+                font-size: 16px;
+                font-weight: 600;
+                margin: 0;
+            }
+            .mobile-nav-header .close-nav {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+                padding: 4px 8px;
+            }
+
+            /* Mobile notebooks list inside sections panel */
+            .sections-panel.mobile-open .mobile-notebooks-list {
+                display: block !important;
+                padding: 8px 0;
+                border-bottom: 1px solid var(--panel-border);
+                max-height: 180px;
+                overflow-y: auto;
+                flex-shrink: 0;
+            }
+            .mob-nb-item {
+                padding: 10px 16px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+                font-size: 13px;
+                color: var(--text-primary);
+            }
+            .mob-nb-item:hover, .mob-nb-item.active { background: var(--accent-hover); }
+            .mob-nb-item .mob-nb-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+            .mob-nb-item .mob-nb-name {
+                flex: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-weight: 500;
+            }
+            .mob-nb-item .mob-nb-actions {
+                display: flex;
+                gap: 4px;
+            }
+            .mob-nb-item .mob-nb-action-btn {
+                background: none;
+                border: none;
+                color: #999;
+                font-size: 12px;
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 3px;
+            }
+            .mob-nb-item .mob-nb-action-btn:hover { background: rgba(0,0,0,0.08); color: #333; }
+
+            .mob-add-nb-btn {
+                padding: 10px 16px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+                font-size: 13px;
+                color: var(--accent);
+                background: none;
+                border: none;
+                width: 100%;
+                text-align: left;
+            }
+            .mob-add-nb-btn:hover { background: var(--accent-hover); }
+        }
+
+        /* Print */
+        @media print {
+            .title-bar, .ribbon-tabs, .ribbon-content, .notebooks-sidebar,
+            .sections-panel, .status-bar, .drawing-toolbar, .mobile-title-bar,
+            .mobile-bottom-bar { display: none !important; }
+            .editor-area { overflow: visible; }
+            .note-editor { overflow: visible; height: auto; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="onenote-container">
+
+        <!-- Mobile Title Bar -->
+        <div class="mobile-title-bar">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+            <button class="mob-btn mob-notebook-btn" onclick="toggleMobileNav()" title="Blocchi appunti" style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;min-width:0;flex:1;overflow:hidden;">
+                <i class="fas fa-book"></i><span class="mob-app-label">&nbsp;Clone-OneNote —</span> <input type="text" class="notebook-name-input" id="mobTitle" value="Blocco appunti" style="min-width:0;flex:1;color:white;font-size:13px;font-weight:600;background:none;border:none;">
+                <i class="fas fa-chevron-down" style="font-size:10px;opacity:0.7;flex-shrink:0;"></i>
+            </button>
+            <button class="mob-btn" onclick="undo()" title="Annulla"><i class="fas fa-undo"></i></button>
+            <button class="mob-btn" onclick="redo()" title="Ripristina"><i class="fas fa-redo"></i></button>
+            <button class="mob-btn" onclick="OfficeLauncher.toggle()" title="App Suite"><i class="fas fa-th"></i></button>
+            <button class="mob-btn" onclick="toggleFilePanel()" title="File"><i class="fas fa-ellipsis-v"></i></button>
+        </div>
+
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <div class="title-left">
+                <button class="waffle-btn" onclick="OfficeLauncher.toggle()" title="App Office Suite" style="margin-right:4px;"><div class="waffle-grid"><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span></div></button>
+                <div class="onenote-logo">
+                    <i class="fas fa-book-open"></i> Clone-OneNote
+                </div>
+                <input type="text" class="notebook-name-input" id="notebookNameDisplay" value="Blocco appunti personale" title="Nome blocco appunti">
+            </div>
+            <div class="title-center">
+                <!-- In OneNote online la barra in alto non ha ricerca: la ricerca è "Dimmi cosa vuoi fare" nella riga dei tab -->
+                <input type="text" id="globalSearch" style="display:none;">
+            </div>
+            <div class="title-right">
+                <button class="title-btn" onclick="showSettingsModal()" title="Impostazioni"><i class="fas fa-cog"></i></button>
+                <button class="title-btn" id="btn-auth-onenote" onclick="toggleAuthOnenote()" title="Account"><i class="fas fa-user"></i> <span id="auth-label-onenote" style="font-size:11px;margin-left:2px;">Utente</span></button>
+                <button class="title-btn" onclick="toggleFilePanel()" title="File"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+
+        <!-- Ribbon Tabs -->
+        <div class="ribbon-tabs">
+            <button class="ribbon-tab" onclick="toggleFilePanel()">File</button>
+            <button class="ribbon-tab active" data-tab="home" onclick="switchRibbonTab('home')">Home</button>
+            <button class="ribbon-tab" data-tab="insert" onclick="switchRibbonTab('insert')">Inserisci</button>
+            <button class="ribbon-tab" data-tab="draw" onclick="switchRibbonTab('draw')">Disegno</button>
+            <button class="ribbon-tab" data-tab="view" onclick="switchRibbonTab('view')">Visualizza</button>
+            <button class="ribbon-tab" onclick="showOneNoteHelp()">Guida</button>
+            <div class="tellme-box" title="Cerca / Dimmi cosa vuoi fare">
+                <i class="fas fa-search" style="color:#888;"></i>
+                <input type="text" placeholder="Dimmi cosa vuoi fare" oninput="searchNotes(this.value)">
+            </div>
+            <div class="ribbon-tabs-spacer"></div>
+            <button class="modifica-pill" onclick="toggleEditingMode()" title="Modalità documento"><i class="fas fa-pen"></i> Modifica <i class="fas fa-chevron-down" style="font-size:9px;"></i></button>
+            <button class="condividi-btn" onclick="shareNotebook()" title="Condividi"><i class="fas fa-share-alt"></i> Condividi</button>
+        </div>
+
+        <!-- Ribbon Content -->
+        <div class="ribbon-content" id="ribbonContent">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- Main Area -->
+        <div class="main-area">
+
+            <!-- Notebooks Sidebar (vertical icons) -->
+            <div class="notebooks-sidebar" id="notebooksSidebar">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Mobile Nav Overlay -->
+            <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileNav()"></div>
+
+            <!-- Sections + Pages Panel -->
+            <div class="sections-panel" id="sectionsPanel">
+                <!-- Mobile-only header with close button -->
+                <div class="mobile-nav-header">
+                    <h3><i class="fas fa-book-open" style="margin-right:6px;"></i> Blocchi appunti</h3>
+                    <button class="close-nav" onclick="closeMobileNav()"><i class="fas fa-times"></i></button>
+                </div>
+                <!-- Mobile-only notebooks list -->
+                <div class="mobile-notebooks-list" id="mobileNotebooksList">
+                    <!-- Populated by JS -->
+                </div>
+                <div class="sections-header">
+                    <span id="sectionsPanelTitle">Sezioni</span>
+                    <button onclick="showNotebookSettingsMenu()" title="Impostazioni blocco"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div class="sections-tabs" id="sectionsTabs">
+                    <!-- Populated by JS -->
+                </div>
+                <button class="add-page-btn add-page-btn-top" onclick="addPage()">
+                    <i class="fas fa-plus"></i> Aggiungi pagina
+                </button>
+                <div class="pages-list" id="pagesList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Editor Area -->
+            <div class="editor-area" id="editorArea">
+                <div class="page-header-area">
+                    <input type="text" class="page-title-input" id="pageTitleInput" placeholder="Titolo pagina" oninput="onPageTitleChange()">
+                    <div class="page-meta" id="pageMeta"></div>
+                </div>
+                <div class="editor-wrapper" id="editorWrapper">
+                    <div class="note-editor" id="noteEditor" contenteditable="true"
+                         oninput="onEditorInput()" onpaste="handlePaste(event)"></div>
+                    <canvas class="drawing-overlay" id="drawingCanvas"></canvas>
+                    <div class="drawing-toolbar" id="drawingToolbar">
+                        <button class="draw-tool-btn active" data-tool="pen" onclick="setDrawTool('pen')" title="Penna"><i class="fas fa-pen"></i></button>
+                        <button class="draw-tool-btn" data-tool="highlighter" onclick="setDrawTool('highlighter')" title="Evidenziatore"><i class="fas fa-highlighter"></i></button>
+                        <button class="draw-tool-btn" data-tool="eraser" onclick="setDrawTool('eraser')" title="Gomma"><i class="fas fa-eraser"></i></button>
+                        <div class="ribbon-separator"></div>
+                        <span class="draw-color-swatch" style="background:#333" data-color="#333" onclick="setDrawColor('#333')"></span>
+                        <span class="draw-color-swatch" style="background:#e53935" data-color="#e53935" onclick="setDrawColor('#e53935')"></span>
+                        <span class="draw-color-swatch" style="background:#1e88e5" data-color="#1e88e5" onclick="setDrawColor('#1e88e5')"></span>
+                        <span class="draw-color-swatch" style="background:#43a047" data-color="#43a047" onclick="setDrawColor('#43a047')"></span>
+                        <span class="draw-color-swatch active" style="background:#7b1fa2" data-color="#7b1fa2" onclick="setDrawColor('#7b1fa2')"></span>
+                        <div class="ribbon-separator"></div>
+                        <input type="range" class="draw-size-slider" id="drawSizeSlider" min="1" max="20" value="3" oninput="drawLineWidth=this.value" title="Spessore">
+                        <div class="ribbon-separator"></div>
+                        <button class="draw-tool-btn" onclick="clearDrawing()" title="Cancella tutto"><i class="fas fa-trash-alt"></i></button>
+                        <button class="draw-tool-btn" onclick="toggleDrawing()" title="Chiudi disegno"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="statusSaveState"><i class="fas fa-check-circle"></i> Salvato</span>
+                <span id="statusCharCount">0 caratteri</span>
+            </div>
+            <div class="status-right">
+                <span id="statusSync"><i class="fas fa-cloud"></i> Locale</span>
+                <span class="statusbar-zoom" style="display:inline-flex;align-items:center;gap:6px;">
+                    <button onclick="zoomOut()" title="Rimpicciolisci" style="background:none;border:none;color:inherit;cursor:pointer;font-size:13px;padding:0 4px;">&minus;</button>
+                    <input type="range" id="statusZoomSlider" min="50" max="200" step="10" value="100" oninput="setZoom(parseInt(this.value))" title="Zoom" style="width:90px;cursor:pointer;vertical-align:middle;">
+                    <button onclick="zoomIn()" title="Ingrandisci" style="background:none;border:none;color:inherit;cursor:pointer;font-size:14px;padding:0 4px;">+</button>
+                    <span id="statusZoom" onclick="zoomReset()" title="Ripristina 100%" style="cursor:pointer;min-width:38px;text-align:right;">100%</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom Bar -->
+        <div class="mobile-bottom-bar">
+            <button class="mob-bar-btn" onclick="execCmd('bold')" title="Grassetto"><i class="fas fa-bold"></i></button>
+            <button class="mob-bar-btn" onclick="execCmd('italic')" title="Corsivo"><i class="fas fa-italic"></i></button>
+            <button class="mob-bar-btn" onclick="execCmd('underline')" title="Sottolineato"><i class="fas fa-underline"></i></button>
+            <button class="mob-bar-btn" onclick="execCmd('strikeThrough')" title="Barrato"><i class="fas fa-strikethrough"></i></button>
+            <button class="mob-bar-btn" onclick="insertTodoItem()" title="To-Do"><i class="fas fa-check-square"></i></button>
+            <button class="mob-bar-btn" onclick="execCmd('insertUnorderedList')" title="Elenco"><i class="fas fa-list-ul"></i></button>
+            <button class="mob-bar-btn" onclick="execCmd('insertOrderedList')" title="Elenco numerato"><i class="fas fa-list-ol"></i></button>
+            <button class="mob-bar-btn" onclick="execCmd('indent')" title="Rientro"><i class="fas fa-indent"></i></button>
+            <button class="mob-bar-btn" onclick="toggleDrawing()" title="Disegna"><i class="fas fa-pen-fancy"></i></button>
+            <button class="mob-bar-btn" onclick="insertImageMobile()" title="Immagine"><i class="fas fa-image"></i></button>
+        </div>
+    </div>
+
+    <!-- File Panel -->
+    <div class="file-panel" id="filePanel">
+        <div class="file-panel-header">
+            <h2><i class="fas fa-book-open" style="margin-right:8px; color:#ce93d8;"></i>Clone-OneNote</h2>
+            <button class="file-panel-close" onclick="toggleFilePanel()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="file-menu-items">
+            <div class="file-menu-item" onclick="createNewNotebook()"><i class="fas fa-plus"></i> Nuovo blocco appunti</div>
+            <div class="file-menu-item" onclick="saveToLocal()"><i class="fas fa-download"></i> Salva in locale (JSON)</div>
+            <div class="file-menu-item" onclick="loadFromLocal()"><i class="fas fa-upload"></i> Carica da file locale</div>
+            <div class="file-menu-divider"></div>
+            <div class="file-menu-item" onclick="saveToServer()"><i class="fas fa-cloud-upload-alt"></i> Salva sul server</div>
+            <div class="file-menu-item" onclick="loadFromServerList()"><i class="fas fa-cloud-download-alt"></i> Carica dal server</div>
+            <div id="serverDocsList"></div>
+            <div class="file-menu-divider"></div>
+            <div class="file-menu-item" onclick="exportAsHTML()"><i class="fas fa-file-code"></i> Esporta come HTML</div>
+            <div class="file-menu-item" onclick="exportToPdf('server')"><i class="fas fa-cloud-upload-alt"></i> Salva PDF su OneDrive</div>
+            <div class="file-menu-item" onclick="exportToPdf('download')"><i class="fas fa-download"></i> Scarica PDF</div>
+            <div class="file-menu-item" onclick="printCurrentPage()"><i class="fas fa-print"></i> Stampa pagina</div>
+            <div class="file-menu-divider"></div>
+            <div class="file-menu-item" onclick="toggleFilePanel();showSettingsModal()"><i class="fas fa-cog"></i> Impostazioni</div>
+            <div class="file-menu-divider"></div>
+            <div class="file-menu-item" onclick="window.location.href='../index.html'"><i class="fas fa-th"></i> Torna alla Suite</div>
+        </div>
+        <input type="file" id="localFileInput" accept=".json" style="display:none" onchange="handleLocalFileLoad(event)">
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu"></div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+    // ========================================
+    // DATA MODEL
+    // ========================================
+    const NOTEBOOK_COLORS = [
+        '#7b1fa2', '#1565c0', '#2e7d32', '#e65100', '#c62828',
+        '#00838f', '#4527a0', '#558b2f', '#ad1457', '#37474f'
+    ];
+
+    let notebooks = [];
+    let currentNotebookId = null;
+    let currentSectionId = null;
+    let currentPageId = null;
+
+    // Drawing state
+    let isDrawing = false;
+    let drawingActive = false;
+    let drawCtx = null;
+    let drawColor = '#7b1fa2';
+    let drawLineWidth = 3;
+    let drawTool = 'pen';
+    let drawPaths = {}; // pageId -> [{points, color, width, tool}]
+    let currentDrawPath = null;
+
+    // Undo/Redo
+    let undoStack = [];
+    let redoStack = [];
+    let lastEditorContent = '';
+
+    // Autosave timer
+    let autosaveTimer = null;
+
+    function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    }
+
+    function createDefaultNotebook() {
+        const nb = {
+            id: generateId(),
+            name: 'Blocco appunti personale',
+            color: '#7b1fa2',
+            createdAt: new Date().toISOString(),
+            sections: [
+                {
+                    id: generateId(),
+                    name: 'Note rapide',
+                    color: '#7b1fa2',
+                    pages: [
+                        {
+                            id: generateId(),
+                            title: 'Pagina senza titolo',
+                            content: '',
+                            createdAt: new Date().toISOString(),
+                            modifiedAt: new Date().toISOString()
+                        }
+                    ]
+                }
+            ]
+        };
+        return nb;
+    }
+
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    function init() {
+        loadFromStorage();
+        if (notebooks.length === 0) {
+            notebooks.push(createDefaultNotebook());
+        }
+        currentNotebookId = notebooks[0].id;
+        currentSectionId = notebooks[0].sections[0]?.id || null;
+        currentPageId = notebooks[0].sections[0]?.pages[0]?.id || null;
+
+        renderNotebooksSidebar();
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+        switchRibbonTab('home');
+        setupEditorEvents();
+        setupKeyboardShortcuts();
+        initDrawingCanvas();
+        updateStatusBar();
+    }
+
+    function loadFromStorage() {
+        try {
+            const saved = localStorage.getItem('onenote_notebooks');
+            if (saved) {
+                notebooks = JSON.parse(saved);
+            }
+            const dp = localStorage.getItem('onenote_drawPaths');
+            if (dp) {
+                drawPaths = JSON.parse(dp);
+            }
+        } catch(e) {
+            console.warn('Errore caricamento localStorage:', e);
+        }
+    }
+
+    function saveToStorage() {
+        try {
+            saveCurrentPageContent();
+            localStorage.setItem('onenote_notebooks', JSON.stringify(notebooks));
+            localStorage.setItem('onenote_drawPaths', JSON.stringify(drawPaths));
+            updateSaveStatus('Salvato');
+        } catch(e) {
+            console.warn('Errore salvataggio localStorage:', e);
+        }
+    }
+
+    function scheduleAutosave() {
+        clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(() => {
+            saveToStorage();
+        }, 2000);
+        updateSaveStatus('Non salvato...');
+    }
+
+    // ========================================
+    // GETTERS
+    // ========================================
+    function getCurrentNotebook() {
+        return notebooks.find(n => n.id === currentNotebookId);
+    }
+
+    function getCurrentSection() {
+        const nb = getCurrentNotebook();
+        return nb ? nb.sections.find(s => s.id === currentSectionId) : null;
+    }
+
+    function getCurrentPage() {
+        const sec = getCurrentSection();
+        return sec ? sec.pages.find(p => p.id === currentPageId) : null;
+    }
+
+    // ========================================
+    // NOTEBOOKS SIDEBAR
+    // ========================================
+    function renderNotebooksSidebar() {
+        const sidebar = document.getElementById('notebooksSidebar');
+        let html = '';
+        notebooks.forEach(nb => {
+            const initials = nb.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            const isActive = nb.id === currentNotebookId ? 'active' : '';
+            html += `<div class="nb-icon ${isActive}" onclick="switchNotebook('${nb.id}')"
+                          oncontextmenu="showNotebookContextMenu(event, '${nb.id}')"
+                          title="${nb.name}" style="background:${nb.id === currentNotebookId ? 'rgba(255,255,255,0.25)' : 'transparent'}">
+                        ${initials}
+                        <span class="nb-color-indicator" style="background:${nb.color}"></span>
+                     </div>`;
+        });
+        html += `<div class="nb-icon add-nb" onclick="showNewNotebookModal()" title="Nuovo blocco appunti">+</div>`;
+        sidebar.innerHTML = html;
+
+        // Update title
+        const nb = getCurrentNotebook();
+        if (nb) {
+            document.getElementById('notebookNameDisplay').value = nb.name;
+            document.getElementById('mobTitle').value = nb.name;
+        }
+    }
+
+    function switchNotebook(nbId) {
+        saveCurrentPageContent();
+        currentNotebookId = nbId;
+        const nb = getCurrentNotebook();
+        if (nb && nb.sections.length > 0) {
+            currentSectionId = nb.sections[0].id;
+            if (nb.sections[0].pages.length > 0) {
+                currentPageId = nb.sections[0].pages[0].id;
+            } else {
+                currentPageId = null;
+            }
+        }
+        renderNotebooksSidebar();
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+    }
+
+    // ========================================
+    // SECTIONS
+    // ========================================
+    function renderSections() {
+        const nb = getCurrentNotebook();
+        if (!nb) return;
+
+        const tabsEl = document.getElementById('sectionsTabs');
+        let html = '';
+        nb.sections.forEach(sec => {
+            const isActive = sec.id === currentSectionId ? 'active' : '';
+            html += `<button class="section-tab ${isActive}"
+                             onclick="switchSection('${sec.id}')"
+                             oncontextmenu="showSectionContextMenu(event, '${sec.id}')"
+                             style="border-bottom-color: ${sec.id === currentSectionId ? sec.color : 'transparent'}">
+                        <span class="section-color" style="background:${sec.color}"></span>${sec.name}
+                     </button>`;
+        });
+        html += `<button class="add-section-tab" onclick="addSection()" title="Nuova sezione">+</button>`;
+        tabsEl.innerHTML = html;
+        document.getElementById('sectionsPanelTitle').textContent = nb.name;
+    }
+
+    function switchSection(secId) {
+        saveCurrentPageContent();
+        currentSectionId = secId;
+        const sec = getCurrentSection();
+        if (sec && sec.pages.length > 0) {
+            currentPageId = sec.pages[0].id;
+        } else {
+            currentPageId = null;
+        }
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+    }
+
+    function addSection() {
+        const nb = getCurrentNotebook();
+        if (!nb) return;
+        const colorIdx = nb.sections.length % NOTEBOOK_COLORS.length;
+        const sec = {
+            id: generateId(),
+            name: 'Nuova sezione',
+            color: NOTEBOOK_COLORS[colorIdx],
+            pages: []
+        };
+        nb.sections.push(sec);
+        currentSectionId = sec.id;
+        currentPageId = null;
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+
+        // Prompt rename
+        setTimeout(() => showRenameSectionModal(sec.id), 100);
+    }
+
+    // ========================================
+    // PAGES
+    // ========================================
+    function renderPages() {
+        const sec = getCurrentSection();
+        const listEl = document.getElementById('pagesList');
+        if (!sec || sec.pages.length === 0) {
+            listEl.innerHTML = '<div style="padding:20px 14px;color:#999;font-size:13px;text-align:center;">Nessuna pagina.<br>Clicca "Aggiungi pagina" per iniziare.</div>';
+            return;
+        }
+
+        let html = '';
+        sec.pages.forEach(pg => {
+            const isActive = pg.id === currentPageId ? 'active' : '';
+            const preview = stripHTML(pg.content).substring(0, 60);
+            const date = new Date(pg.modifiedAt).toLocaleDateString('it-IT', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+            html += `<div class="page-item ${isActive}" onclick="switchPage('${pg.id}')"
+                          oncontextmenu="showPageContextMenu(event, '${pg.id}')">
+                        <div class="page-item-title">${pg.title || 'Pagina senza titolo'}</div>
+                        <div class="page-item-preview">${preview || 'Vuota'}</div>
+                        <div class="page-item-date">${date}</div>
+                     </div>`;
+        });
+        listEl.innerHTML = html;
+    }
+
+    function switchPage(pgId) {
+        saveCurrentPageContent();
+        currentPageId = pgId;
+        renderPages();
+        loadPageIntoEditor();
+        // Close mobile nav when selecting a page on mobile
+        if (window.innerWidth <= 768 && mobileNavOpen) {
+            closeMobileNav();
+        }
+    }
+
+    function addPage() {
+        const sec = getCurrentSection();
+        if (!sec) {
+            showToast('Seleziona prima una sezione');
+            return;
+        }
+        const pg = {
+            id: generateId(),
+            title: '',
+            content: '',
+            createdAt: new Date().toISOString(),
+            modifiedAt: new Date().toISOString()
+        };
+        sec.pages.unshift(pg);
+        currentPageId = pg.id;
+        renderPages();
+        loadPageIntoEditor();
+        document.getElementById('pageTitleInput').focus();
+        saveToStorage();
+    }
+
+    function deletePage(pgId) {
+        const sec = getCurrentSection();
+        if (!sec) return;
+        const idx = sec.pages.findIndex(p => p.id === pgId);
+        if (idx === -1) return;
+        sec.pages.splice(idx, 1);
+        // Remove drawing data
+        delete drawPaths[pgId];
+        if (currentPageId === pgId) {
+            currentPageId = sec.pages.length > 0 ? sec.pages[0].id : null;
+        }
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+    }
+
+    // ========================================
+    // EDITOR
+    // ========================================
+    function loadPageIntoEditor() {
+        const editor = document.getElementById('noteEditor');
+        const titleInput = document.getElementById('pageTitleInput');
+        const metaEl = document.getElementById('pageMeta');
+
+        let page = getCurrentPage();
+        if (!page) {
+            // currentPageId obsoleto ma la sezione ha pagine → seleziona la prima
+            // (NON creare una pagina qui: altrimenti eliminando l'ultima ne ricomparirebbe subito una).
+            const sec = getCurrentSection();
+            if (sec && sec.pages && sec.pages.length > 0) {
+                currentPageId = sec.pages[0].id;
+                renderPages();
+                page = getCurrentPage();
+            }
+        }
+        if (!page) {
+            // Sezione vuota: editor disabilitato con messaggio ONESTO (niente "Inizia a scrivere qui")
+            editor.innerHTML = '';
+            editor.classList.add('no-page');
+            titleInput.value = '';
+            metaEl.textContent = '';
+            editor.contentEditable = 'false';
+            titleInput.disabled = true;
+            return;
+        }
+        editor.classList.remove('no-page');
+
+        editor.contentEditable = 'true';
+        titleInput.disabled = false;
+        editor.innerHTML = page.content;
+        titleInput.value = page.title;
+        const created = new Date(page.createdAt).toLocaleDateString('it-IT', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        metaEl.textContent = created;
+
+        lastEditorContent = editor.innerHTML;
+        undoStack = [];
+        redoStack = [];
+
+        // Restore drawing
+        if (drawingActive) {
+            redrawCanvas();
+        }
+
+        updateStatusBar();
+        setupTodoCheckboxes();
+
+        // Posiziona il cursore nell'editor così l'utente può scrivere SUBITO
+        // (il placeholder "Inizia a scrivere qui..." altrimenti è ingannevole).
+        // Non rubare il focus se l'utente sta scrivendo nel titolo o in un campo.
+        if (!drawingActive) {
+            const ae = document.activeElement;
+            const typingElsewhere = ae && (ae.id === 'pageTitleInput' || ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA');
+            if (!typingElsewhere) {
+                try {
+                    editor.focus();
+                    const range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false); // cursore alla fine del contenuto
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } catch (e) {}
+            }
+        }
+    }
+
+    function saveCurrentPageContent() {
+        const page = getCurrentPage();
+        if (!page) return;
+        const editor = document.getElementById('noteEditor');
+        page.content = editor.innerHTML;
+        page.title = document.getElementById('pageTitleInput').value;
+        page.modifiedAt = new Date().toISOString();
+    }
+
+    function onEditorInput() {
+        const editor = document.getElementById('noteEditor');
+        const current = editor.innerHTML;
+        if (current !== lastEditorContent) {
+            undoStack.push(lastEditorContent);
+            if (undoStack.length > 50) undoStack.shift();
+            redoStack = [];
+            lastEditorContent = current;
+        }
+        scheduleAutosave();
+        updateStatusBar();
+    }
+
+    function onPageTitleChange() {
+        const page = getCurrentPage();
+        if (!page) return;
+        page.title = document.getElementById('pageTitleInput').value;
+        renderPages();
+        scheduleAutosave();
+    }
+
+    function undo() {
+        if (undoStack.length === 0) return;
+        const editor = document.getElementById('noteEditor');
+        redoStack.push(editor.innerHTML);
+        const prev = undoStack.pop();
+        editor.innerHTML = prev;
+        lastEditorContent = prev;
+        scheduleAutosave();
+    }
+
+    function redo() {
+        if (redoStack.length === 0) return;
+        const editor = document.getElementById('noteEditor');
+        undoStack.push(editor.innerHTML);
+        const next = redoStack.pop();
+        editor.innerHTML = next;
+        lastEditorContent = next;
+        scheduleAutosave();
+    }
+
+    function execCmd(cmd, value) {
+        document.getElementById('noteEditor').focus();
+        document.execCommand(cmd, false, value || null);
+        onEditorInput();
+    }
+
+    // ===== Selettore colore elegante (sostituisce gli input type=color nativi) =====
+    const ONE_PALETTE = ['#000000','#333333','#666666','#999999','#e53935','#d81b60','#8e24aa','#7b1fa2','#5e35b1','#3949ab','#1e88e5','#039be5','#00acc1','#00897b','#43a047','#7cb342','#c0ca33','#fdd835','#ffb300','#fb8c00','#f4511e','#6d4c41','#ffffff','#ffff00'];
+    let _oneColorCb = null;
+    function oneColorPicker(title, cb) {
+        _oneColorCb = cb;
+        let ov = document.getElementById('oneColorOverlay');
+        if (ov) ov.remove();
+        ov = document.createElement('div');
+        ov.id = 'oneColorOverlay';
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:100000;display:flex;align-items:center;justify-content:center;';
+        const sw = ONE_PALETTE.map(c => `<button onclick="onePickColor('${c}')" title="${c}" style="width:28px;height:28px;border:1px solid rgba(0,0,0,0.2);border-radius:6px;background:${c};cursor:pointer;"></button>`).join('');
+        ov.innerHTML = `<div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 36px rgba(0,0,0,0.3);width:340px;max-width:92vw;font-family:'Segoe UI',Arial;">
+            <div style="display:flex;align-items:center;margin-bottom:12px;"><b style="flex:1;color:#7b1fa2;font-size:15px;"><i class="fas fa-palette"></i> ${title}</b>
+            <button onclick="document.getElementById('oneColorOverlay').remove()" style="border:none;background:none;font-size:18px;color:#888;cursor:pointer;">&times;</button></div>
+            <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;">${sw}</div>
+            <div style="margin-top:14px;display:flex;gap:8px;align-items:center;">
+                <span style="font-size:13px;color:#666;">Codice</span>
+                <input id="oneColorHex" type="text" value="#333333" style="flex:1;padding:7px 9px;border:1px solid #ccc;border-radius:6px;font-family:monospace;" onkeydown="if(event.key==='Enter')onePickColor(this.value)">
+                <button onclick="onePickColor(document.getElementById('oneColorHex').value)" style="padding:7px 14px;border:none;background:#7b1fa2;color:#fff;border-radius:6px;cursor:pointer;">OK</button>
+            </div></div>`;
+        ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+        document.body.appendChild(ov);
+    }
+    function onePickColor(c) { const cb = _oneColorCb; const o = document.getElementById('oneColorOverlay'); if (o) o.remove(); if (cb && c) cb(c); }
+
+    // Colore testo/evidenziatore preservando la selezione nell'editor
+    function pickEditorColor(cmd, title) {
+        const sel = window.getSelection();
+        const range = (sel && sel.rangeCount) ? sel.getRangeAt(0).cloneRange() : null;
+        oneColorPicker(title, (c) => {
+            const ed = document.getElementById('noteEditor');
+            ed.focus();
+            if (range) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(range); }
+            document.execCommand(cmd, false, c);
+            onEditorInput();
+        });
+    }
+
+    function handlePaste(e) {
+        // Allow paste of images
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (let item of items) {
+            if (item.type.indexOf('image') !== -1) {
+                e.preventDefault();
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = `<img src="${ev.target.result}" style="max-width:100%;">`;
+                    document.execCommand('insertHTML', false, img);
+                    onEditorInput();
+                };
+                reader.readAsDataURL(blob);
+                return;
+            }
+        }
+    }
+
+    function setupEditorEvents() {
+        const editor = document.getElementById('noteEditor');
+
+        // Delegate clicks on todo checkboxes
+        editor.addEventListener('click', function(e) {
+            if (e.target.classList.contains('todo-checkbox')) {
+                const item = e.target.closest('.todo-item');
+                if (item) {
+                    item.classList.toggle('done');
+                    e.target.checked = item.classList.contains('done');
+                    onEditorInput();
+                }
+            }
+        });
+    }
+
+    function setupTodoCheckboxes() {
+        const editor = document.getElementById('noteEditor');
+        editor.querySelectorAll('.todo-checkbox').forEach(cb => {
+            const item = cb.closest('.todo-item');
+            if (item && item.classList.contains('done')) {
+                cb.checked = true;
+            }
+        });
+    }
+
+    // ========================================
+    // RIBBON
+    // ========================================
+    function switchRibbonTab(tab) {
+        document.querySelectorAll('.ribbon-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.ribbon-tab[data-tab="${tab}"]`).classList.add('active');
+
+        const rc = document.getElementById('ribbonContent');
+
+        if (tab === 'home') {
+            rc.innerHTML = `
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="execCmd('undo')" title="Annulla"><i class="fas fa-undo"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('redo')" title="Ripristina"><i class="fas fa-redo"></i></button>
+                    <button class="ribbon-btn" onclick="pasteFromClipboard()" title="Incolla"><i class="fas fa-paste"></i></button>
+                </div>
+                <div class="ribbon-group">
+                    <select class="ribbon-select" onchange="execCmd('fontName', this.value)" title="Font">
+                        <option value="Segoe UI">Segoe UI</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Comic Sans MS">Comic Sans MS</option>
+                    </select>
+                    <select class="ribbon-select" onchange="execCmd('fontSize', this.value)" title="Dimensione" style="width:60px;">
+                        <option value="1">8</option>
+                        <option value="2">10</option>
+                        <option value="3" selected>12</option>
+                        <option value="4">14</option>
+                        <option value="5">18</option>
+                        <option value="6">24</option>
+                        <option value="7">36</option>
+                    </select>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn ribbon-letter" onclick="execCmd('bold')" title="Grassetto (Ctrl+G)"><strong>G</strong></button>
+                    <button class="ribbon-btn ribbon-letter" onclick="execCmd('italic')" title="Corsivo (Ctrl+I)"><em>C</em></button>
+                    <button class="ribbon-btn ribbon-letter" onclick="execCmd('underline')" title="Sottolineato (Ctrl+S)"><u>S</u></button>
+                    <button class="ribbon-btn" onclick="execCmd('strikeThrough')" title="Barrato"><i class="fas fa-strikethrough"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('superscript')" title="Apice"><i class="fas fa-superscript"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('subscript')" title="Pedice"><i class="fas fa-subscript"></i></button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onmousedown="event.preventDefault()" onclick="pickEditorColor('foreColor','Colore testo')" title="Colore testo"><i class="fas fa-font" style="color:#7b1fa2;border-bottom:3px solid #e53935;"></i></button>
+                    <button class="ribbon-btn" onmousedown="event.preventDefault()" onclick="pickEditorColor('hiliteColor','Colore evidenziatore')" title="Evidenzia"><i class="fas fa-highlighter" style="color:#fbc02d;"></i></button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="execCmd('justifyLeft')" title="Allinea a sinistra"><i class="fas fa-align-left"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('justifyCenter')" title="Centra"><i class="fas fa-align-center"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('justifyRight')" title="Allinea a destra"><i class="fas fa-align-right"></i></button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="execCmd('insertUnorderedList')" title="Elenco puntato"><i class="fas fa-list-ul"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('insertOrderedList')" title="Elenco numerato"><i class="fas fa-list-ol"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('indent')" title="Aumenta rientro"><i class="fas fa-indent"></i></button>
+                    <button class="ribbon-btn" onclick="execCmd('outdent')" title="Riduci rientro"><i class="fas fa-outdent"></i></button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="insertTodoItem()" title="Elemento To-Do"><i class="fas fa-check-square"></i> To-Do</button>
+                    <button class="ribbon-btn" onclick="showTagMenu()" title="Tag"><i class="fas fa-tag"></i> Tag</button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="execCmd('removeFormat')" title="Cancella formattazione"><i class="fas fa-eraser"></i></button>
+                </div>
+            `;
+        } else if (tab === 'insert') {
+            rc.innerHTML = `
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="insertTable()" title="Tabella"><i class="fas fa-table"></i> Tabella</button>
+                    <button class="ribbon-btn" onclick="insertImage()" title="Immagine"><i class="fas fa-image"></i> Immagine</button>
+                    <button class="ribbon-btn" onclick="insertLink()" title="Collegamento"><i class="fas fa-link"></i> Link</button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="insertDivider()" title="Separatore"><i class="fas fa-minus"></i> Separatore</button>
+                    <button class="ribbon-btn" onclick="insertDateTime()" title="Data/Ora"><i class="fas fa-calendar-alt"></i> Data/Ora</button>
+                    <button class="ribbon-btn" onclick="insertCodeBlock()" title="Codice"><i class="fas fa-code"></i> Codice</button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="insertFileAttachment()" title="File allegato"><i class="fas fa-paperclip"></i> Allegato</button>
+                    <button class="ribbon-btn" onclick="insertAudioRecording()" title="Registrazione audio"><i class="fas fa-microphone"></i> Audio</button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="insertSymbol()" title="Simbolo"><i class="fas fa-omega"></i> Simbolo</button>
+                    <button class="ribbon-btn" onclick="insertEmoji()" title="Emoji"><i class="fas fa-smile"></i> Emoji</button>
+                </div>
+            `;
+        } else if (tab === 'draw') {
+            rc.innerHTML = `
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="toggleDrawing()" id="drawToggleBtn" title="Attiva/Disattiva disegno">
+                        <i class="fas fa-pen-fancy"></i> ${drawingActive ? 'Disattiva Disegno' : 'Attiva Disegno'}
+                    </button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn ${drawTool==='pen'?'active':''}" onclick="setDrawTool('pen')" title="Penna"><i class="fas fa-pen"></i> Penna</button>
+                    <button class="ribbon-btn ${drawTool==='highlighter'?'active':''}" onclick="setDrawTool('highlighter')" title="Evidenziatore"><i class="fas fa-highlighter"></i> Evidenziatore</button>
+                    <button class="ribbon-btn ${drawTool==='eraser'?'active':''}" onclick="setDrawTool('eraser')" title="Gomma"><i class="fas fa-eraser"></i> Gomma</button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="oneColorPicker('Colore penna', setDrawColor)" title="Colore penna personalizzato"><i class="fas fa-palette" style="color:${drawColor};"></i> Colore</button>
+                    <span style="font-size:12px;color:#666;margin:0 4px;">Spessore:</span>
+                    <input type="range" style="width:80px;accent-color:#7b1fa2;" min="1" max="20" value="${drawLineWidth}" oninput="drawLineWidth=this.value;document.getElementById('drawSizeSlider').value=this.value">
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="clearDrawing()" title="Cancella tutto il disegno"><i class="fas fa-trash-alt"></i> Cancella tutto</button>
+                    <button class="ribbon-btn" onclick="undoLastStroke()" title="Annulla ultimo tratto"><i class="fas fa-undo"></i> Annulla tratto</button>
+                </div>
+            `;
+        } else if (tab === 'view') {
+            const editor = document.getElementById('noteEditor');
+            const isRuled = editor.classList.contains('ruled');
+            const isGrid = editor.classList.contains('grid-bg');
+            rc.innerHTML = `
+                <div class="ribbon-group">
+                    <button class="ribbon-btn ${isRuled?'active':''}" onclick="toggleRuleLines()" title="Righe"><i class="fas fa-grip-lines"></i> Righe</button>
+                    <button class="ribbon-btn ${isGrid?'active':''}" onclick="toggleGridLines()" title="Griglia"><i class="fas fa-th"></i> Griglia</button>
+                    <button class="ribbon-btn" onclick="toggleNoBg()" title="Sfondo pulito"><i class="fas fa-square"></i> Pulito</button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="zoomIn()" title="Ingrandisci"><i class="fas fa-search-plus"></i></button>
+                    <button class="ribbon-btn" onclick="zoomOut()" title="Rimpicciolisci"><i class="fas fa-search-minus"></i></button>
+                    <button class="ribbon-btn" onclick="zoomReset()" title="Ripristina zoom">100%</button>
+                </div>
+                <div class="ribbon-group">
+                    <button class="ribbon-btn" onclick="toggleFullscreen()" title="Schermo intero"><i class="fas fa-expand"></i> Schermo intero</button>
+                </div>
+            `;
+        }
+    }
+
+    // ========================================
+    // INSERT FUNCTIONS
+    // ========================================
+    function insertTodoItem() {
+        const html = `<div class="todo-item"><input type="checkbox" class="todo-checkbox"><span class="todo-text" contenteditable="true">Da fare...</span></div>`;
+        document.getElementById('noteEditor').focus();
+        document.execCommand('insertHTML', false, html);
+        onEditorInput();
+    }
+
+    function showTagMenu() {
+        const tags = [
+            { cls: 'tag-important', label: 'Importante' },
+            { cls: 'tag-question', label: 'Domanda' },
+            { cls: 'tag-remember', label: 'Da ricordare' },
+            { cls: 'tag-definition', label: 'Definizione' },
+            { cls: 'tag-highlight', label: 'In evidenza' }
+        ];
+        showModal('Inserisci Tag', `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                ${tags.map(t => `<button class="btn" onclick="insertTag('${t.cls}','${t.label}')" style="text-align:left;">
+                    <span class="note-tag ${t.cls}">${t.label}</span>
+                </button>`).join('')}
+            </div>
+        `);
+    }
+
+    function insertTag(cls, label) {
+        closeModalDirect();
+        document.getElementById('noteEditor').focus();
+        document.execCommand('insertHTML', false, `<span class="note-tag ${cls}">${label}</span>&nbsp;`);
+        onEditorInput();
+    }
+
+    function insertTable() {
+        showModal('Inserisci Tabella', `
+            <label>Righe</label>
+            <input type="text" id="tableRows" value="3">
+            <label>Colonne</label>
+            <input type="text" id="tableCols" value="3">
+        `, () => {
+            const rows = parseInt(document.getElementById('tableRows').value) || 3;
+            const cols = parseInt(document.getElementById('tableCols').value) || 3;
+            let html = '<table>';
+            for (let r = 0; r < rows; r++) {
+                html += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    html += r === 0 ? '<th>&nbsp;</th>' : '<td>&nbsp;</td>';
+                }
+                html += '</tr>';
+            }
+            html += '</table><br>';
+            document.getElementById('noteEditor').focus();
+            document.execCommand('insertHTML', false, html);
+            onEditorInput();
+        });
+    }
+
+    function insertImage() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('noteEditor').focus();
+                document.execCommand('insertHTML', false, `<img src="${ev.target.result}" style="max-width:100%;border-radius:4px;margin:8px 0;">`);
+                onEditorInput();
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
+
+    function insertImageMobile() { insertImage(); }
+
+    function insertLink() {
+        showModal('Inserisci Link', `
+            <label>URL</label>
+            <input type="text" id="linkUrl" placeholder="https://...">
+            <label>Testo</label>
+            <input type="text" id="linkText" placeholder="Testo del link">
+        `, () => {
+            const url = document.getElementById('linkUrl').value;
+            const text = document.getElementById('linkText').value || url;
+            if (!url) return;
+            document.getElementById('noteEditor').focus();
+            document.execCommand('insertHTML', false, `<a href="${url}" target="_blank" style="color:#7b1fa2;">${text}</a>&nbsp;`);
+            onEditorInput();
+        });
+    }
+
+    function insertDivider() {
+        document.getElementById('noteEditor').focus();
+        document.execCommand('insertHTML', false, '<hr style="border:none;border-top:1px solid #d0d0d0;margin:12px 0;">');
+        onEditorInput();
+    }
+
+    function insertDateTime() {
+        const now = new Date().toLocaleString('it-IT', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+        document.getElementById('noteEditor').focus();
+        document.execCommand('insertHTML', false, `<span style="color:#7b1fa2;font-weight:600;">${now}</span>&nbsp;`);
+        onEditorInput();
+    }
+
+    function insertCodeBlock() {
+        document.getElementById('noteEditor').focus();
+        document.execCommand('insertHTML', false, '<pre style="background:#f5f5f5;border:1px solid #e0e0e0;border-radius:4px;padding:12px;font-family:Consolas,monospace;font-size:13px;margin:8px 0;overflow-x:auto;white-space:pre-wrap;">// codice qui\n</pre><br>');
+        onEditorInput();
+    }
+
+    function insertFileAttachment() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const icon = getFileIcon(file.name);
+                const size = formatFileSize(file.size);
+                const html = `<div style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;background:#f5f5f5;border:1px solid #e0e0e0;border-radius:6px;margin:4px 0;cursor:default;" contenteditable="false">
+                    <i class="fas ${icon}" style="font-size:20px;color:#7b1fa2;"></i>
+                    <div>
+                        <div style="font-size:13px;font-weight:600;">${file.name}</div>
+                        <div style="font-size:11px;color:#999;">${size}</div>
+                    </div>
+                    <a href="${ev.target.result}" download="${file.name}" style="color:#7b1fa2;font-size:12px;margin-left:8px;" title="Scarica"><i class="fas fa-download"></i></a>
+                </div>&nbsp;`;
+                document.getElementById('noteEditor').focus();
+                document.execCommand('insertHTML', false, html);
+                onEditorInput();
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
+
+    function insertAudioRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast('Registrazione audio non supportata in questo browser');
+            return;
+        }
+
+        showModal('Registrazione Audio', `
+            <div style="text-align:center;">
+                <div id="audioRecStatus" style="font-size:14px;margin-bottom:12px;">Premi per iniziare la registrazione</div>
+                <button class="btn btn-primary" id="audioRecBtn" onclick="toggleAudioRecording()">
+                    <i class="fas fa-microphone"></i> Registra
+                </button>
+                <div id="audioRecTimer" style="font-size:24px;margin-top:12px;color:#7b1fa2;font-weight:300;">00:00</div>
+                <audio id="audioPreview" controls style="display:none;margin-top:12px;width:100%;"></audio>
+            </div>
+        `, () => {
+            const audio = document.getElementById('audioPreview');
+            if (audio.src) {
+                const html = `<div style="margin:8px 0;" contenteditable="false"><audio controls src="${audio.src}" style="width:100%;max-width:400px;"></audio></div>&nbsp;`;
+                document.getElementById('noteEditor').focus();
+                document.execCommand('insertHTML', false, html);
+                onEditorInput();
+            }
+        });
+    }
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioRecTimerInterval = null;
+    let audioRecSeconds = 0;
+
+    function toggleAudioRecording() {
+        const btn = document.getElementById('audioRecBtn');
+        const status = document.getElementById('audioRecStatus');
+
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            btn.innerHTML = '<i class="fas fa-microphone"></i> Registra';
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-primary');
+            status.textContent = 'Registrazione completata';
+            clearInterval(audioRecTimerInterval);
+        } else {
+            audioChunks = [];
+            audioRecSeconds = 0;
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const preview = document.getElementById('audioPreview');
+                    preview.src = url;
+                    preview.style.display = 'block';
+                };
+                mediaRecorder.start();
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-danger');
+                status.textContent = 'Registrazione in corso...';
+                audioRecTimerInterval = setInterval(() => {
+                    audioRecSeconds++;
+                    const m = String(Math.floor(audioRecSeconds / 60)).padStart(2, '0');
+                    const s = String(audioRecSeconds % 60).padStart(2, '0');
+                    document.getElementById('audioRecTimer').textContent = `${m}:${s}`;
+                }, 1000);
+            }).catch(() => {
+                showToast('Impossibile accedere al microfono');
+            });
+        }
+    }
+
+    function insertSymbol() {
+        const symbols = ['©','®','™','€','£','¥','§','¶','†','‡','•','…','°','±','÷','×','≈','≠','≤','≥','∞','∑','∏','∫','√','∆','Ω','π','µ','←','→','↑','↓','↔','♠','♣','♥','♦','★','☆','✓','✗'];
+        let html = '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;">';
+        symbols.forEach(s => {
+            html += `<button class="btn" style="font-size:18px;padding:8px;" onclick="insertSymbolChar('${s}')">${s}</button>`;
+        });
+        html += '</div>';
+        showModal('Inserisci Simbolo', html);
+    }
+
+    function insertSymbolChar(ch) {
+        closeModalDirect();
+        document.getElementById('noteEditor').focus();
+        document.execCommand('insertText', false, ch);
+        onEditorInput();
+    }
+
+    function insertEmoji() {
+        const emojis = ['😀','😂','😊','😍','🤔','😢','😎','🤗','👍','👎','👏','🙌','❤️','🔥','⭐','🎉','🎯','💡','📌','📎','✅','❌','⚠️','📝','📚','🗂️','📊','🔍','🔗','💻'];
+        let html = '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;">';
+        emojis.forEach(e => {
+            html += `<button class="btn" style="font-size:22px;padding:6px;" onclick="insertSymbolChar('${e}')">${e}</button>`;
+        });
+        html += '</div>';
+        showModal('Inserisci Emoji', html);
+    }
+
+    // ========================================
+    // DRAWING SYSTEM
+    // ========================================
+    function initDrawingCanvas() {
+        const canvas = document.getElementById('drawingCanvas');
+        drawCtx = canvas.getContext('2d');
+        resizeCanvas();
+
+        // Mouse events
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', moveDraw);
+        canvas.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('mouseleave', endDraw);
+
+        // Touch events
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(touchToMouse(e)); }, { passive: false });
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(touchToMouse(e)); }, { passive: false });
+        canvas.addEventListener('touchend', e => { e.preventDefault(); endDraw(); }, { passive: false });
+
+        window.addEventListener('resize', resizeCanvas);
+    }
+
+    function touchToMouse(e) {
+        const touch = e.touches[0];
+        const rect = document.getElementById('drawingCanvas').getBoundingClientRect();
+        return { offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top };
+    }
+
+    function resizeCanvas() {
+        const canvas = document.getElementById('drawingCanvas');
+        const wrapper = document.getElementById('editorWrapper');
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = wrapper.clientWidth * dpr;
+        canvas.height = wrapper.clientHeight * dpr;
+        canvas.style.width = wrapper.clientWidth + 'px';
+        canvas.style.height = wrapper.clientHeight + 'px';
+        drawCtx.scale(dpr, dpr);
+        if (drawingActive) redrawCanvas();
+    }
+
+    function toggleDrawing() {
+        drawingActive = !drawingActive;
+        const canvas = document.getElementById('drawingCanvas');
+        const toolbar = document.getElementById('drawingToolbar');
+        const editor = document.getElementById('noteEditor');
+
+        if (drawingActive) {
+            canvas.classList.add('active');
+            toolbar.classList.add('active');
+            editor.contentEditable = 'false';
+            resizeCanvas();
+            redrawCanvas();
+        } else {
+            canvas.classList.remove('active');
+            toolbar.classList.remove('active');
+            editor.contentEditable = 'true';
+        }
+
+        // Update ribbon if on draw tab
+        const drawTab = document.querySelector('.ribbon-tab[data-tab="draw"]');
+        if (drawTab && drawTab.classList.contains('active')) {
+            switchRibbonTab('draw');
+        }
+    }
+
+    function setDrawTool(tool) {
+        drawTool = tool;
+        document.querySelectorAll('.draw-tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll(`.draw-tool-btn[data-tool="${tool}"]`).forEach(b => b.classList.add('active'));
+
+        const canvas = document.getElementById('drawingCanvas');
+        canvas.style.cursor = tool === 'eraser' ? 'cell' : 'crosshair';
+    }
+
+    function setDrawColor(color) {
+        drawColor = color;
+        document.querySelectorAll('.draw-color-swatch').forEach(s => {
+            s.classList.toggle('active', s.dataset.color === color);
+        });
+    }
+
+    function startDraw(e) {
+        if (!drawingActive) return;
+        isDrawing = true;
+
+        const pageId = currentPageId;
+        if (!drawPaths[pageId]) drawPaths[pageId] = [];
+
+        if (drawTool === 'eraser') {
+            eraseAt(e.offsetX, e.offsetY);
+            return;
+        }
+
+        currentDrawPath = {
+            points: [{ x: e.offsetX, y: e.offsetY }],
+            color: drawColor,
+            width: drawLineWidth,
+            tool: drawTool
+        };
+    }
+
+    function moveDraw(e) {
+        if (!isDrawing || !drawingActive) return;
+
+        if (drawTool === 'eraser') {
+            eraseAt(e.offsetX, e.offsetY);
+            return;
+        }
+
+        if (!currentDrawPath) return;
+        currentDrawPath.points.push({ x: e.offsetX, y: e.offsetY });
+
+        // Draw current stroke in real-time
+        const pts = currentDrawPath.points;
+        const ctx = drawCtx;
+        if (pts.length < 2) return;
+        ctx.beginPath();
+        ctx.strokeStyle = currentDrawPath.tool === 'highlighter' ? hexToRGBA(currentDrawPath.color, 0.3) : currentDrawPath.color;
+        ctx.lineWidth = currentDrawPath.tool === 'highlighter' ? currentDrawPath.width * 3 : currentDrawPath.width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        const p1 = pts[pts.length - 2];
+        const p2 = pts[pts.length - 1];
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+    }
+
+    function endDraw() {
+        if (!isDrawing) return;
+        isDrawing = false;
+
+        if (currentDrawPath && currentDrawPath.points.length > 1 && drawTool !== 'eraser') {
+            const pageId = currentPageId;
+            if (!drawPaths[pageId]) drawPaths[pageId] = [];
+            drawPaths[pageId].push(currentDrawPath);
+            scheduleAutosave();
+        }
+        currentDrawPath = null;
+    }
+
+    function eraseAt(x, y) {
+        const pageId = currentPageId;
+        if (!drawPaths[pageId]) return;
+        const eraseRadius = 15;
+        const before = drawPaths[pageId].length;
+        drawPaths[pageId] = drawPaths[pageId].filter(path => {
+            return !path.points.some(p => Math.hypot(p.x - x, p.y - y) < eraseRadius);
+        });
+        if (drawPaths[pageId].length !== before) {
+            redrawCanvas();
+            scheduleAutosave();
+        }
+    }
+
+    function redrawCanvas() {
+        const canvas = document.getElementById('drawingCanvas');
+        const dpr = window.devicePixelRatio || 1;
+        drawCtx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+
+        const pageId = currentPageId;
+        const paths = drawPaths[pageId] || [];
+
+        paths.forEach(path => {
+            if (path.points.length < 2) return;
+            drawCtx.beginPath();
+            drawCtx.strokeStyle = path.tool === 'highlighter' ? hexToRGBA(path.color, 0.3) : path.color;
+            drawCtx.lineWidth = path.tool === 'highlighter' ? path.width * 3 : path.width;
+            drawCtx.lineCap = 'round';
+            drawCtx.lineJoin = 'round';
+            drawCtx.moveTo(path.points[0].x, path.points[0].y);
+            for (let i = 1; i < path.points.length; i++) {
+                drawCtx.lineTo(path.points[i].x, path.points[i].y);
+            }
+            drawCtx.stroke();
+        });
+    }
+
+    function clearDrawing() {
+        if (!currentPageId) return;
+        if (!confirm('Cancellare tutti i disegni di questa pagina?')) return;
+        drawPaths[currentPageId] = [];
+        redrawCanvas();
+        scheduleAutosave();
+    }
+
+    function undoLastStroke() {
+        const pageId = currentPageId;
+        if (!drawPaths[pageId] || drawPaths[pageId].length === 0) return;
+        drawPaths[pageId].pop();
+        redrawCanvas();
+        scheduleAutosave();
+    }
+
+    function hexToRGBA(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    // ========================================
+    // VIEW FUNCTIONS
+    // ========================================
+    let currentZoom = 100;
+
+    function toggleRuleLines() {
+        appSettings.showRuleLines = !appSettings.showRuleLines;
+        appSettings.showGrid = false;
+        applySettings();
+        switchRibbonTab('view');
+    }
+
+    function toggleGridLines() {
+        appSettings.showGrid = !appSettings.showGrid;
+        appSettings.showRuleLines = false;
+        applySettings();
+        switchRibbonTab('view');
+    }
+
+    function toggleNoBg() {
+        appSettings.showRuleLines = false;
+        appSettings.showGrid = false;
+        applySettings();
+        switchRibbonTab('view');
+    }
+
+    function zoomIn() {
+        currentZoom = Math.min(200, currentZoom + 10);
+        applyZoom();
+    }
+
+    function zoomOut() {
+        currentZoom = Math.max(50, currentZoom - 10);
+        applyZoom();
+    }
+
+    function zoomReset() {
+        currentZoom = 100;
+        applyZoom();
+    }
+
+    // imposta lo zoom a un valore preciso (usato dallo slider della status bar)
+    function setZoom(value) {
+        currentZoom = Math.max(50, Math.min(200, value || 100));
+        applyZoom();
+    }
+
+    function applyZoom() {
+        document.getElementById('noteEditor').style.transform = `scale(${currentZoom/100})`;
+        document.getElementById('noteEditor').style.transformOrigin = 'top left';
+        document.getElementById('statusZoom').textContent = currentZoom + '%';
+        const slider = document.getElementById('statusZoomSlider');
+        if (slider && parseInt(slider.value) !== currentZoom) slider.value = currentZoom;
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // ========================================
+    // MODALS
+    // ========================================
+    function showModal(title, bodyHtml, onConfirm) {
+        const overlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modalContent');
+        modal.innerHTML = `
+            <div class="modal-header">
+                <h3>${title}</h3>
+                <button class="modal-close" onclick="closeModalDirect()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">${bodyHtml}</div>
+            ${onConfirm ? `<div class="modal-footer">
+                <button class="btn" onclick="closeModalDirect()">Annulla</button>
+                <button class="btn btn-primary" id="modalConfirmBtn">OK</button>
+            </div>` : ''}
+        `;
+        overlay.classList.add('show');
+
+        if (onConfirm) {
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                onConfirm();
+                closeModalDirect();
+            };
+        }
+    }
+
+    function closeModal(e) {
+        if (e.target === document.getElementById('modalOverlay')) {
+            closeModalDirect();
+        }
+    }
+
+    function closeModalDirect() {
+        document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    function showNewNotebookModal() {
+        let colorsHtml = '<div class="nb-colors-grid">';
+        NOTEBOOK_COLORS.forEach((c, i) => {
+            colorsHtml += `<span class="nb-color-opt ${i===0?'selected':''}" style="background:${c}" data-color="${c}" onclick="selectNbColor(this)"></span>`;
+        });
+        colorsHtml += '</div>';
+
+        showModal('Nuovo Blocco Appunti', `
+            <label>Nome</label>
+            <input type="text" id="newNbName" placeholder="Il mio blocco appunti" value="">
+            <label>Colore</label>
+            ${colorsHtml}
+        `, () => {
+            const name = document.getElementById('newNbName').value.trim() || 'Nuovo blocco appunti';
+            const colorEl = document.querySelector('.nb-color-opt.selected');
+            const color = colorEl ? colorEl.dataset.color : '#7b1fa2';
+            const nb = {
+                id: generateId(),
+                name: name,
+                color: color,
+                createdAt: new Date().toISOString(),
+                sections: [{
+                    id: generateId(),
+                    name: 'Sezione 1',
+                    color: color,
+                    pages: [{
+                        id: generateId(),
+                        title: '',
+                        content: '',
+                        createdAt: new Date().toISOString(),
+                        modifiedAt: new Date().toISOString()
+                    }]
+                }]
+            };
+            notebooks.push(nb);
+            switchNotebook(nb.id);
+        });
+    }
+
+    function selectNbColor(el) {
+        document.querySelectorAll('.nb-color-opt').forEach(e => e.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function showRenameSectionModal(secId) {
+        const nb = getCurrentNotebook();
+        const sec = nb.sections.find(s => s.id === secId);
+        if (!sec) return;
+
+        showModal('Rinomina Sezione', `
+            <label>Nome</label>
+            <input type="text" id="renameSectionInput" value="${sec.name}">
+        `, () => {
+            sec.name = document.getElementById('renameSectionInput').value.trim() || sec.name;
+            renderSections();
+            saveToStorage();
+        });
+    }
+
+    // ========================================
+    // CONTEXT MENUS
+    // ========================================
+    function showNotebookContextMenu(e, nbId) {
+        e.preventDefault();
+        e.stopPropagation();
+        const nb = notebooks.find(n => n.id === nbId);
+        if (!nb) return;
+        const menu = document.getElementById('contextMenu');
+        const canDelete = notebooks.length > 1;
+        menu.innerHTML = `
+            <div class="ctx-item" style="font-weight:600;color:var(--text-secondary);pointer-events:none;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding:6px 16px;">
+                <i class="fas fa-book" style="color:${nb.color};"></i> ${nb.name}
+            </div>
+            <div class="ctx-separator"></div>
+            <div class="ctx-item" onclick="renameNotebook('${nbId}');hideContextMenu()"><i class="fas fa-pen"></i> Rinomina</div>
+            <div class="ctx-item" onclick="changeNotebookColor('${nbId}');hideContextMenu()"><i class="fas fa-palette"></i> Cambia colore</div>
+            <div class="ctx-item" onclick="addSectionToNotebook('${nbId}');hideContextMenu()"><i class="fas fa-plus"></i> Aggiungi sezione</div>
+            <div class="ctx-separator"></div>
+            <div class="ctx-item" onclick="duplicateNotebook('${nbId}');hideContextMenu()"><i class="fas fa-copy"></i> Duplica blocco</div>
+            ${canDelete ? `<div class="ctx-item" onclick="deleteNotebook('${nbId}');hideContextMenu()"><i class="fas fa-trash" style="color:#e53935;"></i> Elimina blocco</div>` : ''}
+        `;
+        menu.style.left = e.clientX + 'px';
+        menu.style.top = e.clientY + 'px';
+        menu.classList.add('show');
+        document.addEventListener('click', hideContextMenu, { once: true });
+    }
+
+    function renameNotebook(nbId) {
+        const nb = notebooks.find(n => n.id === nbId);
+        if (!nb) return;
+        showModal('Rinomina Blocco Appunti', `
+            <label>Nome</label>
+            <input type="text" id="renameNbInput" value="${nb.name}">
+        `, () => {
+            const newName = document.getElementById('renameNbInput').value.trim();
+            if (newName) {
+                nb.name = newName;
+                renderNotebooksSidebar();
+                renderSections();
+                saveToStorage();
+                showToast('Blocco appunti rinominato');
+            }
+        });
+    }
+
+    function changeNotebookColor(nbId) {
+        const nb = notebooks.find(n => n.id === nbId);
+        if (!nb) return;
+        let colorsHtml = '<div class="nb-colors-grid">';
+        NOTEBOOK_COLORS.forEach(c => {
+            colorsHtml += `<span class="nb-color-opt ${c === nb.color ? 'selected' : ''}" style="background:${c}" data-color="${c}" onclick="selectNbColor(this)"></span>`;
+        });
+        colorsHtml += '</div>';
+
+        showModal('Colore Blocco Appunti', colorsHtml, () => {
+            const colorEl = document.querySelector('.nb-color-opt.selected');
+            if (colorEl) {
+                nb.color = colorEl.dataset.color;
+                renderNotebooksSidebar();
+                saveToStorage();
+                showToast('Colore aggiornato');
+            }
+        });
+    }
+
+    function addSectionToNotebook(nbId) {
+        const nb = notebooks.find(n => n.id === nbId);
+        if (!nb) return;
+        // Switch to notebook first if not current
+        if (currentNotebookId !== nbId) {
+            switchNotebook(nbId);
+        }
+        addSection();
+    }
+
+    function duplicateNotebook(nbId) {
+        const nb = notebooks.find(n => n.id === nbId);
+        if (!nb) return;
+        const dup = JSON.parse(JSON.stringify(nb));
+        dup.id = generateId();
+        dup.name = nb.name + ' (copia)';
+        dup.createdAt = new Date().toISOString();
+        // Regenerate IDs for sections and pages
+        dup.sections.forEach(sec => {
+            sec.id = generateId();
+            sec.pages.forEach(pg => {
+                pg.id = generateId();
+            });
+        });
+        notebooks.push(dup);
+        renderNotebooksSidebar();
+        saveToStorage();
+        showToast('Blocco appunti duplicato');
+    }
+
+    function deleteNotebook(nbId) {
+        if (notebooks.length <= 1) {
+            showToast('Non puoi eliminare l\'ultimo blocco appunti');
+            return;
+        }
+        const nb = notebooks.find(n => n.id === nbId);
+        if (!nb) return;
+        if (!confirm(`Eliminare "${nb.name}" e tutti i suoi contenuti?`)) return;
+
+        // Clean up drawing paths for all pages in this notebook
+        nb.sections.forEach(sec => {
+            sec.pages.forEach(pg => {
+                delete drawPaths[pg.id];
+            });
+        });
+
+        notebooks = notebooks.filter(n => n.id !== nbId);
+        if (currentNotebookId === nbId) {
+            currentNotebookId = notebooks[0].id;
+            const newNb = getCurrentNotebook();
+            currentSectionId = newNb.sections[0]?.id || null;
+            currentPageId = newNb.sections[0]?.pages[0]?.id || null;
+        }
+        renderNotebooksSidebar();
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+        showToast('Blocco appunti eliminato');
+    }
+
+    function showSectionContextMenu(e, secId) {
+        e.preventDefault();
+        const menu = document.getElementById('contextMenu');
+        menu.innerHTML = `
+            <div class="ctx-item" onclick="showRenameSectionModal('${secId}');hideContextMenu()"><i class="fas fa-pen"></i> Rinomina</div>
+            <div class="ctx-item" onclick="changeSectionColor('${secId}');hideContextMenu()"><i class="fas fa-palette"></i> Cambia colore</div>
+            <div class="ctx-separator"></div>
+            <div class="ctx-item" onclick="deleteSection('${secId}');hideContextMenu()"><i class="fas fa-trash" style="color:#e53935;"></i> Elimina sezione</div>
+        `;
+        menu.style.left = e.clientX + 'px';
+        menu.style.top = e.clientY + 'px';
+        menu.classList.add('show');
+
+        document.addEventListener('click', hideContextMenu, { once: true });
+    }
+
+    function showPageContextMenu(e, pgId) {
+        e.preventDefault();
+        const menu = document.getElementById('contextMenu');
+        menu.innerHTML = `
+            <div class="ctx-item" onclick="duplicatePage('${pgId}');hideContextMenu()"><i class="fas fa-copy"></i> Duplica pagina</div>
+            <div class="ctx-item" onclick="movePageToSection('${pgId}');hideContextMenu()"><i class="fas fa-arrows-alt"></i> Sposta in...</div>
+            <div class="ctx-separator"></div>
+            <div class="ctx-item" onclick="deletePage('${pgId}');hideContextMenu()"><i class="fas fa-trash" style="color:#e53935;"></i> Elimina pagina</div>
+        `;
+        menu.style.left = e.clientX + 'px';
+        menu.style.top = e.clientY + 'px';
+        menu.classList.add('show');
+
+        document.addEventListener('click', hideContextMenu, { once: true });
+    }
+
+    function hideContextMenu() {
+        document.getElementById('contextMenu').classList.remove('show');
+    }
+
+    function deleteSection(secId) {
+        const nb = getCurrentNotebook();
+        if (!nb) return;
+        if (nb.sections.length <= 1) {
+            showToast('Non puoi eliminare l\'ultima sezione');
+            return;
+        }
+        if (!confirm('Eliminare questa sezione e tutte le sue pagine?')) return;
+        nb.sections = nb.sections.filter(s => s.id !== secId);
+        if (currentSectionId === secId) {
+            currentSectionId = nb.sections[0].id;
+            currentPageId = nb.sections[0].pages.length > 0 ? nb.sections[0].pages[0].id : null;
+        }
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+    }
+
+    function changeSectionColor(secId) {
+        const nb = getCurrentNotebook();
+        const sec = nb.sections.find(s => s.id === secId);
+        if (!sec) return;
+
+        let colorsHtml = '<div class="nb-colors-grid">';
+        NOTEBOOK_COLORS.forEach(c => {
+            colorsHtml += `<span class="nb-color-opt ${c === sec.color ? 'selected' : ''}" style="background:${c}" data-color="${c}" onclick="selectNbColor(this)"></span>`;
+        });
+        colorsHtml += '</div>';
+
+        showModal('Colore Sezione', colorsHtml, () => {
+            const colorEl = document.querySelector('.nb-color-opt.selected');
+            if (colorEl) sec.color = colorEl.dataset.color;
+            renderSections();
+            saveToStorage();
+        });
+    }
+
+    function duplicatePage(pgId) {
+        const sec = getCurrentSection();
+        if (!sec) return;
+        const orig = sec.pages.find(p => p.id === pgId);
+        if (!orig) return;
+        const dup = {
+            ...JSON.parse(JSON.stringify(orig)),
+            id: generateId(),
+            title: orig.title + ' (copia)',
+            createdAt: new Date().toISOString(),
+            modifiedAt: new Date().toISOString()
+        };
+        const idx = sec.pages.findIndex(p => p.id === pgId);
+        sec.pages.splice(idx + 1, 0, dup);
+        renderPages();
+        saveToStorage();
+    }
+
+    function movePageToSection(pgId) {
+        const nb = getCurrentNotebook();
+        if (!nb || nb.sections.length < 2) {
+            showToast('Nessuna altra sezione disponibile');
+            return;
+        }
+
+        let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
+        nb.sections.forEach(sec => {
+            if (sec.id !== currentSectionId) {
+                html += `<button class="btn" onclick="executeMovePage('${pgId}','${sec.id}')" style="text-align:left;">
+                    <span class="section-color" style="background:${sec.color};display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;"></span>${sec.name}
+                </button>`;
+            }
+        });
+        html += '</div>';
+        showModal('Sposta Pagina In...', html);
+    }
+
+    function executeMovePage(pgId, targetSecId) {
+        closeModalDirect();
+        const sec = getCurrentSection();
+        const pageIdx = sec.pages.findIndex(p => p.id === pgId);
+        if (pageIdx === -1) return;
+        const [page] = sec.pages.splice(pageIdx, 1);
+        const nb = getCurrentNotebook();
+        const targetSec = nb.sections.find(s => s.id === targetSecId);
+        if (targetSec) targetSec.pages.push(page);
+        if (currentPageId === pgId) {
+            currentPageId = sec.pages.length > 0 ? sec.pages[0].id : null;
+        }
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+        showToast('Pagina spostata');
+    }
+
+    function showNotebookSettingsMenu() {
+        const nb = getCurrentNotebook();
+        if (!nb) return;
+        showModal('Impostazioni Blocco Appunti', `
+            <label>Nome</label>
+            <input type="text" id="editNbName" value="${nb.name}">
+            <label>Colore</label>
+            <div class="nb-colors-grid">
+                ${NOTEBOOK_COLORS.map(c => `<span class="nb-color-opt ${c === nb.color ? 'selected' : ''}" style="background:${c}" data-color="${c}" onclick="selectNbColor(this)"></span>`).join('')}
+            </div>
+            <div style="margin-top:20px;padding-top:12px;border-top:1px solid #e0e0e0;">
+                <button class="btn btn-danger" onclick="deleteCurrentNotebook()" style="width:100%;">
+                    <i class="fas fa-trash"></i> Elimina blocco appunti
+                </button>
+            </div>
+        `, () => {
+            nb.name = document.getElementById('editNbName').value.trim() || nb.name;
+            const colorEl = document.querySelector('.nb-color-opt.selected');
+            if (colorEl) nb.color = colorEl.dataset.color;
+            renderNotebooksSidebar();
+            renderSections();
+            saveToStorage();
+        });
+    }
+
+    function deleteCurrentNotebook() {
+        if (notebooks.length <= 1) {
+            showToast('Non puoi eliminare l\'ultimo blocco appunti');
+            return;
+        }
+        if (!confirm('Eliminare questo blocco appunti e tutti i suoi contenuti?')) return;
+        closeModalDirect();
+        notebooks = notebooks.filter(n => n.id !== currentNotebookId);
+        currentNotebookId = notebooks[0].id;
+        const nb = getCurrentNotebook();
+        currentSectionId = nb.sections[0].id;
+        currentPageId = nb.sections[0].pages.length > 0 ? nb.sections[0].pages[0].id : null;
+        renderNotebooksSidebar();
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+        saveToStorage();
+    }
+
+    // ========================================
+    // SEARCH
+    // ========================================
+    function searchNotes(query) {
+        if (!query.trim()) {
+            renderPages();
+            return;
+        }
+
+        const q = query.toLowerCase();
+        const results = [];
+
+        notebooks.forEach(nb => {
+            nb.sections.forEach(sec => {
+                sec.pages.forEach(pg => {
+                    const titleMatch = (pg.title || '').toLowerCase().includes(q);
+                    const contentMatch = stripHTML(pg.content).toLowerCase().includes(q);
+                    if (titleMatch || contentMatch) {
+                        results.push({ notebook: nb, section: sec, page: pg });
+                    }
+                });
+            });
+        });
+
+        const listEl = document.getElementById('pagesList');
+        if (results.length === 0) {
+            listEl.innerHTML = '<div style="padding:20px 14px;color:#999;font-size:13px;text-align:center;">Nessun risultato trovato.</div>';
+            return;
+        }
+
+        let html = '';
+        results.forEach(r => {
+            html += `<div class="page-item" onclick="navigateToSearchResult('${r.notebook.id}','${r.section.id}','${r.page.id}')">
+                <div class="page-item-title">${r.page.title || 'Senza titolo'}</div>
+                <div class="page-item-preview" style="color:#7b1fa2;">${r.notebook.name} > ${r.section.name}</div>
+            </div>`;
+        });
+        listEl.innerHTML = html;
+    }
+
+    function navigateToSearchResult(nbId, secId, pgId) {
+        saveCurrentPageContent();
+        currentNotebookId = nbId;
+        currentSectionId = secId;
+        currentPageId = pgId;
+        document.getElementById('globalSearch').value = '';
+        renderNotebooksSidebar();
+        renderSections();
+        renderPages();
+        loadPageIntoEditor();
+    }
+
+    // ========================================
+    // FILE OPERATIONS
+    // ========================================
+    function toggleFilePanel() {
+        document.getElementById('filePanel').classList.toggle('open');
+    }
+
+    // --- Guida / Modifica / Condividi (riga tab, stile OneNote online) ---
+    // Il tab "Guida" apre la guida dedicata (come le altre app della suite)
+    function showOneNoteHelp() {
+        window.open('guida.html', '_blank');
+    }
+
+    let onenoteReadOnly = false;
+    function toggleEditingMode() {
+        onenoteReadOnly = !onenoteReadOnly;
+        const ed = document.getElementById('noteEditor');
+        if (ed) ed.contentEditable = onenoteReadOnly ? 'false' : 'true';
+        const pill = document.querySelector('.modifica-pill');
+        if (pill) pill.innerHTML = onenoteReadOnly
+            ? '<i class="fas fa-eye"></i> Visualizzazione <i class="fas fa-chevron-down" style="font-size:9px;"></i>'
+            : '<i class="fas fa-pen"></i> Modifica <i class="fas fa-chevron-down" style="font-size:9px;"></i>';
+        showToast(onenoteReadOnly ? 'Modalità sola lettura' : 'Modalità modifica');
+    }
+
+    function shareNotebook() {
+        const nb = getCurrentNotebook();
+        const link = window.location.origin + window.location.pathname + '?nb=' + (nb ? encodeURIComponent(nb.name) : '');
+        showModal('Condividi blocco appunti', `
+            <div style="font-size:13px;color:#444;">
+                <p style="margin-bottom:10px;">Condividi <b>${nb ? (nb.name||'').replace(/[<>&]/g,'') : 'questo blocco'}</b> tramite collegamento:</p>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" readonly value="${link}" onclick="this.select()" style="flex:1;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:12px;">
+                    <button onclick="navigator.clipboard.writeText('${link}').then(()=>showToast('Link copiato!'))" style="padding:8px 14px;border:none;background:var(--accent);color:#fff;border-radius:6px;cursor:pointer;">Copia</button>
+                </div>
+            </div>`, null);
+        const c = document.getElementById('modal-confirm'); if (c) c.style.display = 'none';
+    }
+
+    function createNewNotebook() {
+        toggleFilePanel();
+        showNewNotebookModal();
+    }
+
+    function saveToLocal() {
+        saveCurrentPageContent();
+        const data = {
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            notebooks: notebooks,
+            drawPaths: drawPaths
+        };
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'onenote_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Backup salvato in locale');
+        toggleFilePanel();
+    }
+
+    function loadFromLocal() {
+        document.getElementById('localFileInput').click();
+    }
+
+    function handleLocalFileLoad(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const data = JSON.parse(ev.target.result);
+                if (data.notebooks) {
+                    notebooks = data.notebooks;
+                    if (data.drawPaths) drawPaths = data.drawPaths;
+                    currentNotebookId = notebooks[0].id;
+                    currentSectionId = notebooks[0].sections[0].id;
+                    currentPageId = notebooks[0].sections[0].pages[0]?.id || null;
+                    renderNotebooksSidebar();
+                    renderSections();
+                    renderPages();
+                    loadPageIntoEditor();
+                    saveToStorage();
+                    showToast('Blocchi appunti caricati con successo');
+                }
+            } catch (err) {
+                showToast('Errore nel file: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+        toggleFilePanel();
+        e.target.value = '';
+    }
+
+    function saveToServer() {
+        saveCurrentPageContent();
+        const nb = getCurrentNotebook();
+        const data = {
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            notebooks: notebooks,
+            drawPaths: drawPaths
+        };
+
+        const filename = nb.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+        fetch('save.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: filename, data: JSON.stringify(data) })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                showToast('Salvato sul server: ' + result.filename);
+                document.getElementById('statusSync').innerHTML = '<i class="fas fa-cloud-check"></i> Server';
+            } else {
+                showToast('Errore: ' + result.error);
+            }
+        })
+        .catch(err => {
+            showToast('Errore di rete: ' + err.message);
+        });
+
+        toggleFilePanel();
+    }
+
+    function loadFromServerList() {
+        const listEl = document.getElementById('serverDocsList');
+        listEl.innerHTML = '<div class="file-menu-item" style="opacity:0.5;"><i class="fas fa-spinner fa-spin"></i> Caricamento...</div>';
+
+        fetch('list_notebooks.php')
+        .then(r => r.json())
+        .then(result => {
+            if (result.success && result.notebooks.length > 0) {
+                let html = '<div style="padding:8px 12px;font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Blocchi appunti sul server</div>';
+                html += '<div class="server-docs-list">';
+                result.notebooks.forEach(nb => {
+                    const ext = (nb.type || 'json').toUpperCase();
+                    const sizeStr = nb.size < 1024 ? nb.size + ' B' : (nb.size / 1024).toFixed(1) + ' KB';
+                    html += `<div class="server-doc-item" onclick="loadFromServer('${nb.filename}')" style="padding:8px 16px;">
+                        <div class="doc-info">
+                            <div class="doc-name">
+                                <i class="fas fa-book" style="margin-right:8px;color:#ce93d8;width:16px;text-align:center;"></i>
+                                ${nb.name}
+                                <span style="display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:600;background:rgba(206,147,216,0.2);color:#ce93d8;margin-left:6px;vertical-align:middle;">${ext}</span>
+                            </div>
+                            <div class="doc-date">${nb.modified_formatted} &middot; ${sizeStr}</div>
+                        </div>
+                        <button class="doc-delete" onclick="event.stopPropagation();if(confirm('Eliminare "' + '${nb.filename}' + '" dal server?')) deleteFromServer('${nb.filename}')" title="Elimina">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>`;
+                });
+                html += '</div>';
+                listEl.innerHTML = html;
+            } else {
+                listEl.innerHTML = '<div class="file-menu-item" style="opacity:0.5;">Nessun file sul server</div>';
+            }
+        })
+        .catch(err => {
+            listEl.innerHTML = `<div class="file-menu-item" style="opacity:0.5;">Errore: ${err.message}</div>`;
+        });
+    }
+
+    function loadFromServer(filename) {
+        fetch('load_notebook.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: filename })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                const data = JSON.parse(result.content);
+                if (data.notebooks) {
+                    notebooks = data.notebooks;
+                    if (data.drawPaths) drawPaths = data.drawPaths;
+                    currentNotebookId = notebooks[0].id;
+                    currentSectionId = notebooks[0].sections[0].id;
+                    currentPageId = notebooks[0].sections[0].pages[0]?.id || null;
+                    renderNotebooksSidebar();
+                    renderSections();
+                    renderPages();
+                    loadPageIntoEditor();
+                    saveToStorage();
+                    showToast('Caricato: ' + filename);
+                    document.getElementById('statusSync').innerHTML = '<i class="fas fa-cloud"></i> Server';
+                }
+            } else {
+                showToast('Errore: ' + result.error);
+            }
+        })
+        .catch(err => showToast('Errore di rete: ' + err.message));
+
+        toggleFilePanel();
+    }
+
+    function deleteFromServer(filename) {
+        if (!confirm('Eliminare "' + filename + '" dal server?')) return;
+        fetch('delete_notebook.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: filename })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                showToast('Eliminato dal server');
+                loadFromServerList();
+            } else {
+                showToast('Errore: ' + result.error);
+            }
+        })
+        .catch(err => showToast('Errore: ' + err.message));
+    }
+
+    function exportAsHTML() {
+        const page = getCurrentPage();
+        if (!page) return;
+        const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${page.title || 'Nota'}</title>
+<style>body{font-family:Segoe UI,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#333;line-height:1.6;}
+h1{font-weight:300;color:#7b1fa2;border-bottom:1px solid #e0e0e0;padding-bottom:8px;}
+.todo-item{display:flex;align-items:flex-start;gap:8px;margin:4px 0;}.todo-checkbox{width:18px;height:18px;margin-top:2px;accent-color:#7b1fa2;}
+.todo-item.done .todo-text{text-decoration:line-through;color:#999;}
+.note-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+.tag-important{background:#fce4ec;color:#c62828;}.tag-question{background:#e3f2fd;color:#1565c0;}
+.tag-remember{background:#fff3e0;color:#e65100;}.tag-definition{background:#e8f5e9;color:#2e7d32;}
+.tag-highlight{background:#fff9c4;color:#f57f17;}
+table{border-collapse:collapse;margin:8px 0;}td,th{border:1px solid #d0d0d0;padding:6px 10px;}</style>
+</head><body><h1>${page.title || 'Nota senza titolo'}</h1>${page.content}</body></html>`;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (page.title || 'nota') + '.html';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Esportato come HTML');
+        toggleFilePanel();
+    }
+
+    function exportToPdf(mode) {
+        mode = mode || 'download';
+        const page = getCurrentPage();
+        if (!page) return;
+        const container = document.createElement('div');
+        container.style.fontFamily = 'Segoe UI, sans-serif';
+        container.style.color = '#333';
+        container.style.lineHeight = '1.6';
+        const title = document.createElement('h1');
+        title.style.fontWeight = '300';
+        title.style.color = '#7b1fa2';
+        title.style.borderBottom = '1px solid #e0e0e0';
+        title.style.paddingBottom = '8px';
+        title.textContent = page.title || 'Pagina OneNote';
+        container.appendChild(title);
+        const content = document.createElement('div');
+        content.innerHTML = page.content || '';
+        container.appendChild(content);
+        const filename = (page.title || 'Pagina OneNote') + '.pdf';
+        const opt = {
+            margin: 10,
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(container).outputPdf('blob').then(function(pdfBlob) {
+            if (mode === 'server') {
+                var fd = new FormData();
+                fd.append('files', new File([pdfBlob], filename, {type: 'application/pdf'}));
+                fd.append('path', 'I miei file');
+                fetch('../onedrive-clone/api.php?action=upload', { method: 'POST', body: fd })
+                    .then(function(r) { return r.json(); })
+                    .then(function(res) {
+                        if (res.success) {
+                            showToast('PDF salvato su OneDrive!');
+                        }
+                    })
+                    .catch(function() {
+                        showToast('Errore: server non disponibile');
+                    });
+            } else {
+                var url = URL.createObjectURL(pdfBlob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('PDF scaricato!');
+            }
+        }).catch(function(err) {
+            console.error('Errore PDF:', err);
+            showToast('Errore esportazione PDF');
+        });
+        toggleFilePanel();
+    }
+
+    function printCurrentPage() {
+        const page = getCurrentPage();
+        if (!page) return;
+        const printHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${page.title || 'Stampa'}</title>
+<style>body{font-family:Segoe UI,sans-serif;max-width:100%;padding:20mm;color:#333;line-height:1.6;}
+h1{font-weight:300;color:#7b1fa2;}table{border-collapse:collapse;}td,th{border:1px solid #ccc;padding:6px;}</style>
+</head><body><h1>${page.title || ''}</h1>${page.content}</body></html>`;
+
+        const blob = new Blob([printHTML], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.src = blobUrl;
+        iframe.onload = () => {
+            iframe.contentWindow.print();
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+                URL.revokeObjectURL(blobUrl);
+            }, 1000);
+        };
+        toggleFilePanel();
+    }
+
+    // ========================================
+    // MOBILE NAVIGATION
+    // ========================================
+    let mobileNavOpen = false;
+
+    function toggleMobileNav() {
+        if (mobileNavOpen) {
+            closeMobileNav();
+        } else {
+            openMobileNav();
+        }
+    }
+
+    function openMobileNav() {
+        const panel = document.getElementById('sectionsPanel');
+        const overlay = document.getElementById('mobileNavOverlay');
+        mobileNavOpen = true;
+        panel.classList.add('mobile-open');
+        overlay.classList.add('open');
+        renderMobileNotebooks();
+    }
+
+    function closeMobileNav() {
+        const panel = document.getElementById('sectionsPanel');
+        const overlay = document.getElementById('mobileNavOverlay');
+        mobileNavOpen = false;
+        panel.classList.remove('mobile-open');
+        overlay.classList.remove('open');
+    }
+
+    function renderMobileNotebooks() {
+        const container = document.getElementById('mobileNotebooksList');
+        if (!container) return;
+        let html = '';
+        notebooks.forEach(nb => {
+            const isActive = nb.id === currentNotebookId ? 'active' : '';
+            html += `<div class="mob-nb-item ${isActive}" onclick="mobileSwitchNotebook('${nb.id}')">
+                <span class="mob-nb-dot" style="background:${nb.color}"></span>
+                <span class="mob-nb-name">${nb.name}</span>
+                <div class="mob-nb-actions">
+                    <button class="mob-nb-action-btn" onclick="event.stopPropagation();renameNotebook('${nb.id}')" title="Rinomina"><i class="fas fa-pen"></i></button>
+                    ${notebooks.length > 1 ? `<button class="mob-nb-action-btn" onclick="event.stopPropagation();mobileDeleteNotebook('${nb.id}')" title="Elimina"><i class="fas fa-trash"></i></button>` : ''}
+                </div>
+            </div>`;
+        });
+        html += `<button class="mob-add-nb-btn" onclick="closeMobileNav();showNewNotebookModal()">
+            <i class="fas fa-plus"></i> Nuovo blocco appunti
+        </button>`;
+        container.innerHTML = html;
+    }
+
+    function mobileSwitchNotebook(nbId) {
+        switchNotebook(nbId);
+        renderMobileNotebooks();
+    }
+
+    function mobileDeleteNotebook(nbId) {
+        deleteNotebook(nbId);
+        renderMobileNotebooks();
+    }
+
+
+    // ========================================
+    // KEYBOARD SHORTCUTS
+    // ========================================
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key.toLowerCase()) {
+                    case 's':
+                        e.preventDefault();
+                        saveToStorage();
+                        showToast('Salvato');
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        document.getElementById('globalSearch').focus();
+                        break;
+                    case 'n':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            addPage();
+                        }
+                        break;
+                    case 'z':
+                        if (e.target.id !== 'noteEditor') {
+                            e.preventDefault();
+                            undo();
+                        }
+                        break;
+                    case 'y':
+                        if (e.target.id !== 'noteEditor') {
+                            e.preventDefault();
+                            redo();
+                        }
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        printCurrentPage();
+                        break;
+                }
+            }
+        });
+    }
+
+    // ========================================
+    // UTILITIES
+    // ========================================
+    function stripHTML(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+    }
+
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const icons = {
+            pdf: 'fa-file-pdf', doc: 'fa-file-word', docx: 'fa-file-word',
+            xls: 'fa-file-excel', xlsx: 'fa-file-excel', ppt: 'fa-file-powerpoint',
+            pptx: 'fa-file-powerpoint', zip: 'fa-file-archive', rar: 'fa-file-archive',
+            jpg: 'fa-file-image', jpeg: 'fa-file-image', png: 'fa-file-image',
+            gif: 'fa-file-image', mp3: 'fa-file-audio', wav: 'fa-file-audio',
+            mp4: 'fa-file-video', txt: 'fa-file-alt', csv: 'fa-file-csv',
+            js: 'fa-file-code', html: 'fa-file-code', css: 'fa-file-code'
+        };
+        return icons[ext] || 'fa-file';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function updateStatusBar() {
+        const editor = document.getElementById('noteEditor');
+        const text = editor.textContent || '';
+        document.getElementById('statusCharCount').textContent = text.length + ' caratteri';
+    }
+
+    function updateSaveStatus(status) {
+        const el = document.getElementById('statusSaveState');
+        if (status === 'Salvato') {
+            el.innerHTML = '<i class="fas fa-check-circle"></i> Salvato';
+        } else {
+            el.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> ' + status;
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function pasteFromClipboard() {
+        navigator.clipboard.readText().then(text => {
+            document.getElementById('noteEditor').focus();
+            document.execCommand('insertText', false, text);
+        }).catch(() => {
+            showToast('Impossibile accedere agli appunti');
+        });
+    }
+
+    // ========================================
+    // SETTINGS / THEMES
+    // ========================================
+    const ACCENT_COLORS = [
+        { name: 'Viola', value: '#7b1fa2', light: '#ce93d8', dark: '#4a148c', bg: '#f3e5f5', hover: '#ede7f6' },
+        { name: 'Blu', value: '#1565c0', light: '#64b5f6', dark: '#0d47a1', bg: '#e3f2fd', hover: '#e8f0fe' },
+        { name: 'Rosso', value: '#c62828', light: '#ef9a9a', dark: '#b71c1c', bg: '#fce4ec', hover: '#fce4ec' },
+        { name: 'Verde', value: '#2e7d32', light: '#81c784', dark: '#1b5e20', bg: '#e8f5e9', hover: '#e8f5e9' },
+        { name: 'Arancione', value: '#e65100', light: '#ffb74d', dark: '#bf360c', bg: '#fff3e0', hover: '#fff3e0' },
+        { name: 'Teal', value: '#00838f', light: '#4dd0e1', dark: '#006064', bg: '#e0f7fa', hover: '#e0f7fa' },
+        { name: 'Rosa', value: '#ad1457', light: '#f48fb1', dark: '#880e4f', bg: '#fce4ec', hover: '#fce4ec' },
+        { name: 'Indaco', value: '#283593', light: '#7986cb', dark: '#1a237e', bg: '#e8eaf6', hover: '#e8eaf6' },
+        { name: 'Marrone', value: '#4e342e', light: '#a1887f', dark: '#3e2723', bg: '#efebe9', hover: '#efebe9' },
+        { name: 'Grigio', value: '#37474f', light: '#90a4ae', dark: '#263238', bg: '#eceff1', hover: '#eceff1' }
+    ];
+
+    const PAGE_BG_COLORS = [
+        { name: 'Bianco', value: '#ffffff' },
+        { name: 'Avorio', value: '#fffff0' },
+        { name: 'Giallo chiaro', value: '#fffde7' },
+        { name: 'Verde chiaro', value: '#f1f8e9' },
+        { name: 'Azzurro chiaro', value: '#e3f2fd' },
+        { name: 'Lavanda', value: '#f3e5f5' },
+        { name: 'Rosa chiaro', value: '#fce4ec' },
+        { name: 'Pesca', value: '#fff3e0' },
+        { name: 'Grigio chiaro', value: '#f5f5f5' },
+        { name: 'Grigio scuro', value: '#e0e0e0' }
+    ];
+
+    let appSettings = {
+        theme: 'white',       // 'colorful', 'dark', 'white' — default bianco come OneNote online
+        accentIndex: 0,       // index in ACCENT_COLORS
+        pageBg: '#ffffff',
+        editorFont: 'Segoe UI',
+        editorFontSize: 14,
+        showRuleLines: false,
+        showGrid: false
+    };
+
+    function loadSettings() {
+        try {
+            const s = localStorage.getItem('onenote_settings');
+            if (s) {
+                Object.assign(appSettings, JSON.parse(s));
+            }
+            // Migrazione una-tantum: allinea al look di OneNote online (tema bianco)
+            if (!localStorage.getItem('onenote_theme_migrated')) {
+                appSettings.theme = 'white';
+                localStorage.setItem('onenote_theme_migrated', '1');
+            }
+        } catch(e) {}
+        applySettings();
+    }
+
+    function saveSettings() {
+        localStorage.setItem('onenote_settings', JSON.stringify(appSettings));
+    }
+
+    function applySettings() {
+        const root = document.documentElement;
+        const accent = ACCENT_COLORS[appSettings.accentIndex] || ACCENT_COLORS[0];
+
+        // Set accent colors
+        root.style.setProperty('--accent', accent.value);
+        root.style.setProperty('--accent-light', accent.light);
+        root.style.setProperty('--accent-dark', accent.dark);
+        root.style.setProperty('--accent-bg', accent.bg);
+        root.style.setProperty('--accent-hover', accent.hover);
+
+        // Theme
+        if (appSettings.theme === 'colorful') {
+            root.removeAttribute('data-theme');
+            root.style.setProperty('--titlebar-bg', accent.value);
+            root.style.setProperty('--ribbon-tabs-bg', accent.value);
+            root.style.setProperty('--sidebar-bg', accent.dark);
+            root.style.setProperty('--statusbar-bg', accent.value);
+            root.style.setProperty('--body-bg', '#f3f2f1');
+            root.style.setProperty('--panel-bg', '#f9f9f9');
+            root.style.setProperty('--panel-border', '#e0e0e0');
+            root.style.setProperty('--editor-bg', '#ffffff');
+            root.style.setProperty('--editor-text', '#333333');
+            root.style.setProperty('--text-primary', '#333333');
+            root.style.setProperty('--text-secondary', '#777777');
+        } else if (appSettings.theme === 'dark') {
+            root.setAttribute('data-theme', 'dark');
+            root.style.setProperty('--titlebar-bg', '#1e1e1e');
+            root.style.setProperty('--ribbon-tabs-bg', '#1e1e1e');
+            root.style.setProperty('--sidebar-bg', '#111111');
+            root.style.setProperty('--statusbar-bg', '#1e1e1e');
+            root.style.setProperty('--body-bg', '#2d2d2d');
+            root.style.setProperty('--panel-bg', '#252525');
+            root.style.setProperty('--panel-border', '#3a3a3a');
+            root.style.setProperty('--editor-bg', '#1e1e1e');
+            root.style.setProperty('--editor-text', '#e0e0e0');
+            root.style.setProperty('--text-primary', '#e0e0e0');
+            root.style.setProperty('--text-secondary', '#999999');
+        } else if (appSettings.theme === 'white') {
+            root.setAttribute('data-theme', 'white');
+            root.style.setProperty('--titlebar-bg', '#ffffff');
+            root.style.setProperty('--ribbon-tabs-bg', '#ffffff');
+            root.style.setProperty('--sidebar-bg', '#fafafa');
+            root.style.setProperty('--statusbar-bg', '#ffffff');
+            root.style.setProperty('--body-bg', '#ffffff');
+            root.style.setProperty('--panel-bg', '#fafafa');
+            root.style.setProperty('--panel-border', '#e0e0e0');
+            root.style.setProperty('--editor-bg', '#ffffff');
+            root.style.setProperty('--editor-text', '#333333');
+            root.style.setProperty('--text-primary', '#333333');
+            root.style.setProperty('--text-secondary', '#777777');
+        }
+
+        // Page background
+        const editor = document.getElementById('noteEditor');
+        if (editor) {
+            editor.style.background = appSettings.pageBg;
+            // Font
+            editor.style.fontFamily = appSettings.editorFont;
+            editor.style.fontSize = appSettings.editorFontSize + 'px';
+        }
+
+        const editorArea = document.getElementById('editorArea');
+        if (editorArea) {
+            editorArea.style.background = appSettings.pageBg;
+        }
+
+        // Rule lines / grid
+        if (editor) {
+            editor.classList.toggle('ruled', appSettings.showRuleLines);
+            editor.classList.toggle('grid-bg', appSettings.showGrid);
+        }
+
+        saveSettings();
+    }
+
+    function showSettingsModal() {
+        const accent = ACCENT_COLORS[appSettings.accentIndex] || ACCENT_COLORS[0];
+
+        let accentHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">';
+        ACCENT_COLORS.forEach((c, i) => {
+            const sel = i === appSettings.accentIndex ? 'outline:3px solid #333;outline-offset:2px;' : '';
+            accentHtml += `<span onclick="setAccentColor(${i})" style="display:inline-block;width:32px;height:32px;border-radius:50%;background:${c.value};cursor:pointer;${sel}" title="${c.name}"></span>`;
+        });
+        accentHtml += '</div>';
+
+        let pageBgHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">';
+        PAGE_BG_COLORS.forEach(c => {
+            const sel = c.value === appSettings.pageBg ? 'outline:3px solid #333;outline-offset:2px;' : '';
+            pageBgHtml += `<span onclick="setPageBg('${c.value}')" style="display:inline-block;width:32px;height:32px;border-radius:6px;background:${c.value};border:1px solid #ccc;cursor:pointer;${sel}" title="${c.name}"></span>`;
+        });
+        pageBgHtml += '</div>';
+
+        showModal('Impostazioni', `
+            <label>Tema dell'applicazione</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+                <button class="btn ${appSettings.theme==='colorful'?'btn-primary':''}" onclick="setTheme('colorful')" style="flex:1;">
+                    <i class="fas fa-palette"></i> Colorato
+                </button>
+                <button class="btn ${appSettings.theme==='white'?'btn-primary':''}" onclick="setTheme('white')" style="flex:1;">
+                    <i class="fas fa-sun"></i> Chiaro
+                </button>
+                <button class="btn ${appSettings.theme==='dark'?'btn-primary':''}" onclick="setTheme('dark')" style="flex:1;">
+                    <i class="fas fa-moon"></i> Scuro
+                </button>
+            </div>
+
+            <label>Colore accento</label>
+            ${accentHtml}
+
+            <label>Sfondo pagina</label>
+            ${pageBgHtml}
+            <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
+                <span style="font-size:12px;color:#888;">Personalizzato:</span>
+                <button onclick="oneColorPicker('Sfondo pagina', setPageBg)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;"><span style="width:18px;height:18px;border-radius:3px;border:1px solid #ccc;background:${appSettings.pageBg};display:inline-block;"></span> Scegli colore</button>
+            </div>
+
+            <label>Font editor</label>
+            <select onchange="setEditorFont(this.value)" style="width:100%;padding:8px;border:1px solid #d0d0d0;border-radius:4px;">
+                ${['Segoe UI','Arial','Times New Roman','Georgia','Verdana','Courier New','Comic Sans MS','Calibri','Cambria','Trebuchet MS']
+                    .map(f => `<option value="${f}" ${appSettings.editorFont===f?'selected':''}>${f}</option>`).join('')}
+            </select>
+
+            <label>Dimensione font (px)</label>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                <input type="range" min="10" max="24" value="${appSettings.editorFontSize}" oninput="setEditorFontSize(this.value);this.nextElementSibling.textContent=this.value+'px'" style="flex:1;accent-color:var(--accent);">
+                <span style="font-size:13px;min-width:35px;">${appSettings.editorFontSize}px</span>
+            </div>
+
+            <label>Sfondo editor</label>
+            <div style="display:flex;gap:10px;margin-top:6px;">
+                <button class="btn ${!appSettings.showRuleLines && !appSettings.showGrid ? 'btn-primary':''}" onclick="setEditorBg('none')">
+                    <i class="fas fa-square"></i> Pulito
+                </button>
+                <button class="btn ${appSettings.showRuleLines ? 'btn-primary':''}" onclick="setEditorBg('ruled')">
+                    <i class="fas fa-grip-lines"></i> Righe
+                </button>
+                <button class="btn ${appSettings.showGrid ? 'btn-primary':''}" onclick="setEditorBg('grid')">
+                    <i class="fas fa-th"></i> Griglia
+                </button>
+            </div>
+        `);
+    }
+
+    function setTheme(theme) {
+        appSettings.theme = theme;
+        applySettings();
+        showSettingsModal(); // re-render modal to update button states
+    }
+
+    function setAccentColor(idx) {
+        appSettings.accentIndex = idx;
+        applySettings();
+        showSettingsModal();
+    }
+
+    function setPageBg(color) {
+        appSettings.pageBg = color;
+        applySettings();
+        showSettingsModal();
+    }
+
+    function setEditorFont(font) {
+        appSettings.editorFont = font;
+        applySettings();
+    }
+
+    function setEditorFontSize(size) {
+        appSettings.editorFontSize = parseInt(size);
+        applySettings();
+    }
+
+    function setEditorBg(mode) {
+        appSettings.showRuleLines = (mode === 'ruled');
+        appSettings.showGrid = (mode === 'grid');
+        applySettings();
+        showSettingsModal();
+    }
+
+    // ========================================
+    // INIT
+    // ========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSettings();
+        init();
+
+        // Inline title editing
+        const nbTitle = document.getElementById('notebookNameDisplay');
+        const mobNbTitle = document.getElementById('mobTitle');
+        if (nbTitle) {
+            nbTitle.addEventListener('input', function() {
+                const nb = getCurrentNotebook();
+                if (nb) {
+                    nb.name = this.value;
+                    if (mobNbTitle) mobNbTitle.value = this.value;
+                    renderNotebooksSidebar();
+                    saveToStorage();
+                }
+            });
+        }
+        if (mobNbTitle) {
+            mobNbTitle.addEventListener('input', function() {
+                const nb = getCurrentNotebook();
+                if (nb) {
+                    nb.name = this.value;
+                    if (nbTitle) nbTitle.value = this.value;
+                    renderNotebooksSidebar();
+                    saveToStorage();
+                }
+            });
+        }
+    });
+
+    // Save before unload
+    window.addEventListener('beforeunload', () => {
+        saveCurrentPageContent();
+        saveToStorage();
+    });
+    </script>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModal" onclick="if(event.target===this) closeAuthOnenote()">
+        <div class="auth-modal">
+            <button class="auth-close" onclick="closeAuthOnenote()">&times;</button>
+            <div id="auth-container"></div>
+        </div>
+    </div>
+
+    <style>
+        .auth-modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 999999;
+            align-items: center; justify-content: center; backdrop-filter: blur(4px);
+        }
+        .auth-modal-overlay.active { display: flex; }
+        .auth-modal {
+            background: white; border-radius: 16px; padding: 28px;
+            max-width: 380px; width: 90%;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2); position: relative;
+            animation: authFadeIn 0.25s ease;
+        }
+        @keyframes authFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .auth-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 22px; color: #aaa; cursor: pointer; padding: 4px; line-height: 1; }
+        .auth-close:hover { color: #d32f2f; }
+    </style>
+
+    <script>
+    let authInitOnenote = false;
+    function toggleAuthOnenote() {
+        const a = window.CloneOfficeAuth; if (!a) return;
+        document.getElementById('authModal').classList.add('active');
+        const c = document.getElementById('auth-container');
+        a.isAuthenticated() ? a.showUserUI(c) : a.showLoginUI(c);
+    }
+    function closeAuthOnenote() { document.getElementById('authModal').classList.remove('active'); }
+    function initAuthOnenoteFn() {
+        if (authInitOnenote) return; authInitOnenote = true;
+        const a = window.CloneOfficeAuth; if (!a) return;
+        document.getElementById('btn-auth-onenote').onclick = toggleAuthOnenote;
+        a.onAuthChange(function(u) {
+            const l = document.getElementById('auth-label-onenote');
+            if (l) l.textContent = u ? u.name.split(' ')[0] : 'Utente';
+            if (u) { hideAuthBlockerOnenote(); hideSessionLimitBlockerOnenote(); }
+        });
+        a.onSessionLimit(function(d) { showSessionLimitBlockerOnenote(d); });
+        a.init().then(function(u) {
+            if (u) { const l = document.getElementById('auth-label-onenote'); if (l) l.textContent = u.name.split(' ')[0]; hideAuthBlockerOnenote(); }
+            else { showAuthBlockerOnenote(); }
+        });
+    }
+    function showAuthBlockerOnenote() {
+        let b = document.getElementById('auth-blocker-onenote');
+        if (b) return;
+        b = document.createElement('div'); b.id = 'auth-blocker-onenote';
+        b.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#f0f2f5;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;"><div style="font-size:64px;margin-bottom:20px;">🔐</div><h2 style="font-size:24px;color:#1a1a2e;margin-bottom:8px;">Accesso richiesto</h2><p style="color:#888;font-size:14px;margin-bottom:24px;">Devi effettuare l\'accesso per utilizzare questa applicazione.</p><button onclick="toggleAuthOnenote()" style="padding:12px 32px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Accedi con QR Code</button><br><br><a href="../index.html" style="color:#e94560;font-size:13px;text-decoration:none;">Torna alla Home</a></div></div>';
+        document.body.appendChild(b);
+    }
+    function hideAuthBlockerOnenote() { const b = document.getElementById('auth-blocker-onenote'); if (b) b.remove(); }
+    function showSessionLimitBlockerOnenote(d) {
+        let b = document.getElementById('session-limit-blocker-onenote');
+        if (b) return;
+        b = document.createElement('div'); b.id = 'session-limit-blocker-onenote';
+        b.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(26,26,46,0.97);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;max-width:420px;"><div style="font-size:64px;margin-bottom:20px;">📵</div><h2 style="font-size:24px;color:#fff;margin-bottom:8px;">Limite dispositivi raggiunto</h2><p style="color:#ccc;font-size:14px;margin-bottom:8px;">Hai '+d.active_sessions+' sessione/i attiva/e su un massimo di '+d.max_devices+' consentiti dalla licenza.</p><p style="color:#999;font-size:12px;margin-bottom:24px;">Per utilizzare questa applicazione su un nuovo dispositivo, disconnetti una sessione esistente o acquista una licenza con pi&ugrave; dispositivi.</p><button onclick="logoutAndCloseOnenote()" style="padding:12px 32px;background:#e94560;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Esci e torna alla Home</button></div></div>';
+        document.body.appendChild(b);
+    }
+    function hideSessionLimitBlockerOnenote() { const b = document.getElementById('session-limit-blocker-onenote'); if (b) b.remove(); }
+    function logoutAndCloseOnenote() {
+        const a = window.CloneOfficeAuth;
+        if (a) a.logout().then(function() { window.location.href = "../index.html"; });
+        else window.location.href = "../index.html";
+    }
+    if (document.readyState === 'complete') initAuthOnenoteFn(); else window.addEventListener('load', initAuthOnenoteFn);
+    </script>
+
+    <script src="../shared/app-launcher.js"></script>
+    <script>OfficeLauncher.init();</script>
+</body>
+</html>

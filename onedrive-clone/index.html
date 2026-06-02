@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clone-OneDrive</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../shared/app-launcher.js"></script>
+    <script src="../js/auth.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; }
+        html,body { height:100%; overflow:hidden; }
+        body { display:flex; flex-direction:column; background:#f5f5f5; color:#333; }
+
+        /* Top Bar */
+        .top-bar {
+            height:48px; background:#0078d4; color:white; display:flex; align-items:center;
+            padding:0 16px; gap:8px; flex-shrink:0; z-index:100;
+        }
+        .top-bar .logo { font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px; margin-right:auto; }
+        .top-bar .logo i { font-size:20px; }
+        .top-bar .icon-btn {
+            width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+            background:none; border:none; color:white; cursor:pointer; border-radius:4px; font-size:15px;
+        }
+        .top-bar .icon-btn:hover { background:rgba(255,255,255,0.15); }
+        .top-bar .search-box {
+            display:flex; align-items:center; background:rgba(255,255,255,0.15); border-radius:4px;
+            padding:0 10px; height:32px; min-width:200px; max-width:400px; flex:1;
+        }
+        .top-bar .search-box input {
+            background:none; border:none; color:white; outline:none; font-size:13px; width:100%; margin-left:8px;
+        }
+        .top-bar .search-box input::placeholder { color:rgba(255,255,255,0.7); }
+
+        /* Layout */
+        .layout { display:flex; flex:1; overflow:hidden; }
+
+        /* Sidebar */
+        .sidebar {
+            width:220px; background:white; border-right:1px solid #e0e0e0; display:flex; flex-direction:column;
+            overflow-y:auto; flex-shrink:0;
+        }
+        .sidebar-section { padding:12px 0; }
+        .sidebar-section-title {
+            padding:4px 16px 8px; font-size:11px; font-weight:700; text-transform:uppercase;
+            color:#888; letter-spacing:0.5px;
+        }
+        .sidebar-item {
+            display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer;
+            color:#333; font-size:13px; transition:background 0.15s; border-left:3px solid transparent;
+        }
+        .sidebar-item:hover { background:#f0f4ff; }
+        .sidebar-item.active { background:#e8f0fe; border-left-color:#0078d4; color:#0078d4; font-weight:600; }
+        .sidebar-item i { width:18px; text-align:center; font-size:14px; color:#666; }
+        .sidebar-item.active i { color:#0078d4; }
+        .sidebar-item .count {
+            margin-left:auto; font-size:11px; background:#e0e0e0; padding:1px 7px; border-radius:10px; color:#666;
+        }
+
+        /* Storage bar */
+        .storage-info { padding:16px; border-top:1px solid #eee; margin-top:auto; }
+        .storage-bar { height:6px; background:#e0e0e0; border-radius:3px; overflow:hidden; margin:6px 0 4px; }
+        .storage-bar-fill { height:100%; background:#0078d4; border-radius:3px; transition:width 0.3s; }
+        .storage-text { font-size:11px; color:#888; }
+
+        /* Content */
+        .content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+        /* Toolbar */
+        .toolbar {
+            display:flex; align-items:center; padding:8px 16px; gap:6px; border-bottom:1px solid #e0e0e0;
+            background:white; flex-wrap:wrap;
+        }
+        .toolbar-btn {
+            display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid #ddd;
+            border-radius:4px; background:white; cursor:pointer; font-size:13px; color:#333; transition:all 0.15s;
+        }
+        .toolbar-btn:hover { background:#f0f4ff; border-color:#0078d4; }
+        .toolbar-btn.primary { background:#0078d4; color:white; border-color:#0078d4; }
+        .toolbar-btn.primary:hover { background:#106ebe; }
+        .toolbar-btn i { font-size:13px; }
+        .toolbar-sep { width:1px; height:24px; background:#e0e0e0; margin:0 4px; }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display:flex; align-items:center; padding:8px 16px; gap:4px; font-size:13px; color:#666;
+            background:white; border-bottom:1px solid #eee; flex-wrap:wrap;
+        }
+        .breadcrumb a { color:#0078d4; text-decoration:none; cursor:pointer; }
+        .breadcrumb a:hover { text-decoration:underline; }
+        .breadcrumb .sep { color:#ccc; margin:0 2px; }
+
+        /* View Toggle */
+        .view-toggle { display:flex; margin-left:auto; gap:2px; }
+        .view-toggle button {
+            width:32px; height:32px; border:1px solid #ddd; background:white; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; font-size:14px; color:#666;
+        }
+        .view-toggle button:first-child { border-radius:4px 0 0 4px; }
+        .view-toggle button:last-child { border-radius:0 4px 4px 0; }
+        .view-toggle button.active { background:#e8f0fe; color:#0078d4; border-color:#0078d4; }
+
+        /* File list */
+        .file-area { flex:1; overflow-y:auto; padding:0; }
+
+        /* List view */
+        .file-list-header {
+            display:grid; grid-template-columns:40px 1fr 140px 100px 100px 50px;
+            padding:8px 16px; font-size:12px; font-weight:600; color:#666; border-bottom:1px solid #eee;
+            background:#fafafa; position:sticky; top:0; z-index:2;
+        }
+        .file-list-header span { cursor:pointer; display:flex; align-items:center; gap:4px; }
+        .file-list-header span:hover { color:#333; }
+
+        .file-row {
+            display:grid; grid-template-columns:40px 1fr 140px 100px 100px 50px;
+            padding:8px 16px; align-items:center; border-bottom:1px solid #f0f0f0;
+            cursor:pointer; transition:background 0.1s; font-size:13px;
+        }
+        .file-row:hover { background:#f0f4ff; }
+        .file-row.selected { background:#e8f0fe; }
+        .file-row .file-icon { font-size:20px; text-align:center; }
+        .file-row .file-name { display:flex; align-items:center; gap:10px; overflow:hidden; }
+        .file-row .file-name span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .file-row .file-date, .file-row .file-size, .file-row .file-type { color:#666; font-size:12px; }
+        .file-row .file-actions { display:flex; gap:4px; }
+        .file-row .file-actions button {
+            width:28px; height:28px; border:none; background:none; cursor:pointer; border-radius:4px;
+            color:#999; font-size:13px; display:flex; align-items:center; justify-content:center;
+        }
+        .file-row .file-actions button:hover { background:#e0e0e0; color:#333; }
+        .file-row.is-folder .file-icon { color:#f5c542; }
+
+        /* Grid view */
+        .file-grid {
+            display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
+            gap:12px; padding:16px;
+        }
+        .file-grid-item {
+            background:white; border:1px solid #e0e0e0; border-radius:8px; padding:16px 12px;
+            display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;
+            transition:all 0.15s; position:relative;
+        }
+        .file-grid-item:hover { border-color:#0078d4; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+        .file-grid-item.selected { border-color:#0078d4; background:#e8f0fe; }
+        .file-grid-item .grid-icon { font-size:40px; margin:8px 0; }
+        .file-grid-item .grid-icon.folder { color:#f5c542; }
+        .file-grid-item .grid-name {
+            font-size:12px; text-align:center; word-break:break-word; max-height:2.6em;
+            overflow:hidden; line-height:1.3;
+        }
+        .file-grid-item .grid-meta { font-size:10px; color:#999; }
+        .file-grid-item .fav-star {
+            position:absolute; top:6px; right:6px; background:none; border:none; cursor:pointer;
+            color:#ccc; font-size:14px;
+        }
+        .file-grid-item .fav-star.active { color:#f5c542; }
+        .file-grid-item .fav-star:hover { color:#f5c542; }
+
+        /* Empty state */
+        .empty-state {
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            padding:60px 20px; color:#999;
+        }
+        .empty-state i { font-size:64px; margin-bottom:16px; color:#ddd; }
+        .empty-state h3 { font-size:18px; margin-bottom:8px; color:#666; }
+        .empty-state p { font-size:13px; }
+
+        /* Context Menu */
+        .context-menu {
+            position:fixed; background:white; border:1px solid #ddd; border-radius:8px;
+            box-shadow:0 4px 16px rgba(0,0,0,0.15); z-index:9000; min-width:200px;
+            padding:4px 0; display:none;
+        }
+        .context-menu.show { display:block; }
+        .context-menu-item {
+            display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer;
+            font-size:13px; color:#333; transition:background 0.1s;
+        }
+        .context-menu-item:hover { background:#f0f4ff; }
+        .context-menu-item i { width:16px; text-align:center; color:#666; font-size:13px; }
+        .context-menu-item.danger { color:#d32f2f; }
+        .context-menu-item.danger i { color:#d32f2f; }
+        .context-menu-sep { height:1px; background:#eee; margin:4px 0; }
+
+        /* Modal */
+        .modal-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4);
+            z-index:10000; display:none; align-items:center; justify-content:center;
+        }
+        .modal-overlay.show { display:flex; }
+        .modal {
+            background:white; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.2);
+            width:90%; max-width:480px; overflow:hidden;
+        }
+        .modal-header {
+            display:flex; align-items:center; justify-content:space-between; padding:16px 20px;
+            border-bottom:1px solid #eee;
+        }
+        .modal-header h3 { font-size:16px; font-weight:600; }
+        .modal-close {
+            background:none; border:none; font-size:18px; cursor:pointer; color:#999; padding:4px;
+        }
+        .modal-close:hover { color:#333; }
+        .modal-body { padding:20px; }
+        .modal-body label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#555; }
+        .modal-body input[type="text"] {
+            width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:6px; font-size:14px; outline:none;
+        }
+        .modal-body input:focus { border-color:#0078d4; }
+        .modal-footer {
+            display:flex; justify-content:flex-end; gap:8px; padding:12px 20px; border-top:1px solid #eee;
+        }
+        .modal-footer .btn {
+            padding:8px 20px; border-radius:6px; font-size:13px; cursor:pointer; border:1px solid #ddd;
+            background:white; color:#333;
+        }
+        .modal-footer .btn:hover { background:#f5f5f5; }
+        .modal-footer .btn.primary { background:#0078d4; color:white; border-color:#0078d4; }
+        .modal-footer .btn.primary:hover { background:#106ebe; }
+
+        /* Info panel / details */
+        .details-panel {
+            width:300px; background:white; border-left:1px solid #e0e0e0; display:none; flex-direction:column;
+            overflow-y:auto;
+        }
+        .details-panel.show { display:flex; }
+        .details-header {
+            padding:16px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between;
+        }
+        .details-header h4 { font-size:14px; font-weight:600; }
+        .details-icon { text-align:center; padding:30px 16px; }
+        .details-icon i { font-size:64px; }
+        .details-meta { padding:0 16px 16px; }
+        .details-meta-row {
+            display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f5f5f5;
+            font-size:12px;
+        }
+        .details-meta-row .label { color:#888; }
+        .details-meta-row .value { font-weight:500; color:#333; text-align:right; max-width:60%; word-break:break-word; }
+
+        /* Upload progress */
+        .upload-progress {
+            position:fixed; bottom:20px; right:20px; background:white; border-radius:8px;
+            box-shadow:0 4px 16px rgba(0,0,0,0.15); padding:16px; min-width:280px; z-index:5000;
+            display:none;
+        }
+        .upload-progress.show { display:block; }
+        .upload-progress h4 { font-size:13px; font-weight:600; margin-bottom:8px; }
+        .upload-progress .bar { height:4px; background:#e0e0e0; border-radius:2px; overflow:hidden; }
+        .upload-progress .bar-fill { height:100%; background:#0078d4; transition:width 0.3s; }
+        .upload-progress .status { font-size:12px; color:#666; margin-top:6px; }
+
+        /* Drag & Drop overlay */
+        .drop-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,120,212,0.1);
+            border:3px dashed #0078d4; z-index:8000; display:none; align-items:center; justify-content:center;
+        }
+        .drop-overlay.show { display:flex; }
+        .drop-overlay .drop-text {
+            background:white; padding:30px 50px; border-radius:12px; font-size:18px; color:#0078d4;
+            font-weight:600; box-shadow:0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        /* Toast */
+        .toast-container { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:11000; }
+        .toast {
+            background:#333; color:white; padding:10px 20px; border-radius:8px; font-size:13px;
+            margin-top:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); animation:toastIn 0.3s;
+        }
+        @keyframes toastIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+
+        /* Preview modal */
+        .preview-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6);
+            z-index:10000; display:none; align-items:center; justify-content:center;
+        }
+        .preview-overlay.show { display:flex; }
+        .preview-modal {
+            background:white; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.3);
+            width:92%; max-width:900px; height:85vh; display:flex; flex-direction:column; overflow:hidden;
+        }
+        .preview-header {
+            display:flex; align-items:center; padding:12px 20px; border-bottom:1px solid #eee;
+            gap:12px; flex-shrink:0;
+        }
+        .preview-header .preview-icon { font-size:22px; }
+        .preview-header .preview-title { font-size:15px; font-weight:600; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .preview-header .preview-close {
+            background:none; border:none; font-size:20px; cursor:pointer; color:#999; padding:4px 8px; border-radius:4px;
+        }
+        .preview-header .preview-close:hover { color:#333; background:#f0f0f0; }
+        .preview-body { flex:1; overflow:auto; padding:0; position:relative; background:#fafafa; }
+        .preview-body pre {
+            margin:0; padding:20px; font-family:'Consolas','Courier New',monospace; font-size:13px;
+            line-height:1.6; white-space:pre-wrap; word-wrap:break-word; background:#fafafa;
+        }
+        .preview-body img { max-width:100%; max-height:100%; display:block; margin:auto; object-fit:contain; }
+        .preview-body iframe { width:100%; height:100%; border:none; }
+        .preview-body .preview-unsupported {
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            height:100%; color:#999; gap:12px;
+        }
+        .preview-body .preview-unsupported i { font-size:48px; color:#ddd; }
+        .preview-body .preview-loading {
+            display:flex; align-items:center; justify-content:center; height:100%; color:#888; gap:10px;
+        }
+        .preview-footer {
+            display:flex; align-items:center; justify-content:flex-end; padding:10px 20px;
+            border-top:1px solid #eee; gap:8px; flex-shrink:0;
+        }
+
+        /* App launcher overrides */
+        .app-launcher-panel { position:fixed!important; top:0!important; left:0!important; z-index:99999!important; }
+        .app-launcher-panel.open { transform:translateX(0)!important; }
+        .app-launcher-overlay { position:fixed!important; z-index:99998!important; }
+        .app-launcher-overlay.open { display:block!important; }
+
+        /* Responsive */
+        @media(max-width:768px) {
+            .sidebar { display:none; }
+            .sidebar.mobile-show { display:flex; position:fixed; top:48px; left:0; bottom:0; width:260px; z-index:200; box-shadow:4px 0 16px rgba(0,0,0,0.1); }
+            .details-panel {
+                display:none!important; position:fixed; top:0; left:0; width:100%; height:100%;
+                z-index:300; border-left:none; border-radius:0;
+            }
+            .details-panel.show {
+                display:flex!important;
+            }
+            .top-bar .search-box { min-width:120px; }
+            .file-list-header { grid-template-columns:36px 1fr 90px 40px; }
+            .file-list-header .col-type, .file-list-header .col-size { display:none; }
+            .file-row { grid-template-columns:36px 1fr 90px 40px; }
+            .file-row .file-type, .file-row .file-size { display:none; }
+            .file-grid { grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:8px; padding:8px; }
+            .toolbar { padding:6px 8px; }
+            .toolbar-btn span.hide-mobile { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <a href="../index.html" title="Torna alla Home" class="icon-btn" style="text-decoration:none;color:white;display:none;" id="mobileBackBtn">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <button class="icon-btn waffle-btn-topbar" onclick="if(typeof OfficeLauncher!=='undefined')OfficeLauncher.toggle()" title="App Office Suite">
+        <i class="fas fa-th"></i>
+    </button>
+    <div class="logo">
+        <i class="fas fa-cloud"></i> Clone-OneDrive
+    </div>
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Cerca file e cartelle..." id="searchInput" oninput="debounceSearch(this.value)">
+    </div>
+    <button class="icon-btn" onclick="toggleSidebarMobile()" title="Menu" id="menuToggleBtn" style="display:none;">
+        <i class="fas fa-bars"></i>
+    </button>
+    <button class="icon-btn" onclick="toggleDetails()" title="Dettagli" id="detailsBtn">
+        <i class="fas fa-info-circle"></i>
+    </button>
+    <button class="icon-btn" onclick="window.open('guida.html','_blank')" title="Guida (F1)">
+        <i class="fas fa-question-circle"></i>
+    </button>
+    <button class="icon-btn" id="btn-auth-onedrive" onclick="toggleAuthOnedrive()" title="Account" style="color:white;">
+        <i class="fas fa-user"></i> <span id="auth-label-onedrive" style="font-size:11px;margin-left:2px;">Utente</span>
+    </button>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-item active" data-root="I miei file" onclick="navigateRoot(this)">
+                <i class="fas fa-folder"></i> I miei file
+            </div>
+            <div class="sidebar-item" data-root="Documenti Word" onclick="navigateRoot(this)">
+                <i class="fas fa-file-word" style="color:#2564c1"></i> Documenti Word
+            </div>
+            <div class="sidebar-item" data-root="Fogli Excel" onclick="navigateRoot(this)">
+                <i class="fas fa-file-excel" style="color:#217346"></i> Fogli Excel
+            </div>
+            <div class="sidebar-item" data-root="Presentazioni" onclick="navigateRoot(this)">
+                <i class="fas fa-file-powerpoint" style="color:#d04423"></i> Presentazioni
+            </div>
+            <div class="sidebar-item" data-root="Blocchi OneNote" onclick="navigateRoot(this)">
+                <i class="fas fa-book-open" style="color:#7b1fa2"></i> Blocchi OneNote
+            </div>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Altro</div>
+            <div class="sidebar-item" data-view="recent" onclick="loadSpecialView('recent',this)">
+                <i class="fas fa-clock"></i> Recenti
+            </div>
+            <div class="sidebar-item" data-view="favorites" onclick="loadSpecialView('favorites',this)">
+                <i class="fas fa-star"></i> Preferiti
+            </div>
+            <div class="sidebar-item" data-view="trash" onclick="loadSpecialView('trash',this)">
+                <i class="fas fa-trash-alt"></i> Cestino
+            </div>
+        </div>
+        <div class="storage-info" id="storageInfo">
+            <div style="font-size:12px;font-weight:600;color:#555;">Spazio utilizzato</div>
+            <div class="storage-bar"><div class="storage-bar-fill" id="storageBarFill" style="width:0%"></div></div>
+            <div class="storage-text" id="storageText">Calcolo in corso...</div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn primary" onclick="triggerUpload()">
+                <i class="fas fa-upload"></i> <span class="hide-mobile">Carica</span>
+            </button>
+            <button class="toolbar-btn" onclick="showNewFolderModal()">
+                <i class="fas fa-folder-plus"></i> <span class="hide-mobile">Nuova cartella</span>
+            </button>
+            <div class="toolbar-sep"></div>
+            <button class="toolbar-btn" onclick="previewSelected()" id="btnPreview" style="display:none;">
+                <i class="fas fa-eye"></i> <span class="hide-mobile">Anteprima</span>
+            </button>
+            <button class="toolbar-btn" onclick="downloadSelected()" id="btnDownload" style="display:none;">
+                <i class="fas fa-download"></i> <span class="hide-mobile">Scarica</span>
+            </button>
+            <button class="toolbar-btn" onclick="renameSelected()" id="btnRename" style="display:none;">
+                <i class="fas fa-pen"></i> <span class="hide-mobile">Rinomina</span>
+            </button>
+            <button class="toolbar-btn" onclick="deleteSelected()" id="btnDelete" style="display:none;">
+                <i class="fas fa-trash"></i> <span class="hide-mobile">Elimina</span>
+            </button>
+            <button class="toolbar-btn" onclick="moveSelected()" id="btnMove" style="display:none;">
+                <i class="fas fa-arrows-alt"></i> <span class="hide-mobile">Sposta</span>
+            </button>
+            <button class="toolbar-btn" onclick="copySelected()" id="btnCopy" style="display:none;">
+                <i class="fas fa-copy"></i> <span class="hide-mobile">Copia</span>
+            </button>
+            <button class="toolbar-btn" onclick="restoreFromTrash()" id="btnRestore" style="display:none;">
+                <i class="fas fa-undo"></i> <span class="hide-mobile">Ripristina</span>
+            </button>
+            <button class="toolbar-btn" onclick="emptyTrash()" id="btnEmptyTrash" style="display:none;color:#d32f2f;border-color:#d32f2f;">
+                <i class="fas fa-trash-alt"></i> <span class="hide-mobile">Svuota cestino</span>
+            </button>
+            <div style="flex:1"></div>
+            <div class="view-toggle">
+                <button id="viewList" class="active" onclick="setView('list')" title="Elenco"><i class="fas fa-list"></i></button>
+                <button id="viewGrid" onclick="setView('grid')" title="Griglia"><i class="fas fa-th-large"></i></button>
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" id="breadcrumb">
+            <a onclick="navigateTo('')">I miei file</a>
+        </div>
+
+        <!-- File Area -->
+        <div class="file-area" id="fileArea" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Details Panel -->
+    <div class="details-panel" id="detailsPanel">
+        <div class="details-header">
+            <h4>Dettagli</h4>
+            <button class="modal-close" onclick="toggleDetails()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="detailsContent">
+            <div class="empty-state" style="padding:40px 16px;">
+                <i class="fas fa-hand-pointer" style="font-size:40px;"></i>
+                <p style="margin-top:12px;">Seleziona un file per vedere i dettagli</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="fileInput" multiple style="display:none" onchange="handleFileUpload(this.files)">
+
+<!-- Context Menu -->
+<div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" onclick="ctxOpen()"><i class="fas fa-external-link-alt"></i> Apri</div>
+    <div class="context-menu-item" onclick="ctxPreview()"><i class="fas fa-eye"></i> Anteprima</div>
+    <div class="context-menu-item" onclick="ctxDownload()"><i class="fas fa-download"></i> Scarica</div>
+    <div class="context-menu-sep"></div>
+    <div class="context-menu-item" onclick="ctxRename()"><i class="fas fa-pen"></i> Rinomina</div>
+    <div class="context-menu-item" onclick="ctxMove()"><i class="fas fa-arrows-alt"></i> Sposta in...</div>
+    <div class="context-menu-item" onclick="ctxCopy()"><i class="fas fa-copy"></i> Copia in...</div>
+    <div class="context-menu-item" onclick="ctxToggleFavorite()"><i class="fas fa-star"></i> <span id="ctxFavText">Aggiungi ai preferiti</span></div>
+    <div class="context-menu-sep"></div>
+    <div class="context-menu-item" onclick="ctxInfo()"><i class="fas fa-info-circle"></i> Dettagli</div>
+    <div class="context-menu-sep"></div>
+    <div class="context-menu-item danger" onclick="ctxDelete()"><i class="fas fa-trash"></i> Elimina</div>
+</div>
+
+<!-- Trash Context Menu -->
+<div class="context-menu" id="trashContextMenu">
+    <div class="context-menu-item" onclick="ctxRestore()"><i class="fas fa-undo"></i> Ripristina</div>
+    <div class="context-menu-item danger" onclick="ctxDeletePermanent()"><i class="fas fa-times-circle"></i> Elimina definitivamente</div>
+</div>
+
+<!-- New Folder Modal -->
+<div class="modal-overlay" id="newFolderModal">
+    <div class="modal">
+        <div class="modal-header"><h3>Nuova cartella</h3><button class="modal-close" onclick="closeModal('newFolderModal')"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+            <label>Nome cartella</label>
+            <input type="text" id="newFolderName" placeholder="Nuova cartella" onkeydown="if(event.key==='Enter')createNewFolder()">
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('newFolderModal')">Annulla</button>
+            <button class="btn primary" onclick="createNewFolder()">Crea</button>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Modal -->
+<div class="modal-overlay" id="renameModal">
+    <div class="modal">
+        <div class="modal-header"><h3>Rinomina</h3><button class="modal-close" onclick="closeModal('renameModal')"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+            <label>Nuovo nome</label>
+            <input type="text" id="renameInput" onkeydown="if(event.key==='Enter')confirmRename()">
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('renameModal')">Annulla</button>
+            <button class="btn primary" onclick="confirmRename()">Rinomina</button>
+        </div>
+    </div>
+</div>
+
+<!-- Move/Copy Modal -->
+<div class="modal-overlay" id="moveCopyModal">
+    <div class="modal">
+        <div class="modal-header"><h3 id="moveCopyTitle">Sposta in</h3><button class="modal-close" onclick="closeModal('moveCopyModal')"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+            <label>Percorso destinazione</label>
+            <input type="text" id="moveCopyDest" placeholder="es. documenti/archivio">
+            <p style="font-size:11px;color:#888;margin-top:8px;">Inserisci il percorso relativo alla root corrente</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('moveCopyModal')">Annulla</button>
+            <button class="btn primary" onclick="confirmMoveCopy()">Conferma</button>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-overlay" id="previewOverlay" onclick="if(event.target===this)closePreview()">
+    <div class="preview-modal">
+        <div class="preview-header">
+            <span class="preview-icon" id="previewIcon"><i class="fas fa-file"></i></span>
+            <span class="preview-title" id="previewTitle">Anteprima</span>
+            <button class="preview-close" onclick="closePreview()" title="Chiudi"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="preview-body" id="previewBody">
+            <div class="preview-loading"><i class="fas fa-spinner fa-spin"></i> Caricamento anteprima...</div>
+        </div>
+        <div class="preview-footer">
+            <button class="btn" onclick="closePreview()" style="padding:8px 20px;border-radius:6px;font-size:13px;cursor:pointer;border:1px solid #ddd;background:white;">Chiudi</button>
+            <button class="btn primary" id="previewOpenBtn" onclick="previewOpenInApp()" style="padding:8px 20px;border-radius:6px;font-size:13px;cursor:pointer;border:1px solid #0078d4;background:#0078d4;color:white;">Apri nell'app</button>
+        </div>
+    </div>
+</div>
+
+<!-- Drop overlay -->
+<div class="drop-overlay" id="dropOverlay">
+    <div class="drop-text"><i class="fas fa-cloud-upload-alt" style="margin-right:10px;"></i> Rilascia i file qui per caricarli</div>
+</div>
+
+<!-- Upload progress -->
+<div class="upload-progress" id="uploadProgress">
+    <h4><i class="fas fa-cloud-upload-alt" style="margin-right:6px;color:#0078d4;"></i> Caricamento</h4>
+    <div class="bar"><div class="bar-fill" id="uploadBarFill" style="width:0%"></div></div>
+    <div class="status" id="uploadStatus">Preparazione...</div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// OneDrive Clone - File Manager
+
+// ---- State ----
+let currentRoot = 'I miei file';
+let currentPath = '';
+let currentView = 'list';
+let currentFiles = [];
+let selectedFile = null;
+let contextFile = null;
+let specialView = null; // null, 'recent', 'favorites', 'trash'
+let moveCopyMode = null; // 'move' or 'copy'
+let searchTimeout = null;
+let isOffline = window.location.protocol === 'file:';
+
+const API = 'api.php';
+
+// Compone il path completo per il backend: "NomeRoot" oppure "NomeRoot/sottopercorso"
+function fullPath(subPath) {
+    if (subPath) return currentRoot + '/' + subPath;
+    return currentRoot;
+}
+
+// ---- IndexedDB per persistenza offline ----
+let offlineDB = null;
+const DB_NAME = 'OneDriveOffline';
+const DB_VERSION = 1;
+
+function openOfflineDB() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('deleted')) db.createObjectStore('deleted', { keyPath: 'path' });
+            if (!db.objectStoreNames.contains('renamed')) db.createObjectStore('renamed', { keyPath: 'oldPath' });
+            if (!db.objectStoreNames.contains('folders')) db.createObjectStore('folders', { keyPath: 'path' });
+            if (!db.objectStoreNames.contains('favorites')) db.createObjectStore('favorites', { keyPath: 'path' });
+            if (!db.objectStoreNames.contains('trash')) db.createObjectStore('trash', { keyPath: 'id', autoIncrement: true });
+        };
+        req.onsuccess = (e) => { offlineDB = e.target.result; resolve(offlineDB); };
+        req.onerror = () => resolve(null);
+    });
+}
+
+function offlineStore(storeName, mode) {
+    if (!offlineDB) return null;
+    return offlineDB.transaction(storeName, mode || 'readonly').objectStore(storeName);
+}
+
+function offlinePut(storeName, data) {
+    return new Promise((resolve) => {
+        const store = offlineStore(storeName, 'readwrite');
+        if (!store) { resolve(); return; }
+        const req = store.put(data);
+        req.onsuccess = () => resolve();
+        req.onerror = () => resolve();
+    });
+}
+
+function offlineDelete(storeName, key) {
+    return new Promise((resolve) => {
+        const store = offlineStore(storeName, 'readwrite');
+        if (!store) { resolve(); return; }
+        const req = store.delete(key);
+        req.onsuccess = () => resolve();
+        req.onerror = () => resolve();
+    });
+}
+
+function offlineGetAll(storeName) {
+    return new Promise((resolve) => {
+        const store = offlineStore(storeName, 'readonly');
+        if (!store) { resolve([]); return; }
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+    });
+}
+
+// Applica le modifiche offline ai file demo
+async function applyOfflineChanges(files, folderKey) {
+    if (!offlineDB) return files;
+
+    // Aggiungi cartelle create offline
+    const folders = await offlineGetAll('folders');
+    folders.forEach(f => {
+        if (f.parent === folderKey) {
+            files.push({ name: f.name, type: 'directory', size: 0, modified: f.created });
+        }
+    });
+
+    // Rimuovi file eliminati offline
+    const deleted = await offlineGetAll('deleted');
+    const deletedPaths = new Set(deleted.map(d => d.path));
+    files = files.filter(f => {
+        const fPath = folderKey + '/' + f.name;
+        return !deletedPaths.has(fPath);
+    });
+
+    // Applica rinomina
+    const renamed = await offlineGetAll('renamed');
+    const renameMap = {};
+    renamed.forEach(r => { renameMap[r.oldPath] = r.newName; });
+    files.forEach(f => {
+        const fPath = folderKey + '/' + f.name;
+        if (renameMap[fPath]) f.name = renameMap[fPath];
+    });
+
+    // Segna preferiti
+    const favs = await offlineGetAll('favorites');
+    const favPaths = new Set(favs.map(f => f.path));
+    files.forEach(f => {
+        const fPath = folderKey + '/' + f.name;
+        if (favPaths.has(fPath)) f.is_favorite = true;
+    });
+
+    return files;
+}
+
+// ---- Init ----
+function init() {
+    openOfflineDB().then(() => {
+        setupResponsive();
+        loadFiles();
+        loadStorageInfo();
+    });
+    window.addEventListener('resize', setupResponsive);
+    document.addEventListener('click', (e) => {
+        hideContextMenu();
+        if (typeof OfficeLauncher !== 'undefined' && !e.target.closest('.waffle-btn-topbar') && !e.target.closest('.app-launcher-panel') && !e.target.closest('.fa-th')) {
+            OfficeLauncher.close();
+        }
+    });
+    document.addEventListener('keydown', handleKeyboard);
+    if (typeof OfficeLauncher !== 'undefined') OfficeLauncher.init();
+}
+
+function setupResponsive() {
+    const isMobile = window.innerWidth <= 768;
+    document.getElementById('mobileBackBtn').style.display = isMobile ? 'flex' : 'none';
+    document.getElementById('menuToggleBtn').style.display = isMobile ? 'flex' : 'none';
+}
+
+// ---- API calls ----
+async function apiCall(action, params = {}) {
+    if (isOffline) return { success: false, offline: true };
+    const url = new URL(API, window.location.href);
+    url.searchParams.set('action', action);
+    for (const [k,v] of Object.entries(params)) {
+        if (v !== undefined && v !== null) url.searchParams.set(k, v);
+    }
+    try {
+        const resp = await fetch(url.toString());
+        return await resp.json();
+    } catch(e) {
+        isOffline = true;
+        return { success: false, error: 'Server non disponibile', offline: true };
+    }
+}
+
+async function apiPost(action, formData) {
+    if (isOffline) return { success: false, offline: true };
+    const url = new URL(API, window.location.href);
+    url.searchParams.set('action', action);
+    try {
+        const resp = await fetch(url.toString(), { method: 'POST', body: formData });
+        return await resp.json();
+    } catch(e) {
+        return { success: false, error: 'Server non disponibile', offline: true };
+    }
+}
+
+// ---- Load files ----
+async function loadFiles() {
+    specialView = null;
+    const apiPath = fullPath(currentPath);
+    const result = await apiCall('list', { path: apiPath });
+    if (result.success) {
+        // Il backend restituisce { items: [...], path, breadcrumb } oppure un array di root
+        const data = result.data;
+        if (Array.isArray(data)) {
+            // Lista root
+            currentFiles = data.map(r => ({ name: r.name, type: 'directory', size: r.total_size || 0, modified: '', file_count: r.file_count }));
+        } else if (data && data.items) {
+            currentFiles = data.items.map(item => ({
+                name: item.name, type: item.type === 'folder' ? 'directory' : 'file',
+                size: item.size || 0, modified: item.modified || '',
+                ext: item.extension || '', is_favorite: false
+            }));
+        } else {
+            currentFiles = [];
+        }
+    } else if (result.offline) {
+        currentFiles = [];
+    } else {
+        currentFiles = [];
+        showToast('Errore: ' + (result.error || 'Impossibile caricare i file'));
+    }
+    renderFiles();
+    updateBreadcrumb();
+    updateSelection(null);
+}
+
+async function loadSpecialView(view, el) {
+    specialView = view;
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    if (el) el.classList.add('active');
+
+    if (view === 'trash') {
+        const result = await apiCall('trash_list');
+        if (result.success) {
+            currentFiles = (result.data || []).map(t => ({
+                name: t.original_name, type: 'file', size: t.size || 0,
+                modified: t.deleted_at, trash_id: t.id, original_path: t.original_path
+            }));
+        } else {
+            // Offline: leggi cestino da IndexedDB
+            const trashItems = await offlineGetAll('trash');
+            currentFiles = trashItems.map(t => ({
+                name: t.name, type: t.type || 'file', size: t.size || 0,
+                modified: t.deleted_at, trash_id: t.id, original_path: t.path
+            }));
+        }
+    } else if (view === 'recent') {
+        const result = await apiCall('recent_list');
+        currentFiles = result.success ? (result.data || []).map(r => ({
+            name: r.name, type: 'file', size: 0, modified: r.accessed_at,
+            path: r.path
+        })) : [];
+    } else if (view === 'favorites') {
+        const result = await apiCall('favorite_list');
+        if (result.success) {
+            currentFiles = (result.data || []).map(f => ({
+                name: f.name || f.path.split('/').pop(),
+                type: f.type === 'folder' ? 'directory' : 'file',
+                size: f.size || 0, modified: f.added_at || '',
+                path: f.path, is_favorite: true
+            }));
+        } else {
+            // Offline: leggi preferiti da IndexedDB
+            const favItems = await offlineGetAll('favorites');
+            currentFiles = favItems.map(f => ({
+                name: f.name || f.path.split('/').pop(),
+                type: 'file', size: 0, modified: '',
+                path: f.path, is_favorite: true
+            }));
+        }
+    }
+    renderFiles();
+    updateBreadcrumbSpecial(view);
+    updateSelection(null);
+    closeSidebarMobile();
+}
+
+// Senza PHP i file non sono visibili - solo dati reali dal server
+
+// ---- Render ----
+// displayFiles mantiene l'array effettivamente visualizzato (ordinato), così gli indici corrispondono
+let displayFiles = [];
+
+function renderFiles() {
+    const area = document.getElementById('fileArea');
+    if (currentFiles.length === 0) {
+        displayFiles = [];
+        let label, sublabel, icon;
+        if (isOffline && !specialView) {
+            label = 'Server non disponibile';
+            sublabel = 'Avvia PHP per visualizzare i file reali dal server';
+            icon = 'fa-server';
+        } else if (specialView === 'trash') {
+            label = 'Il cestino è vuoto'; sublabel = ''; icon = 'fa-trash-alt';
+        } else if (specialView === 'favorites') {
+            label = 'Nessun preferito'; sublabel = 'Clicca la stella su un file per aggiungerlo ai preferiti'; icon = 'fa-star';
+        } else if (specialView === 'recent') {
+            label = 'Nessun file recente'; sublabel = ''; icon = 'fa-clock';
+        } else {
+            label = 'Questa cartella è vuota'; sublabel = 'Carica file o crea nuove cartelle per iniziare'; icon = 'fa-folder-open';
+        }
+        area.innerHTML = `<div class="empty-state"><i class="fas ${icon}"></i><h3>${label}</h3><p>${sublabel}</p></div>`;
+        return;
+    }
+
+    // Sort: folders first, then by name - salva in displayFiles
+    displayFiles = [...currentFiles].sort((a,b) => {
+        if (a.type === 'directory' && b.type !== 'directory') return -1;
+        if (a.type !== 'directory' && b.type === 'directory') return 1;
+        return (a.name || '').localeCompare(b.name || '');
+    });
+
+    if (currentView === 'list') {
+        renderListView(displayFiles, area);
+    } else {
+        renderGridView(displayFiles, area);
+    }
+}
+
+function renderListView(files, area) {
+    let html = `<div class="file-list-header">
+        <span></span>
+        <span onclick="sortFiles('name')">Nome <i class="fas fa-sort" style="font-size:10px;"></i></span>
+        <span onclick="sortFiles('modified')">Modificato <i class="fas fa-sort" style="font-size:10px;"></i></span>
+        <span class="col-size" onclick="sortFiles('size')">Dimensione</span>
+        <span class="col-type">Tipo</span>
+        <span></span>
+    </div>`;
+
+    files.forEach((f, idx) => {
+        const icon = getFileIcon(f);
+        const iconColor = getFileIconColor(f);
+        const isDir = f.type === 'directory';
+        const size = isDir ? '-' : formatSize(f.size || 0);
+        const type = isDir ? 'Cartella' : getFileTypeLabel(f);
+        const date = f.modified ? formatDate(f.modified) : '-';
+
+        html += `<div class="file-row ${isDir ? 'is-folder' : ''}" data-idx="${idx}"
+                    onclick="selectFile(${idx}, event)"
+                    ondblclick="openFile(${idx})"
+                    oncontextmenu="showContextMenu(event, ${idx})">
+            <div class="file-icon" style="color:${iconColor}"><i class="fas ${icon}"></i></div>
+            <div class="file-name"><span>${escHtml(f.name)}</span></div>
+            <div class="file-date">${date}</div>
+            <div class="file-size">${size}</div>
+            <div class="file-type">${type}</div>
+            <div class="file-actions">
+                <button onclick="event.stopPropagation();showContextMenu(event,${idx})" title="Altro"><i class="fas fa-ellipsis-v"></i></button>
+            </div>
+        </div>`;
+    });
+    area.innerHTML = html;
+}
+
+function renderGridView(files, area) {
+    let html = '<div class="file-grid">';
+    files.forEach((f, idx) => {
+        const icon = getFileIcon(f);
+        const iconColor = getFileIconColor(f);
+        const isDir = f.type === 'directory';
+        html += `<div class="file-grid-item" data-idx="${idx}"
+                    onclick="selectFile(${idx}, event)"
+                    ondblclick="openFile(${idx})"
+                    oncontextmenu="showContextMenu(event, ${idx})">
+            <button class="fav-star ${f.is_favorite ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${idx})" title="Preferito">
+                <i class="fas fa-star"></i>
+            </button>
+            <div class="grid-icon ${isDir ? 'folder' : ''}" style="color:${isDir ? '' : iconColor}"><i class="fas ${icon}"></i></div>
+            <div class="grid-name">${escHtml(f.name)}</div>
+            <div class="grid-meta">${f.modified ? formatDate(f.modified) : ''}</div>
+        </div>`;
+    });
+    html += '</div>';
+    area.innerHTML = html;
+}
+
+// ---- File icons ----
+function getFileIcon(f) {
+    if (f.type === 'directory') return 'fa-folder';
+    const ext = (f.ext || f.name.split('.').pop() || '').toLowerCase();
+    const map = {
+        doc:'fa-file-word', docx:'fa-file-word', odt:'fa-file-word', rtf:'fa-file-word',
+        xls:'fa-file-excel', xlsx:'fa-file-excel', csv:'fa-file-excel', ods:'fa-file-excel',
+        ppt:'fa-file-powerpoint', pptx:'fa-file-powerpoint', odp:'fa-file-powerpoint',
+        pdf:'fa-file-pdf',
+        jpg:'fa-file-image', jpeg:'fa-file-image', png:'fa-file-image', gif:'fa-file-image', svg:'fa-file-image', webp:'fa-file-image', bmp:'fa-file-image',
+        mp3:'fa-file-audio', wav:'fa-file-audio', ogg:'fa-file-audio', flac:'fa-file-audio',
+        mp4:'fa-file-video', avi:'fa-file-video', mkv:'fa-file-video', mov:'fa-file-video', webm:'fa-file-video',
+        zip:'fa-file-archive', rar:'fa-file-archive', '7z':'fa-file-archive', tar:'fa-file-archive', gz:'fa-file-archive',
+        txt:'fa-file-alt', md:'fa-file-alt', log:'fa-file-alt',
+        html:'fa-file-code', css:'fa-file-code', js:'fa-file-code', json:'fa-file-code', php:'fa-file-code', py:'fa-file-code',
+        xml:'fa-file-code', sql:'fa-file-code',
+    };
+    return map[ext] || 'fa-file';
+}
+
+function getFileIconColor(f) {
+    if (f.type === 'directory') return '#f5c542';
+    const ext = (f.ext || f.name.split('.').pop() || '').toLowerCase();
+    const colors = {
+        doc:'#2564c1', docx:'#2564c1', odt:'#2564c1', rtf:'#2564c1',
+        xls:'#217346', xlsx:'#217346', csv:'#217346', ods:'#217346',
+        ppt:'#d04423', pptx:'#d04423', odp:'#d04423',
+        pdf:'#d32f2f',
+        jpg:'#8e24aa', jpeg:'#8e24aa', png:'#8e24aa', gif:'#8e24aa', svg:'#8e24aa', webp:'#8e24aa',
+        mp3:'#e91e63', wav:'#e91e63',
+        mp4:'#9c27b0', avi:'#9c27b0', mkv:'#9c27b0',
+        zip:'#795548', rar:'#795548',
+        txt:'#607d8b', md:'#607d8b',
+        html:'#e44d26', css:'#264de4', js:'#f7df1e', json:'#888', php:'#8892BF', py:'#3776ab',
+    };
+    return colors[ext] || '#90a4ae';
+}
+
+function getFileTypeLabel(f) {
+    const ext = (f.ext || f.name.split('.').pop() || '').toLowerCase();
+    const labels = {
+        docx:'Documento Word', doc:'Documento Word', xlsx:'Foglio Excel', xls:'Foglio Excel',
+        pptx:'Presentazione', ppt:'Presentazione', pdf:'Documento PDF',
+        jpg:'Immagine JPEG', jpeg:'Immagine JPEG', png:'Immagine PNG', gif:'Immagine GIF',
+        txt:'File di testo', html:'Pagina HTML', json:'File JSON', csv:'File CSV',
+        zip:'Archivio ZIP', rar:'Archivio RAR', mp3:'Audio MP3', mp4:'Video MP4',
+    };
+    return labels[ext] || (ext ? ext.toUpperCase() + ' file' : 'File');
+}
+
+// ---- Navigation ----
+window.navigateRoot = function(el) {
+    const root = el.dataset.root;
+    currentRoot = root;
+    currentPath = '';
+    specialView = null;
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    loadFiles();
+    closeSidebarMobile();
+};
+
+window.navigateTo = function(path) {
+    currentPath = path || '';
+    specialView = null;
+    loadFiles();
+};
+
+function openFile(idx) {
+    const f = displayFiles[idx];
+    if (!f) return;
+    if (f.type === 'directory') {
+        // Se il nome della cartella corrisponde a una root virtuale, switch alla root
+        const rootNames = ['I miei file', 'Documenti Word', 'Fogli Excel', 'Presentazioni', 'Blocchi OneNote'];
+        if (rootNames.includes(f.name) && !currentPath) {
+            // Cambia root
+            currentRoot = f.name;
+            currentPath = '';
+            // Aggiorna sidebar
+            document.querySelectorAll('.sidebar-item').forEach(i => {
+                i.classList.toggle('active', i.dataset.root === f.name);
+            });
+            loadFiles();
+            return;
+        }
+        currentPath = currentPath ? currentPath + '/' + f.name : f.name;
+        loadFiles();
+        return;
+    }
+    const ext = (f.ext || f.name.split('.').pop() || '').toLowerCase();
+
+    // Mappa intelligente basata sulla root corrente
+    let appUrl = null;
+    if (currentRoot === 'Documenti Word') {
+        appUrl = '../word-clone/index.html';
+    } else if (currentRoot === 'Fogli Excel') {
+        appUrl = '../excel-clone/index.html';
+    } else if (currentRoot === 'Presentazioni') {
+        appUrl = '../powerpoint-clone/index.html';
+    } else if (currentRoot === 'Blocchi OneNote') {
+        appUrl = '../onenote-clone/index.html';
+    } else {
+        // "I miei file" o altro: mappa per estensione
+        const extMap = {
+            docx:'../word-clone/index.html', doc:'../word-clone/index.html', rtf:'../word-clone/index.html', odt:'../word-clone/index.html',
+            xlsx:'../excel-clone/index.html', xls:'../excel-clone/index.html', csv:'../excel-clone/index.html', ods:'../excel-clone/index.html',
+            pptx:'../powerpoint-clone/index.html', ppt:'../powerpoint-clone/index.html', odp:'../powerpoint-clone/index.html',
+        };
+        appUrl = extMap[ext] || null;
+    }
+
+    if (appUrl) {
+        const appNames = {
+            '../word-clone/index.html': 'Word',
+            '../excel-clone/index.html': 'Excel',
+            '../powerpoint-clone/index.html': 'PowerPoint',
+            '../onenote-clone/index.html': 'OneNote',
+        };
+        showToast('Apertura in ' + (appNames[appUrl] || 'app') + '...');
+        window.location.href = appUrl;
+        return;
+    }
+    // Altrimenti scarica (solo se server disponibile)
+    if (!isOffline) {
+        downloadFile(f);
+    } else {
+        showToast('Anteprima non disponibile in modalità offline');
+    }
+}
+
+function updateBreadcrumb() {
+    const bc = document.getElementById('breadcrumb');
+    let html = `<a onclick="currentPath='';loadFiles()">${escHtml(currentRoot)}</a>`;
+    if (currentPath) {
+        const parts = currentPath.split('/');
+        let acc = '';
+        parts.forEach((p, i) => {
+            acc += (i > 0 ? '/' : '') + p;
+            const path = acc;
+            html += `<span class="sep"><i class="fas fa-chevron-right" style="font-size:10px;"></i></span>`;
+            if (i === parts.length - 1) {
+                html += `<span style="color:#333;font-weight:500;">${escHtml(p)}</span>`;
+            } else {
+                html += `<a onclick="navigateTo('${escHtml(path)}')">${escHtml(p)}</a>`;
+            }
+        });
+    }
+    bc.innerHTML = html;
+}
+
+function updateBreadcrumbSpecial(view) {
+    const bc = document.getElementById('breadcrumb');
+    const labels = { trash: 'Cestino', recent: 'File recenti', favorites: 'Preferiti' };
+    const icons = { trash: 'fa-trash-alt', recent: 'fa-clock', favorites: 'fa-star' };
+    bc.innerHTML = `<i class="fas ${icons[view]}" style="color:#0078d4;margin-right:4px;"></i> ${labels[view]}`;
+}
+
+// ---- Selection ----
+function isMobile() { return window.innerWidth <= 768; }
+
+window.selectFile = function(idx, e) {
+    if (e) e.stopPropagation();
+    // Su mobile: singolo tap apre direttamente cartelle e file
+    if (isMobile()) {
+        openFile(idx);
+        return;
+    }
+    selectedFile = idx;
+    document.querySelectorAll('.file-row, .file-grid-item').forEach(r => r.classList.remove('selected'));
+    const el = document.querySelector(`[data-idx="${idx}"]`);
+    if (el) el.classList.add('selected');
+    updateSelection(displayFiles[idx]);
+    updateDetailsPanel(displayFiles[idx]);
+};
+
+function updateSelection(file) {
+    const show = file && !specialView;
+    ['btnPreview','btnDownload','btnRename','btnDelete','btnMove','btnCopy'].forEach(id => {
+        document.getElementById(id).style.display = show ? '' : 'none';
+    });
+    // Nascondi anteprima per le cartelle
+    if (show && file && file.type === 'directory') {
+        document.getElementById('btnPreview').style.display = 'none';
+    }
+    // Cestino: mostra ripristina (se selezionato) e svuota cestino (sempre)
+    const isTrash = specialView === 'trash';
+    document.getElementById('btnRestore').style.display = (isTrash && file) ? '' : 'none';
+    document.getElementById('btnEmptyTrash').style.display = isTrash ? '' : 'none';
+    if (isTrash && file) {
+        document.getElementById('btnDelete').style.display = '';
+    }
+}
+
+// ---- Context menu ----
+window.showContextMenu = function(e, idx) {
+    e.preventDefault();
+    e.stopPropagation();
+    selectFile(idx, null);
+    contextFile = displayFiles[idx];
+
+    const menu = specialView === 'trash' ? document.getElementById('trashContextMenu') : document.getElementById('contextMenu');
+    hideContextMenu();
+
+    if (specialView !== 'trash' && contextFile) {
+        document.getElementById('ctxFavText').textContent = contextFile.is_favorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
+    }
+
+    menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
+    menu.style.top = Math.min(e.clientY, window.innerHeight - 300) + 'px';
+    menu.classList.add('show');
+};
+
+function hideContextMenu() {
+    document.querySelectorAll('.context-menu').forEach(m => m.classList.remove('show'));
+}
+
+// Context menu actions
+window.ctxOpen = function() { hideContextMenu(); if (selectedFile !== null) openFile(selectedFile); };
+window.ctxDownload = function() { hideContextMenu(); downloadSelected(); };
+window.ctxRename = function() { hideContextMenu(); renameSelected(); };
+window.ctxMove = function() { hideContextMenu(); moveSelected(); };
+window.ctxCopy = function() { hideContextMenu(); copySelected(); };
+window.ctxDelete = function() { hideContextMenu(); deleteSelected(); };
+window.ctxInfo = function() {
+    hideContextMenu();
+    const dp = document.getElementById('detailsPanel');
+    dp.classList.add('show');
+    if (selectedFile !== null) updateDetailsPanel(displayFiles[selectedFile]);
+};
+window.ctxToggleFavorite = function() { hideContextMenu(); if (selectedFile !== null) toggleFavorite(selectedFile); };
+window.ctxRestore = function() { hideContextMenu(); restoreFromTrash(); };
+window.ctxDeletePermanent = function() { hideContextMenu(); deletePermanent(); };
+
+// ---- Preview ----
+let previewCurrentFile = null;
+
+window.ctxPreview = function() {
+    hideContextMenu();
+    if (contextFile && contextFile.type !== 'directory') previewFile(contextFile);
+};
+
+window.previewSelected = function() {
+    if (selectedFile === null) return;
+    const f = displayFiles[selectedFile];
+    if (f && f.type !== 'directory') previewFile(f);
+};
+
+async function previewFile(f) {
+    previewCurrentFile = f;
+    const overlay = document.getElementById('previewOverlay');
+    const body = document.getElementById('previewBody');
+    const icon = getFileIcon(f);
+    const color = getFileIconColor(f);
+
+    document.getElementById('previewIcon').innerHTML = `<i class="fas ${icon}" style="color:${color}"></i>`;
+    document.getElementById('previewTitle').textContent = f.name;
+    body.innerHTML = '<div class="preview-loading"><i class="fas fa-spinner fa-spin"></i> Caricamento anteprima...</div>';
+    overlay.classList.add('show');
+
+    const ext = (f.ext || f.name.split('.').pop() || '').toLowerCase();
+    const filePath = fullPath(currentPath ? currentPath + '/' + f.name : f.name);
+
+    // Tipi supportati in anteprima locale (senza API)
+    const textExts = ['txt','md','log','csv','json','xml','html','css','js','php','py','sql','ini','cfg','conf','yaml','yml','sh','bat'];
+    const imageExts = ['jpg','jpeg','png','gif','svg','webp','bmp','ico'];
+    const pdfExts = ['pdf'];
+
+    if (!isOffline) {
+        // Con server: usa l'API preview
+        const result = await apiCall('preview', { path: filePath });
+        if (result.success && result.data) {
+            const data = result.data;
+            if (data.type === 'text' || data.type === 'json' || data.type === 'csv') {
+                body.innerHTML = `<pre>${escHtml(data.content)}</pre>`;
+            } else if (data.type === 'html') {
+                body.innerHTML = `<iframe srcdoc="${escHtml(data.content)}" sandbox="allow-same-origin"></iframe>`;
+            } else if (data.type === 'image') {
+                const src = data.src || data.url || ('data:image/' + ext + ';base64,' + data.content);
+                body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;padding:20px;"><img src="${src}" alt="${escHtml(f.name)}"></div>`;
+            } else if (data.type === 'pdf') {
+                const src = data.url || (API + '?action=preview_pdf&path=' + encodeURIComponent(filePath));
+                body.innerHTML = `<iframe src="${src}" style="width:100%;height:100%;border:none;"></iframe>`;
+            } else {
+                showPreviewUnsupported(body, f, ext);
+            }
+        } else {
+            showPreviewUnsupported(body, f, ext);
+        }
+    } else {
+        // Offline: anteprima non disponibile per file reali
+        showPreviewUnsupported(body, f, ext);
+    }
+}
+
+function showPreviewUnsupported(body, f, ext) {
+    const icon = getFileIcon(f);
+    const color = getFileIconColor(f);
+    body.innerHTML = `<div class="preview-unsupported">
+        <i class="fas ${icon}" style="color:${color};font-size:64px;"></i>
+        <h3 style="color:#666;margin:0;">Anteprima non disponibile</h3>
+        <p style="font-size:13px;">Il formato <strong>.${ext || '?'}</strong> non supporta l'anteprima diretta.</p>
+        <p style="font-size:12px;color:#aaa;">Prova ad aprire il file nell'applicazione dedicata.</p>
+    </div>`;
+}
+
+function closePreview() {
+    document.getElementById('previewOverlay').classList.remove('show');
+    document.getElementById('previewBody').innerHTML = '';
+    previewCurrentFile = null;
+}
+
+function previewOpenInApp() {
+    const f = previewCurrentFile;
+    closePreview();
+    if (f) {
+        const idx = displayFiles.findIndex(df => df.name === f.name);
+        if (idx >= 0) openFile(idx);
+    }
+}
+
+// ---- File operations ----
+window.triggerUpload = function() {
+    document.getElementById('fileInput').click();
+};
+
+window.handleFileUpload = async function(files) {
+    if (!files || files.length === 0) return;
+    const prog = document.getElementById('uploadProgress');
+    prog.classList.add('show');
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        document.getElementById('uploadStatus').textContent = `Caricamento ${i+1}/${files.length}: ${file.name}`;
+        document.getElementById('uploadBarFill').style.width = ((i / files.length) * 100) + '%';
+
+        const fd = new FormData();
+        fd.append('files', file);
+        fd.append('path', fullPath(currentPath));
+
+        const result = await apiPost('upload', fd);
+        if (!result.success && !result.offline) {
+            showToast('Errore caricamento: ' + (result.error || file.name));
+        }
+    }
+    document.getElementById('uploadBarFill').style.width = '100%';
+    document.getElementById('uploadStatus').textContent = 'Completato!';
+    setTimeout(() => { prog.classList.remove('show'); }, 1500);
+    showToast(files.length + ' file caricati');
+    loadFiles();
+    document.getElementById('fileInput').value = '';
+};
+
+window.downloadSelected = function() {
+    if (selectedFile === null) return;
+    downloadFile(displayFiles[selectedFile]);
+};
+
+function downloadFile(f) {
+    if (!f || f.type === 'directory') return;
+    if (isOffline) {
+        showToast('Download non disponibile in modalità offline');
+        return;
+    }
+    const filePath = fullPath(currentPath ? currentPath + '/' + f.name : f.name);
+    const url = `${API}?action=download&path=${encodeURIComponent(filePath)}`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = f.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+window.showNewFolderModal = function() {
+    document.getElementById('newFolderName').value = '';
+    openModal('newFolderModal');
+    setTimeout(() => document.getElementById('newFolderName').focus(), 100);
+};
+
+window.createNewFolder = async function() {
+    const name = document.getElementById('newFolderName').value.trim();
+    if (!name) return;
+    const result = await apiCall('create_folder', { path: fullPath(currentPath), name: name });
+    if (result.success) {
+        showToast('Cartella "' + name + '" creata');
+        loadFiles();
+    } else if (result.offline) {
+        const folderKey = currentPath ? currentRoot + '/' + currentPath : currentRoot;
+        const now = new Date().toISOString().slice(0,16).replace('T',' ');
+        await offlinePut('folders', { path: folderKey + '/' + name, parent: folderKey, name: name, created: now });
+        currentFiles.unshift({ name, type: 'directory', size: 0, modified: now });
+        renderFiles();
+        showToast('Cartella "' + name + '" creata');
+    } else {
+        showToast('Errore: ' + (result.error || 'Impossibile creare la cartella'));
+    }
+    closeModal('newFolderModal');
+};
+
+window.renameSelected = function() {
+    if (selectedFile === null) return;
+    const f = displayFiles[selectedFile];
+    document.getElementById('renameInput').value = f.name;
+    openModal('renameModal');
+    setTimeout(() => {
+        const inp = document.getElementById('renameInput');
+        inp.focus();
+        const dotIdx = f.name.lastIndexOf('.');
+        if (dotIdx > 0 && f.type !== 'directory') inp.setSelectionRange(0, dotIdx);
+        else inp.select();
+    }, 100);
+};
+
+window.confirmRename = async function() {
+    const newName = document.getElementById('renameInput').value.trim();
+    if (!newName || selectedFile === null) return;
+    const f = displayFiles[selectedFile];
+    const oldPath = fullPath(currentPath ? currentPath + '/' + f.name : f.name);
+    const result = await apiCall('rename', { path: oldPath, new_name: newName });
+    if (result.success) {
+        showToast('Rinominato in "' + newName + '"');
+        loadFiles();
+    } else if (result.offline) {
+        const folderKey = currentPath ? currentRoot + '/' + currentPath : currentRoot;
+        await offlinePut('renamed', { oldPath: folderKey + '/' + f.name, newName: newName });
+        f.name = newName;
+        renderFiles();
+        showToast('Rinominato in "' + newName + '"');
+    } else {
+        showToast('Errore: ' + (result.error || 'Impossibile rinominare'));
+    }
+    closeModal('renameModal');
+};
+
+window.deleteSelected = async function() {
+    if (selectedFile === null) return;
+    const f = displayFiles[selectedFile];
+    if (!confirm('Eliminare "' + f.name + '"?')) return;
+    const filePath = fullPath(currentPath ? currentPath + '/' + f.name : f.name);
+    const result = await apiCall('delete', { path: filePath });
+    if (result.success) {
+        showToast('"' + f.name + '" spostato nel cestino');
+        loadFiles();
+    } else if (result.offline) {
+        const folderKey = currentPath ? currentRoot + '/' + currentPath : currentRoot;
+        const deletePath = folderKey + '/' + f.name;
+        await offlinePut('deleted', { path: deletePath });
+        await offlinePut('trash', { path: deletePath, name: f.name, type: f.type, size: f.size || 0, deleted_at: new Date().toISOString().slice(0,19).replace('T',' ') });
+        // Rimuovi dall'array corrente
+        const origIdx = currentFiles.findIndex(cf => cf.name === f.name && cf.type === f.type);
+        if (origIdx >= 0) currentFiles.splice(origIdx, 1);
+        selectedFile = null;
+        renderFiles();
+        updateSelection(null);
+        showToast('"' + f.name + '" spostato nel cestino');
+    } else {
+        showToast('Errore: ' + (result.error || 'Impossibile eliminare'));
+    }
+};
+
+window.moveSelected = function() {
+    if (selectedFile === null) return;
+    moveCopyMode = 'move';
+    document.getElementById('moveCopyTitle').textContent = 'Sposta in';
+    document.getElementById('moveCopyDest').value = '';
+    openModal('moveCopyModal');
+};
+
+window.copySelected = function() {
+    if (selectedFile === null) return;
+    moveCopyMode = 'copy';
+    document.getElementById('moveCopyTitle').textContent = 'Copia in';
+    document.getElementById('moveCopyDest').value = '';
+    openModal('moveCopyModal');
+};
+
+window.confirmMoveCopy = async function() {
+    const dest = document.getElementById('moveCopyDest').value.trim();
+    if (selectedFile === null) return;
+    const f = displayFiles[selectedFile];
+    const filePath = fullPath(currentPath ? currentPath + '/' + f.name : f.name);
+    const action = moveCopyMode === 'move' ? 'move' : 'copy';
+    const result = await apiCall(action, { from: filePath, to: fullPath(dest) });
+    if (result.success) {
+        showToast(action === 'move' ? 'Spostato' : 'Copiato');
+        loadFiles();
+    } else if (result.offline) {
+        showToast((action === 'move' ? 'Spostato' : 'Copiato') + ' (demo)');
+    } else {
+        showToast('Errore: ' + (result.error || 'Operazione fallita'));
+    }
+    closeModal('moveCopyModal');
+};
+
+// ---- Trash ----
+async function restoreFromTrash() {
+    if (selectedFile === null) return;
+    const f = displayFiles[selectedFile];
+    if (f.trash_id) {
+        const result = await apiCall('trash_restore', { id: f.trash_id });
+        if (result.success) {
+            showToast('Ripristinato');
+            loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+        } else if (result.offline) {
+            // Offline: rimuovi da deleted e trash in IndexedDB
+            if (f.original_path) await offlineDelete('deleted', f.original_path);
+            // Rimuovi dal trash store per id
+            const trashItems = await offlineGetAll('trash');
+            const trashStore = offlineStore('trash', 'readwrite');
+            if (trashStore) {
+                trashItems.forEach(t => { if (t.name === f.name) trashStore.delete(t.id); });
+            }
+            showToast('Ripristinato');
+            loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+        } else {
+            showToast('Errore ripristino');
+        }
+    } else if (f.original_path && isOffline) {
+        // Offline senza trash_id
+        await offlineDelete('deleted', f.original_path);
+        const trashItems = await offlineGetAll('trash');
+        const trashStore = offlineStore('trash', 'readwrite');
+        if (trashStore) {
+            trashItems.forEach(t => { if (t.path === f.original_path) trashStore.delete(t.id); });
+        }
+        showToast('Ripristinato');
+        loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+    }
+}
+
+async function deletePermanent() {
+    if (selectedFile === null) return;
+    const f = displayFiles[selectedFile];
+    if (!confirm('Eliminare definitivamente "' + f.name + '"? Questa azione non è reversibile.')) return;
+    if (f.trash_id) {
+        const result = await apiCall('trash_delete', { id: f.trash_id });
+        if (result.success) {
+            showToast('Eliminato definitivamente');
+            loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+        } else if (result.offline) {
+            const trashItems = await offlineGetAll('trash');
+            const trashStore = offlineStore('trash', 'readwrite');
+            if (trashStore) {
+                trashItems.forEach(t => { if (t.name === f.name) trashStore.delete(t.id); });
+            }
+            showToast('Eliminato definitivamente');
+            loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+        }
+    } else if (isOffline) {
+        const trashItems = await offlineGetAll('trash');
+        const trashStore = offlineStore('trash', 'readwrite');
+        if (trashStore) {
+            trashItems.forEach(t => { if (t.name === f.name) trashStore.delete(t.id); });
+        }
+        showToast('Eliminato definitivamente');
+        loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+    }
+}
+
+// ---- Empty Trash ----
+window.emptyTrash = async function() {
+    if (currentFiles.length === 0) { showToast('Il cestino è già vuoto'); return; }
+    if (!confirm('Svuotare il cestino? Tutti i file verranno eliminati definitivamente. Questa azione non è reversibile.')) return;
+    const result = await apiCall('trash_empty');
+    if (result.success) {
+        showToast('Cestino svuotato');
+        loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+    } else if (result.offline) {
+        // Offline: svuota IndexedDB trash e deleted
+        const trashItems = await offlineGetAll('trash');
+        const trashStore = offlineStore('trash', 'readwrite');
+        if (trashStore) { trashItems.forEach(t => trashStore.delete(t.id)); }
+        const deletedItems = await offlineGetAll('deleted');
+        const deletedStore = offlineStore('deleted', 'readwrite');
+        if (deletedStore) { deletedItems.forEach(d => deletedStore.delete(d.path)); }
+        showToast('Cestino svuotato');
+        loadSpecialView('trash', document.querySelector('[data-view="trash"]'));
+    } else {
+        showToast('Errore: ' + (result.error || 'Impossibile svuotare il cestino'));
+    }
+};
+
+// ---- Favorites ----
+window.toggleFavorite = async function(idx) {
+    const f = displayFiles[idx];
+    if (!f) return;
+    const filePath = fullPath(currentPath ? currentPath + '/' + f.name : f.name);
+    const action = f.is_favorite ? 'favorite_remove' : 'favorite_add';
+    const result = await apiCall(action, { path: filePath });
+    if (result.success) {
+        f.is_favorite = !f.is_favorite;
+        showToast(f.is_favorite ? 'Aggiunto ai preferiti' : 'Rimosso dai preferiti');
+        renderFiles();
+    } else if (result.offline) {
+        f.is_favorite = !f.is_favorite;
+        const folderKey = currentPath ? currentRoot + '/' + currentPath : currentRoot;
+        const favPath = folderKey + '/' + f.name;
+        if (f.is_favorite) {
+            await offlinePut('favorites', { path: favPath, name: f.name });
+        } else {
+            await offlineDelete('favorites', favPath);
+        }
+        showToast(f.is_favorite ? 'Aggiunto ai preferiti' : 'Rimosso dai preferiti');
+        renderFiles();
+    }
+};
+
+// ---- Search ----
+window.debounceSearch = function(q) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => performSearch(q), 400);
+};
+
+async function performSearch(query) {
+    if (!query.trim()) { loadFiles(); return; }
+    specialView = null;
+    const result = await apiCall('search', { root: currentRoot, query: query });
+    if (result.success && result.data && result.data.results) {
+        currentFiles = result.data.results.map(item => ({
+            name: item.name, type: item.type === 'folder' ? 'directory' : 'file',
+            size: item.size || 0, modified: item.modified || '',
+            ext: item.extension || '', root: item.root || ''
+        }));
+    } else {
+        currentFiles = [];
+    }
+    renderFiles();
+    document.getElementById('breadcrumb').innerHTML = `<i class="fas fa-search" style="color:#0078d4;margin-right:6px;"></i> Risultati per "${escHtml(query)}"`;
+}
+
+// ---- Storage info ----
+async function loadStorageInfo() {
+    const result = await apiCall('storage_stats');
+    if (result.success && result.data) {
+        const d = result.data;
+        const totalMB = (d.total_size || 0) / (1024*1024);
+        const maxMB = 500; // 500MB virtual limit
+        const pct = Math.min((totalMB / maxMB) * 100, 100);
+        document.getElementById('storageBarFill').style.width = pct + '%';
+        document.getElementById('storageText').textContent = formatSize(d.total_size || 0) + ' di ' + maxMB + ' MB utilizzati';
+    } else {
+        document.getElementById('storageText').textContent = '12.4 MB di 500 MB utilizzati';
+        document.getElementById('storageBarFill').style.width = '2.5%';
+    }
+}
+
+// ---- Details panel ----
+window.toggleDetails = function() {
+    const dp = document.getElementById('detailsPanel');
+    dp.classList.toggle('show');
+};
+
+function updateDetailsPanel(f) {
+    const dc = document.getElementById('detailsContent');
+    if (!f) {
+        dc.innerHTML = `<div class="empty-state" style="padding:40px 16px;"><i class="fas fa-hand-pointer" style="font-size:40px;"></i><p style="margin-top:12px;">Seleziona un file per vedere i dettagli</p></div>`;
+        return;
+    }
+    const icon = getFileIcon(f);
+    const color = getFileIconColor(f);
+    const isDir = f.type === 'directory';
+    dc.innerHTML = `
+        <div class="details-icon"><i class="fas ${icon}" style="color:${color};"></i></div>
+        <div style="text-align:center;padding:0 16px 16px;font-weight:600;font-size:14px;word-break:break-word;">${escHtml(f.name)}</div>
+        <div class="details-meta">
+            <div class="details-meta-row"><span class="label">Tipo</span><span class="value">${isDir ? 'Cartella' : getFileTypeLabel(f)}</span></div>
+            ${!isDir ? `<div class="details-meta-row"><span class="label">Dimensione</span><span class="value">${formatSize(f.size||0)}</span></div>` : ''}
+            <div class="details-meta-row"><span class="label">Modificato</span><span class="value">${f.modified ? formatDate(f.modified) : '-'}</span></div>
+            <div class="details-meta-row"><span class="label">Posizione</span><span class="value">${escHtml(currentRoot)}${currentPath ? '/' + escHtml(currentPath) : ''}</span></div>
+        </div>
+    `;
+}
+
+// ---- View toggle ----
+window.setView = function(view) {
+    currentView = view;
+    document.getElementById('viewList').classList.toggle('active', view === 'list');
+    document.getElementById('viewGrid').classList.toggle('active', view === 'grid');
+    renderFiles();
+};
+
+// ---- Sort ----
+let sortField = 'name';
+let sortAsc = true;
+window.sortFiles = function(field) {
+    if (sortField === field) { sortAsc = !sortAsc; } else { sortField = field; sortAsc = true; }
+    currentFiles.sort((a, b) => {
+        // Folders always first
+        if (a.type === 'directory' && b.type !== 'directory') return -1;
+        if (a.type !== 'directory' && b.type === 'directory') return 1;
+        let va = a[field] || '';
+        let vb = b[field] || '';
+        if (field === 'size') { va = a.size || 0; vb = b.size || 0; return sortAsc ? va - vb : vb - va; }
+        return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+    renderFiles();
+};
+
+// ---- Drag & Drop ----
+window.handleDragOver = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('dropOverlay').classList.add('show');
+};
+
+window.handleDragLeave = function(e) {
+    e.preventDefault();
+    if (e.target === document.getElementById('dropOverlay') || !document.getElementById('dropOverlay').contains(e.relatedTarget)) {
+        document.getElementById('dropOverlay').classList.remove('show');
+    }
+};
+
+window.handleDrop = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('dropOverlay').classList.remove('show');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handleFileUpload(files);
+};
+
+// ---- Keyboard ----
+function handleKeyboard(e) {
+    if (e.key === 'F1') { e.preventDefault(); window.open('guida.html', '_blank'); return; }
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'Delete' && selectedFile !== null) { deleteSelected(); }
+    if (e.key === 'F2' && selectedFile !== null) { e.preventDefault(); renameSelected(); }
+    if (e.key === 'Enter' && selectedFile !== null) { openFile(selectedFile); }
+    if (e.key === 'Escape') { closeAllModals(); hideContextMenu(); closePreview(); }
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = selectedFile === null ? 0 : Math.min(selectedFile + 1, displayFiles.length - 1);
+        selectFile(next, null);
+    }
+    if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = selectedFile === null ? 0 : Math.max(selectedFile - 1, 0);
+        selectFile(prev, null);
+    }
+    if (e.key === 'Backspace' && !specialView) {
+        e.preventDefault();
+        if (currentPath) {
+            const parts = currentPath.split('/');
+            parts.pop();
+            currentPath = parts.join('/');
+            loadFiles();
+        }
+    }
+}
+
+// ---- Mobile sidebar ----
+window.toggleSidebarMobile = function() {
+    document.getElementById('sidebar').classList.toggle('mobile-show');
+};
+
+function closeSidebarMobile() {
+    document.getElementById('sidebar').classList.remove('mobile-show');
+}
+
+// ---- Modals ----
+function openModal(id) {
+    document.getElementById(id).classList.add('show');
+}
+window.closeModal = function(id) {
+    document.getElementById(id).classList.remove('show');
+};
+function closeAllModals() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+}
+
+// ---- Helpers ----
+function formatSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const units = ['B','KB','MB','GB','TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        const now = new Date();
+        const diff = now - d;
+        if (diff < 60000) return 'Adesso';
+        if (diff < 3600000) return Math.floor(diff/60000) + ' min fa';
+        if (diff < 86400000 && d.getDate() === now.getDate()) return 'Oggi ' + d.toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'});
+        if (diff < 172800000) return 'Ieri ' + d.toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'});
+        return d.toLocaleDateString('it-IT', {day:'numeric',month:'short',year:'numeric'});
+    } catch(e) { return dateStr; }
+}
+
+function escHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ---- Start ----
+init();
+</script>
+
+<!-- Auth Modal -->
+<div class="auth-modal-overlay" id="authModal" onclick="if(event.target===this) closeAuthOnedrive()">
+    <div class="auth-modal">
+        <button class="auth-close" onclick="closeAuthOnedrive()">&times;</button>
+        <div id="auth-container"></div>
+    </div>
+</div>
+
+<style>
+.auth-modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 999999;
+    align-items: center; justify-content: center; backdrop-filter: blur(4px);
+}
+.auth-modal-overlay.active { display: flex; }
+.auth-modal {
+    background: white; border-radius: 16px; padding: 28px;
+    max-width: 380px; width: 90%;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.2); position: relative;
+    animation: authFadeIn 0.25s ease;
+}
+@keyframes authFadeIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.auth-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 22px; color: #aaa; cursor: pointer; padding: 4px; line-height: 1; }
+.auth-close:hover { color: #d32f2f; }
+</style>
+
+<script>
+let authInitOnedrive = false;
+function toggleAuthOnedrive() {
+    const a = window.CloneOfficeAuth; if (!a) return;
+    document.getElementById('authModal').classList.add('active');
+    const c = document.getElementById('auth-container');
+    a.isAuthenticated() ? a.showUserUI(c) : a.showLoginUI(c);
+}
+function closeAuthOnedrive() { document.getElementById('authModal').classList.remove('active'); }
+function initAuthOnedriveFn() {
+    if (authInitOnedrive) return; authInitOnedrive = true;
+    const a = window.CloneOfficeAuth; if (!a) return;
+    document.getElementById('btn-auth-onedrive').onclick = toggleAuthOnedrive;
+    a.onAuthChange(function(u) {
+        const l = document.getElementById('auth-label-onedrive');
+        if (l) l.textContent = u ? u.name.split(' ')[0] : 'Utente';
+        if (u) { hideAuthBlockerOnedrive(); hideSessionLimitBlockerOnedrive(); }
+    });
+    a.onSessionLimit(function(d) { showSessionLimitBlockerOnedrive(d); });
+    a.init().then(function(u) {
+        if (u) { const l = document.getElementById('auth-label-onedrive'); if (l) l.textContent = u.name.split(' ')[0]; hideAuthBlockerOnedrive(); }
+        else { showAuthBlockerOnedrive(); }
+    });
+}
+function showAuthBlockerOnedrive() {
+    let b = document.getElementById('auth-blocker-onedrive');
+    if (b) return;
+    b = document.createElement('div'); b.id = 'auth-blocker-onedrive';
+    b.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#f0f2f5;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;"><div style="font-size:64px;margin-bottom:20px;">🔐</div><h2 style="font-size:24px;color:#1a1a2e;margin-bottom:8px;">Accesso richiesto</h2><p style="color:#888;font-size:14px;margin-bottom:24px;">Devi effettuare l\'accesso per utilizzare questa applicazione.</p><button onclick="toggleAuthOnedrive()" style="padding:12px 32px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Accedi con QR Code</button><br><br><a href="../index.html" style="color:#e94560;font-size:13px;text-decoration:none;">Torna alla Home</a></div></div>';
+    document.body.appendChild(b);
+}
+function hideAuthBlockerOnedrive() { const b = document.getElementById('auth-blocker-onedrive'); if (b) b.remove(); }
+function showSessionLimitBlockerOnedrive(d) {
+    let b = document.getElementById('session-limit-blocker-onedrive');
+    if (b) return;
+    b = document.createElement('div'); b.id = 'session-limit-blocker-onedrive';
+    b.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(26,26,46,0.97);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;max-width:420px;"><div style="font-size:64px;margin-bottom:20px;">📵</div><h2 style="font-size:24px;color:#fff;margin-bottom:8px;">Limite dispositivi raggiunto</h2><p style="color:#ccc;font-size:14px;margin-bottom:8px;">Hai '+d.active_sessions+' sessione/i attiva/e su un massimo di '+d.max_devices+' consentiti dalla licenza.</p><p style="color:#999;font-size:12px;margin-bottom:24px;">Per utilizzare questa applicazione su un nuovo dispositivo, disconnetti una sessione esistente o acquista una licenza con pi&ugrave; dispositivi.</p><button onclick="logoutAndCloseOnedrive()" style="padding:12px 32px;background:#e94560;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Esci e torna alla Home</button></div></div>';
+    document.body.appendChild(b);
+}
+function hideSessionLimitBlockerOnedrive() { const b = document.getElementById('session-limit-blocker-onedrive'); if (b) b.remove(); }
+function logoutAndCloseOnedrive() {
+    const a = window.CloneOfficeAuth;
+    if (a) a.logout().then(function() { window.location.href = "../index.html"; });
+    else window.location.href = "../index.html";
+}
+if (document.readyState === 'complete') initAuthOnedriveFn(); else window.addEventListener('load', initAuthOnedriveFn);
+</script>
+
+<script>if(typeof OfficeLauncher!=='undefined')OfficeLauncher.init();</script>
+</body>
+</html>

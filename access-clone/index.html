@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clone-Access</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="../js/auth.js"></script>
+<style>
+  :root{ --accent:#a4373a; --accent-dark:#7d2a2c; --accent-bg:#f6e9ea; --border:#e0e0e0; }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+  html,body{height:100%;}
+  body{background:#f3f2f1;overflow:hidden;}
+  .access-container{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+
+  /* TOP BAR */
+  .top-bar{background:var(--accent);color:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;height:48px;flex-shrink:0;}
+  .waffle-btn{background:none;border:none;color:#fff;cursor:pointer;padding:6px 8px;border-radius:4px;}
+  .waffle-btn:hover{background:rgba(255,255,255,.15);}
+  .waffle-grid{display:grid;grid-template-columns:repeat(3,4px);grid-template-rows:repeat(3,4px);gap:2px;}
+  .waffle-dot{width:4px;height:4px;background:#fff;border-radius:1px;}
+  .app-logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;white-space:nowrap;}
+  .db-name{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:4px;padding:4px 10px;font-size:13px;width:200px;}
+  .db-name::placeholder{color:rgba(255,255,255,.7);}
+  .top-spacer{flex:1;}
+  .top-btn{background:none;border:none;color:#fff;cursor:pointer;padding:6px 9px;border-radius:4px;font-size:13px;}
+  .top-btn:hover{background:rgba(255,255,255,.15);}
+
+  /* RIBBON */
+  .ribbon-tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);padding:0 6px;flex-shrink:0;}
+  .ribbon-tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;font-size:13px;color:#444;cursor:pointer;}
+  .ribbon-tab:hover{background:#f3f2f1;}
+  .ribbon-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+  .ribbon{display:flex;align-items:stretch;gap:0;background:#faf9f8;border-bottom:1px solid var(--border);padding:4px 6px;flex-shrink:0;min-height:64px;overflow-x:auto;}
+  .ribbon-group{display:flex;flex-direction:column;align-items:center;border-right:1px solid #ececec;padding:0 8px;}
+  .ribbon-group .grp-btns{display:flex;gap:3px;flex:1;align-items:center;}
+  .ribbon-group .grp-label{font-size:10px;color:#888;text-align:center;padding-top:3px;}
+  .rb-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:1px solid transparent;border-radius:4px;padding:5px 8px;cursor:pointer;font-size:11px;color:#333;min-width:54px;white-space:nowrap;}
+  .rb-btn i{font-size:17px;color:var(--accent);}
+  .rb-btn:hover{background:#f0e3e3;border-color:#e3c9ca;}
+  .rb-btn.small{flex-direction:row;min-width:0;font-size:12px;padding:5px 9px;}
+  .rb-btn.small i{font-size:13px;}
+
+  /* WORKSPACE */
+  .workspace{flex:1;display:flex;min-height:0;}
+  .nav-pane{width:240px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);overflow-y:auto;}
+  .nav-head{background:var(--accent-dark);color:#fff;font-size:12px;font-weight:600;padding:8px 12px;display:flex;align-items:center;gap:6px;}
+  .nav-group{}
+  .nav-group-title{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.3px;padding:8px 12px 3px;background:#f7f7f7;border-bottom:1px solid #f0f0f0;}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 18px;font-size:13px;color:#333;cursor:pointer;border-bottom:1px solid #fafafa;}
+  .nav-item:hover{background:var(--accent-bg);}
+  .nav-item.active{background:var(--accent-bg);box-shadow:inset 3px 0 0 var(--accent);font-weight:600;}
+  .nav-item i{color:var(--accent);width:15px;}
+  .nav-item .obj-del{margin-left:auto;color:#bbb;opacity:0;}
+  .nav-item:hover .obj-del{opacity:1;}
+
+  .doc-area{flex:1;display:flex;flex-direction:column;min-width:0;background:#e9e8e7;}
+  .doc-tabs{display:flex;background:#dcdbda;flex-shrink:0;overflow-x:auto;}
+  .doc-tab{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;background:#cfcecd;border-right:1px solid #c0bfbe;cursor:pointer;white-space:nowrap;color:#333;}
+  .doc-tab.active{background:#fff;font-weight:600;}
+  .doc-tab .dt-close{color:#888;}
+  .doc-body{flex:1;overflow:auto;padding:14px;}
+  .doc-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9a9a9a;gap:12px;}
+  .doc-empty i{font-size:54px;color:#d6c2c3;}
+
+  /* DATASHEET */
+  table.ds{border-collapse:collapse;background:#fff;font-size:13px;min-width:100%;}
+  table.ds th{background:var(--accent);color:#fff;font-weight:600;padding:6px 10px;text-align:left;border:1px solid #8e2f31;white-space:nowrap;position:sticky;top:0;}
+  table.ds th .th-type{font-size:10px;opacity:.8;font-weight:400;display:block;}
+  table.ds th .col-del{cursor:pointer;margin-left:6px;opacity:.7;}
+  table.ds td{border:1px solid #e0e0e0;padding:0;}
+  table.ds td input{width:100%;border:none;padding:6px 9px;font-size:13px;background:transparent;outline:none;min-width:90px;}
+  table.ds td input:focus{background:#fff7d6;box-shadow:inset 0 0 0 2px var(--accent);}
+  table.ds tr:nth-child(even) td{background:#f7f5f5;}
+  table.ds .row-head{background:#efefef;text-align:center;color:#999;cursor:pointer;width:30px;}
+  table.ds .row-head:hover{background:#f6dcdc;color:var(--accent);}
+  .ds-toolbar{margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .ds-title{font-size:16px;font-weight:600;color:var(--accent-dark);margin-right:auto;}
+  .mini-btn{background:#fff;border:1px solid #ccc;border-radius:5px;padding:6px 11px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+  .mini-btn:hover{background:#f0e3e3;border-color:var(--accent);}
+  .mini-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .mini-btn.primary:hover{background:var(--accent-dark);}
+
+  /* FORM VIEW */
+  .form-view{background:#fff;border:1px solid var(--border);border-radius:8px;max-width:560px;margin:0 auto;overflow:hidden;}
+  .form-head{background:var(--accent);color:#fff;padding:12px 18px;font-size:16px;font-weight:600;}
+  .form-body{padding:18px 22px;}
+  .form-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .form-row label{width:140px;font-size:13px;color:#555;font-weight:600;text-align:right;}
+  .form-row input,.form-row select{flex:1;padding:8px 10px;border:1px solid #ccc;border-radius:5px;font-size:14px;}
+  .form-nav{display:flex;align-items:center;gap:10px;justify-content:center;padding:12px;border-top:1px solid var(--border);background:#faf9f8;}
+  .form-nav button{background:#fff;border:1px solid #ccc;border-radius:5px;width:34px;height:30px;cursor:pointer;}
+  .form-nav button:hover{background:#f0e3e3;}
+  .form-nav .rec-info{font-size:12px;color:#666;min-width:120px;text-align:center;}
+
+  /* REPORT */
+  .report{background:#fff;max-width:820px;margin:0 auto;padding:32px 36px;border:1px solid var(--border);box-shadow:0 1px 6px rgba(0,0,0,.08);}
+  .report h1{font-size:24px;color:var(--accent-dark);border-bottom:3px solid var(--accent);padding-bottom:8px;margin-bottom:4px;}
+  .report .rep-date{font-size:12px;color:#888;margin-bottom:18px;}
+  .report table{width:100%;border-collapse:collapse;font-size:13px;}
+  .report th{text-align:left;border-bottom:2px solid var(--accent);padding:7px 8px;color:var(--accent-dark);}
+  .report td{border-bottom:1px solid #eee;padding:6px 8px;}
+  .report .rep-foot{margin-top:16px;font-size:12px;color:#888;text-align:right;}
+
+  /* MODAL */
+  .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;}
+  .modal{background:#fff;border-radius:8px;width:440px;max-width:92vw;max-height:86vh;overflow:auto;box-shadow:0 10px 36px rgba(0,0,0,.3);}
+  .modal h3{background:var(--accent);color:#fff;padding:13px 18px;font-size:15px;display:flex;align-items:center;gap:8px;}
+  .modal h3 .mclose{margin-left:auto;cursor:pointer;}
+  .modal-b{padding:16px 18px;}
+  .modal-b label{display:block;font-size:13px;color:#555;font-weight:600;margin:10px 0 4px;}
+  .modal-b input,.modal-b select{width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:5px;font-size:14px;}
+  .modal-f{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid #eee;}
+  .qb-field{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .qb-field input[type=checkbox]{width:16px;height:16px;}
+  .qb-crit{display:grid;grid-template-columns:1fr 90px 1fr;gap:6px;margin-bottom:6px;}
+
+  .status-bar{background:var(--accent);color:rgba(255,255,255,.9);font-size:12px;padding:4px 14px;display:flex;gap:16px;flex-shrink:0;}
+
+  .toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:#323130;color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:2000;}
+  .toast.show{opacity:1;}
+
+  /* auth */
+  .auth-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:none;align-items:center;justify-content:center;}
+  .auth-modal-ov.active{display:flex;}
+  .auth-modal{background:#fff;border-radius:10px;padding:24px;width:420px;max-width:92vw;position:relative;}
+  .auth-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;}
+
+  @media(max-width:820px){
+    .nav-pane{position:fixed;left:0;top:96px;bottom:0;z-index:50;transform:translateX(-100%);transition:.2s;box-shadow:2px 0 10px rgba(0,0,0,.2);}
+    .nav-pane.open{transform:translateX(0);}
+    .db-name{width:110px;}
+    .app-logo span{display:none;}
+    .nav-toggle{display:inline-block !important;}
+  }
+  .nav-toggle{display:none;}
+</style>
+</head>
+<body>
+<div class="access-container">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <button class="waffle-btn" onclick="OfficeLauncher&&OfficeLauncher.toggle()" title="App Office Suite"><div class="waffle-grid"><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span></div></button>
+    <button class="top-btn nav-toggle" onclick="document.querySelector('.nav-pane').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+    <div class="app-logo"><i class="fas fa-database"></i> <span>Clone-Access</span></div>
+    <input class="db-name" id="dbName" value="Database1" title="Nome database">
+    <div class="top-spacer"></div>
+    <button class="top-btn" onclick="openGuide()" title="Guida (F1)"><i class="fas fa-circle-question"></i></button>
+    <button class="top-btn" id="btn-auth-access" onclick="toggleAuthAccess()"><i class="fas fa-user-circle"></i> <span id="auth-label-access">Utente</span></button>
+  </div>
+
+  <!-- RIBBON -->
+  <div class="ribbon-tabs">
+    <button class="ribbon-tab" onclick="openGuide()">File</button>
+    <button class="ribbon-tab active" id="tab-home" onclick="switchRibbon('home',this)">Home</button>
+    <button class="ribbon-tab" id="tab-create" onclick="switchRibbon('create',this)">Crea</button>
+    <button class="ribbon-tab" id="tab-tools" onclick="switchRibbon('tools',this)">Strumenti database</button>
+    <button class="ribbon-tab" onclick="openGuide()">Guida</button>
+  </div>
+  <div class="ribbon" id="ribbon"></div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace">
+    <div class="nav-pane">
+      <div class="nav-head"><i class="fas fa-chevron-down"></i> Tutti gli oggetti di Access</div>
+      <div id="navList"></div>
+    </div>
+    <div class="doc-area">
+      <div class="doc-tabs" id="docTabs"></div>
+      <div class="doc-body" id="docBody"></div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span id="statusObj">Pronto</span>
+    <span style="margin-left:auto;" id="statusInfo"></span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="auth-modal-ov" id="authModal" onclick="if(event.target===this)closeAuthAccess()"><div class="auth-modal"><button class="auth-close" onclick="closeAuthAccess()">&times;</button><div id="auth-container"></div></div></div>
+
+<script>
+const $ = (s,r=document)=>r.querySelector(s);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+const FIELD_TYPES=['Testo breve','Numero','Data/ora','Sì/No','Valuta'];
+
+/* ---------- DATA MODEL ---------- */
+let DB=null, openDocs=[], activeDoc=null;
+
+function defaultDB(){
+  return {
+    name:'Database1',
+    tables:{
+      'Clienti':{ fields:[{name:'ID',type:'Numero'},{name:'Nome',type:'Testo breve'},{name:'Città',type:'Testo breve'},{name:'Email',type:'Testo breve'},{name:'Attivo',type:'Sì/No'}],
+        rows:[ {ID:1,Nome:'Mario Rossi',Città:'Roma',Email:'mario@example.com',Attivo:'Sì'},
+               {ID:2,Nome:'Laura Bianchi',Città:'Milano',Email:'laura@example.com',Attivo:'Sì'},
+               {ID:3,Nome:'Giuseppe Verdi',Città:'Napoli',Email:'giuseppe@example.com',Attivo:'No'} ] },
+      'Prodotti':{ fields:[{name:'ID',type:'Numero'},{name:'Prodotto',type:'Testo breve'},{name:'Categoria',type:'Testo breve'},{name:'Prezzo',type:'Valuta'}],
+        rows:[ {ID:1,Prodotto:'Tastiera',Categoria:'Accessori',Prezzo:29.9},
+               {ID:2,Prodotto:'Monitor',Categoria:'Hardware',Prezzo:149},
+               {ID:3,Prodotto:'Mouse',Categoria:'Accessori',Prezzo:15.5},
+               {ID:4,Prodotto:'Notebook',Categoria:'Hardware',Prezzo:899} ] },
+      'Ordini':{ fields:[{name:'ID',type:'Numero'},{name:'ClienteID',type:'Numero'},{name:'ProdottoID',type:'Numero'},{name:'Quantità',type:'Numero'},{name:'Data',type:'Data/ora'}],
+        rows:[ {ID:1,ClienteID:1,ProdottoID:2,Quantità:1,Data:'2026-05-10'},
+               {ID:2,ClienteID:2,ProdottoID:1,Quantità:3,Data:'2026-05-12'},
+               {ID:3,ClienteID:1,ProdottoID:3,Quantità:2,Data:'2026-05-15'} ] }
+    },
+    queries:{}, forms:{}, reports:{}
+  };
+}
+
+function loadDB(){
+  try{ const s=localStorage.getItem('access_db'); if(s){ DB=JSON.parse(s); return; } }catch(e){}
+  DB=defaultDB();
+}
+function saveDB(){ try{ localStorage.setItem('access_db',JSON.stringify(DB)); }catch(e){} $('#statusInfo').textContent='Salvato '+new Date().toLocaleTimeString('it-IT'); }
+let _saveT; function scheduleSave(){ clearTimeout(_saveT); _saveT=setTimeout(saveDB,500); }
+
+/* ---------- RIBBON ---------- */
+function switchRibbon(which,btn){
+  document.querySelectorAll('.ribbon-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderRibbon(which);
+}
+function grp(label,btns){ return `<div class="ribbon-group"><div class="grp-btns">${btns}</div><div class="grp-label">${label}</div></div>`; }
+function rb(icon,label,fn,small){ return `<button class="rb-btn${small?' small':''}" onclick="${fn}"><i class="fas ${icon}"></i> ${label}</button>`; }
+function renderRibbon(which){
+  const r=$('#ribbon');
+  if(which==='create'){
+    r.innerHTML =
+      grp('Tabelle', rb('fa-table','Tabella','createTable()')) +
+      grp('Query', rb('fa-filter','Query','createQuery()')) +
+      grp('Maschere', rb('fa-id-card','Maschera','createForm()')) +
+      grp('Report', rb('fa-file-lines','Report','createReport()'));
+  } else if(which==='tools'){
+    r.innerHTML =
+      grp('Relazioni', rb('fa-diagram-project','Relazioni','openRelationships()')) +
+      grp('Struttura', rb('fa-pen-ruler','Struttura tabella','setView(\'design\')')) +
+      grp('Analisi', rb('fa-chart-column','Analizza in Power BI','sendToPowerBI()')) +
+      grp('Esporta', rb('fa-file-csv','Esporta CSV','exportTableCSV()'));
+  } else {
+    r.innerHTML =
+      grp('Visualizzazioni', rb('fa-table-cells','Foglio dati','setView(\'datasheet\')') + rb('fa-pen-ruler','Struttura','setView(\'design\')') + rb('fa-id-card','Maschera','setView(\'form\')')) +
+      grp('Record', rb('fa-plus','Nuovo','addRecord()') + rb('fa-trash','Elimina','deleteRecord()') + rb('fa-floppy-disk','Salva','saveDB()')) +
+      grp('Ordina e filtra', rb('fa-arrow-down-a-z','Crescente','sortActive(1)',true) + rb('fa-arrow-up-z-a','Decrescente','sortActive(-1)',true)) +
+      grp('Trova', rb('fa-magnifying-glass','Trova','findActive()',true));
+  }
+}
+
+/* ---------- NAV PANE ---------- */
+function navGroup(title,icon,map,kind){
+  const names=Object.keys(map);
+  let h=`<div class="nav-group"><div class="nav-group-title">${title}</div>`;
+  if(!names.length) h+=`<div class="nav-item" style="color:#aaa;cursor:default;">(nessuno)</div>`;
+  names.forEach(n=>{ h+=`<div class="nav-item" onclick="openObject('${kind}','${esc(n).replace(/'/g,"\\'")}')"><i class="fas ${icon}"></i> ${esc(n)} <i class="fas fa-times obj-del" onclick="event.stopPropagation();deleteObject('${kind}','${esc(n).replace(/'/g,"\\'")}')"></i></div>`; });
+  return h+'</div>';
+}
+function renderNav(){
+  $('#navList').innerHTML =
+    navGroup('Tabelle','fa-table',DB.tables,'table') +
+    navGroup('Query','fa-filter',DB.queries,'query') +
+    navGroup('Maschere','fa-id-card',DB.forms,'form') +
+    navGroup('Report','fa-file-lines',DB.reports,'report');
+}
+
+/* ---------- DOC TABS ---------- */
+function openObject(kind,name){
+  const id=kind+':'+name;
+  if(!openDocs.find(d=>d.id===id)) openDocs.push({id,kind,name,recIndex:0,view:(kind==='form'?'form':'datasheet')});
+  activeDoc=id; renderDocTabs(); renderActiveDoc();
+  document.querySelector('.nav-pane').classList.remove('open');
+}
+function closeDoc(id,ev){ if(ev)ev.stopPropagation(); openDocs=openDocs.filter(d=>d.id!==id); if(activeDoc===id) activeDoc=openDocs.length?openDocs[openDocs.length-1].id:null; renderDocTabs(); renderActiveDoc(); }
+function renderDocTabs(){
+  $('#docTabs').innerHTML = openDocs.map(d=>{
+    const icon={table:'fa-table',query:'fa-filter',form:'fa-id-card',report:'fa-file-lines'}[d.kind];
+    return `<div class="doc-tab ${d.id===activeDoc?'active':''}" onclick="activeDoc='${d.id.replace(/'/g,"\\'")}';renderDocTabs();renderActiveDoc();"><i class="fas ${icon}" style="color:var(--accent)"></i> ${esc(d.name)} <i class="fas fa-times dt-close" onclick="closeDoc('${d.id.replace(/'/g,"\\'")}',event)"></i></div>`;
+  }).join('');
+}
+function curDoc(){ return openDocs.find(d=>d.id===activeDoc); }
+function renderActiveDoc(){
+  const body=$('#docBody'); const d=curDoc();
+  if(!d){ body.innerHTML=`<div class="doc-empty"><i class="fas fa-database"></i><div>Apri o crea un oggetto dal riquadro di spostamento.</div></div>`; $('#statusObj').textContent='Pronto'; return; }
+  $('#statusObj').textContent=({table:'Tabella',query:'Query',form:'Maschera',report:'Report'}[d.kind])+': '+d.name;
+  if(d.kind==='table') d.view==='form'?renderFormView(d):(d.view==='design'?renderDesign(d):renderDatasheet(d,DB.tables[d.name],'table'));
+  else if(d.kind==='query') renderQueryResult(d);
+  else if(d.kind==='form') renderFormView(d);
+  else if(d.kind==='report') renderReport(d);
+}
+
+/* ---------- DATASHEET ---------- */
+function renderDatasheet(d,tbl,kind){
+  if(!tbl){ $('#docBody').innerHTML='<div class="doc-empty">Tabella non trovata</div>'; return; }
+  const f=tbl.fields;
+  let h=`<div class="ds-toolbar"><span class="ds-title"><i class="fas fa-table"></i> ${esc(d.name)}</span>
+    <button class="mini-btn primary" onclick="addRecord()"><i class="fas fa-plus"></i> Nuovo record</button>
+    <button class="mini-btn" onclick="addField()"><i class="fas fa-plus"></i> Aggiungi campo</button>
+    <button class="mini-btn" onclick="setView('form')"><i class="fas fa-id-card"></i> Maschera</button></div>`;
+  h+='<table class="ds"><thead><tr><th class="row-head">#</th>';
+  f.forEach((c,ci)=>h+=`<th>${esc(c.name)} <i class="fas fa-times col-del" title="Elimina campo" onclick="deleteField(${ci})"></i><span class="th-type">${c.type}</span></th>`);
+  h+='</tr></thead><tbody>';
+  tbl.rows.forEach((row,ri)=>{
+    h+=`<tr><td class="row-head" title="Elimina record" onclick="deleteRow(${ri})">▶</td>`;
+    f.forEach(c=>{
+      const v=row[c.name];
+      if(c.type==='Sì/No') h+=`<td><select onchange="setCell(${ri},'${esc(c.name).replace(/'/g,"\\'")}',this.value)" style="border:none;padding:6px;background:transparent;"><option ${v==='Sì'?'selected':''}>Sì</option><option ${v!=='Sì'?'selected':''}>No</option></select></td>`;
+      else h+=`<td><input value="${esc(v)}" onchange="setCell(${ri},'${esc(c.name).replace(/'/g,"\\'")}',this.value)" ${(c.type==='Numero'||c.type==='Valuta')?'type="number" step="any"':''}></td>`;
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  $('#docBody').innerHTML=h;
+}
+function activeTable(){ const d=curDoc(); if(!d)return null; if(d.kind==='table')return {name:d.name,tbl:DB.tables[d.name]}; if(d.kind==='form'){const t=DB.forms[d.name]&&DB.forms[d.name].table;return t?{name:t,tbl:DB.tables[t]}:null;} return null; }
+function setCell(ri,field,val){ const a=activeTable(); if(!a)return; a.tbl.rows[ri][field]=val; scheduleSave(); }
+function addRecord(){ const a=activeTable(); if(!a){toast('Apri una tabella');return;} const r={}; a.tbl.fields.forEach(f=>r[f.name]=''); const idF=a.tbl.fields.find(f=>/^id$/i.test(f.name)); if(idF){ r[idF.name]=(a.tbl.rows.reduce((m,x)=>Math.max(m,+x[idF.name]||0),0))+1; } a.tbl.rows.push(r); saveDB(); renderActiveDoc(); toast('Record aggiunto'); }
+function deleteRow(ri){ const a=activeTable(); if(!a)return; if(!confirm('Eliminare questo record?'))return; a.tbl.rows.splice(ri,1); saveDB(); renderActiveDoc(); }
+function deleteRecord(){ const d=curDoc(); if(d&&d.kind==='form'){ deleteRow(d.recIndex); d.recIndex=Math.max(0,d.recIndex-1);} else toast('Seleziona il record dalla riga (▶) per eliminarlo'); }
+function addField(){
+  const a=activeTable(); if(!a){toast('Apri una tabella');return;}
+  showModal('Aggiungi campo', `<label>Nome campo</label><input id="m-fname" placeholder="Es. Telefono">
+    <label>Tipo dati</label><select id="m-ftype">${FIELD_TYPES.map(t=>`<option>${t}</option>`).join('')}</select>`,
+    ()=>{ const n=$('#m-fname').value.trim(); if(!n)return; if(a.tbl.fields.find(f=>f.name===n)){toast('Campo già esistente');return;} a.tbl.fields.push({name:n,type:$('#m-ftype').value}); a.tbl.rows.forEach(r=>r[n]=''); saveDB(); renderActiveDoc(); toast('Campo aggiunto'); });
+}
+function deleteField(ci){ const a=activeTable(); if(!a)return; const f=a.tbl.fields[ci]; if(!confirm('Eliminare il campo "'+f.name+'"?'))return; a.tbl.fields.splice(ci,1); a.tbl.rows.forEach(r=>delete r[f.name]); saveDB(); renderActiveDoc(); }
+function setView(v){ const d=curDoc(); if(!d)return; if(v==='design'&&d.kind!=='table'){toast('La struttura è disponibile per le tabelle');return;} if(d.kind!=='table'&&d.kind!=='form')return; d.view=v; if(v==='form'&&d.recIndex==null)d.recIndex=0; renderActiveDoc(); }
+
+/* ---------- DESIGN VIEW (struttura tabella, gestione visuale campi) ---------- */
+function renderDesign(d){
+  const tbl=DB.tables[d.name]; if(!tbl){$('#docBody').innerHTML='<div class="doc-empty">Tabella non trovata</div>';return;}
+  let h=`<div class="ds-toolbar"><span class="ds-title"><i class="fas fa-pen-ruler"></i> ${esc(d.name)} — Struttura</span>
+    <button class="mini-btn primary" onclick="designAddField()"><i class="fas fa-plus"></i> Aggiungi campo</button>
+    <button class="mini-btn" onclick="setView('datasheet')"><i class="fas fa-table-cells"></i> Foglio dati</button></div>`;
+  h+='<table class="ds" style="max-width:720px;"><thead><tr><th class="row-head">#</th><th>Nome campo</th><th>Tipo dati</th><th>Chiave</th><th></th></tr></thead><tbody>';
+  tbl.fields.forEach((f,i)=>{
+    const isKey=/^id$/i.test(f.name);
+    h+=`<tr><td class="row-head">${isKey?'<i class="fas fa-key" style="color:#d4a017"></i>':(i+1)}</td>
+      <td><input value="${esc(f.name)}" onchange="designRenameField(${i},this.value)"></td>
+      <td><select onchange="designSetType(${i},this.value)" style="border:none;padding:6px;background:transparent;width:100%;">${FIELD_TYPES.map(t=>`<option ${t===f.type?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td style="text-align:center;"><input type="radio" name="pk" ${isKey?'checked':''} onclick="designSetKey(${i})" title="Chiave primaria"></td>
+      <td style="text-align:center;"><i class="fas fa-trash" style="color:#c0392b;cursor:pointer;" onclick="deleteField(${i})"></i></td></tr>`;
+  });
+  h+='</tbody></table><div style="margin-top:10px;color:#888;font-size:12px;">Modifica nome e tipo dei campi. La chiave primaria (icona 🔑) identifica univocamente i record.</div>';
+  $('#docBody').innerHTML=h;
+}
+function designAddField(){ addField(); }
+function designRenameField(i,newName){ const a=activeTable(); if(!a)return; newName=newName.trim(); if(!newName)return; const old=a.tbl.fields[i].name; if(old===newName)return; if(a.tbl.fields.find((f,j)=>j!==i&&f.name===newName)){toast('Nome già usato');renderActiveDoc();return;} a.tbl.fields[i].name=newName; a.tbl.rows.forEach(r=>{ r[newName]=r[old]; delete r[old]; }); saveDB(); renderActiveDoc(); }
+function designSetType(i,t){ const a=activeTable(); if(!a)return; a.tbl.fields[i].type=t; saveDB(); }
+function designSetKey(i){ const a=activeTable(); if(!a)return; const fn=a.tbl.fields[i].name; if(!/^id$/i.test(fn)) toast('Suggerimento: nei dati di esempio la chiave è il campo "ID"'); }
+
+/* ---------- RELAZIONI (diagramma visuale tabelle) ---------- */
+function isPK(f){ return f.pk || /^id$/i.test(f.name); }
+function openRelationships(){
+  if(!DB._relPos)DB._relPos={};
+  const ov=document.createElement('div'); ov.className='modal-ov'; ov.id='relModal';
+  ov.innerHTML=`<div class="modal" id="relModalBox" style="width:94vw;max-width:1100px;height:84vh;display:flex;flex-direction:column;">
+    <h3><i class="fas fa-diagram-project"></i> Relazioni e struttura
+      <span style="margin-left:auto;display:flex;gap:12px;align-items:center;">
+        <button onclick="relNewTable()" style="background:#fff;color:var(--accent);border:none;border-radius:5px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;"><i class="fas fa-plus"></i> Nuova tabella</button>
+        <i class="fas fa-expand" id="relFsIcon" title="Schermo intero" style="cursor:pointer;" onclick="toggleRelFullscreen()"></i>
+        <span class="mclose" onclick="document.getElementById('relModal').remove()">&times;</span>
+      </span></h3>
+    <div id="relCanvas" style="flex:1;position:relative;overflow:auto;background:#eef0f3;background-image:radial-gradient(#d7dadf 1px,transparent 1px);background-size:18px 18px;"></div></div>`;
+  document.body.appendChild(ov);
+  relDraw();
+}
+function relCanvasEl(){ return document.querySelector('#relCanvas'); }
+function relBuildLines(){
+  const names=Object.keys(DB.tables); let lines='';
+  names.forEach(n=>{ DB.tables[n].fields.forEach(f=>{
+    const m=f.name.match(/^(.*?)ID$/i); if(!m||!m[1])return; const base=m[1];
+    const norm=s=>s.toLowerCase().replace(/[aeiou]+$/,'');
+    const target=names.find(tn=>norm(tn)===norm(base));
+    if(target&&target!==n&&DB._relPos[n]&&DB._relPos[target]){ const a=DB._relPos[n],b=DB._relPos[target]; const x1=a.x+230,y1=a.y+20,x2=b.x,y2=b.y+20; lines+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#a4373a" stroke-width="2"/><circle cx="${x2}" cy="${y2}" r="3.5" fill="#a4373a"/>`; }
+  }); });
+  return lines;
+}
+function relRefreshLines(){ const svg=document.querySelector('#relSvg'); if(svg) svg.innerHTML=relBuildLines(); }
+// (ri)disegna l'intero diagramma editabile
+function relDraw(){
+  const canvas=relCanvasEl(); if(!canvas)return;
+  const names=Object.keys(DB.tables);
+  names.forEach((n,i)=>{ if(!DB._relPos[n]) DB._relPos[n]={x:30+(i%4)*270,y:30+Math.floor(i/4)*240}; });
+  const boxes=names.map(n=>{
+    const p=DB._relPos[n]; const t=DB.tables[n];
+    const rows=t.fields.map((f,fi)=>{
+      const key=isPK(f)?'<i class="fas fa-key" title="Chiave primaria" style="color:#d4a017;margin-right:4px;"></i>':'';
+      const idx=(f.indexed&&!isPK(f))?'<i class="fas fa-magnifying-glass" title="Indicizzato" style="color:#0a7;margin-right:4px;font-size:10px;"></i>':'';
+      return `<div class="rel-field" style="padding:4px 8px;font-size:12px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:6px;">
+        <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${key}${idx}${esc(f.name)}</span>
+        <span style="color:#aaa;font-size:10px;">${esc(f.type).slice(0,4)}</span>
+        <i class="fas fa-pen rel-fed" title="Modifica campo" onclick="relEditField('${esc(n).replace(/'/g,"\\'")}',${fi})" style="color:#888;cursor:pointer;font-size:11px;opacity:.55;"></i>
+        <i class="fas fa-trash rel-fdel" title="Elimina campo" onclick="relDeleteField('${esc(n).replace(/'/g,"\\'")}',${fi})" style="color:#c0392b;cursor:pointer;font-size:11px;opacity:.55;"></i>
+      </div>`;
+    }).join('');
+    return `<div class="rel-box" data-tbl="${esc(n)}" style="position:absolute;left:${p.x}px;top:${p.y}px;width:230px;background:#fff;border:1px solid #b9b9b9;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.12);touch-action:none;">
+      <div class="rel-head" style="background:var(--accent);color:#fff;padding:6px 10px;font-size:13px;font-weight:600;border-radius:5px 5px 0 0;cursor:move;touch-action:none;display:flex;align-items:center;gap:6px;">
+        <i class="fas fa-table"></i><span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(n)}</span>
+        <i class="fas fa-ellipsis-vertical" title="Opzioni tabella" onpointerdown="event.stopPropagation()" onclick="relTableMenu(event,'${esc(n).replace(/'/g,"\\'")}')" style="cursor:pointer;padding:2px 4px;"></i>
+      </div>${rows}
+      <div onclick="relAddField('${esc(n).replace(/'/g,"\\'")}')" style="padding:5px 8px;font-size:12px;color:var(--accent);cursor:pointer;border-top:1px solid #eee;border-radius:0 0 5px 5px;"><i class="fas fa-plus"></i> Aggiungi campo</div></div>`;
+  }).join('');
+  canvas.innerHTML=`<svg id="relSvg" style="position:absolute;inset:0;width:3000px;height:2000px;pointer-events:none;">${relBuildLines()}</svg>`+boxes;
+  canvas.querySelectorAll('.rel-box').forEach(box=>{
+    const head=box.querySelector('.rel-head'); const name=box.dataset.tbl;
+    head.addEventListener('pointerdown',(e)=>{
+      if(e.target.classList.contains('fa-ellipsis-vertical'))return;
+      e.preventDefault(); head.setPointerCapture(e.pointerId);
+      const sx=e.clientX, sy=e.clientY, op={...DB._relPos[name]};
+      const move=(ev)=>{ const nx=Math.max(0,op.x+(ev.clientX-sx)), ny=Math.max(0,op.y+(ev.clientY-sy)); DB._relPos[name]={x:nx,y:ny}; box.style.left=nx+'px'; box.style.top=ny+'px'; relRefreshLines(); };
+      const up=()=>{ head.removeEventListener('pointermove',move); head.removeEventListener('pointerup',up); scheduleSave(); };
+      head.addEventListener('pointermove',move); head.addEventListener('pointerup',up);
+    });
+  });
+}
+// dopo una modifica strutturale: salva, aggiorna nav, ridisegna diagramma e doc aperto
+function relCommit(){ saveDB(); renderNav(); relDraw(); renderActiveDoc(); }
+
+function relNewTable(){
+  showModal('Nuova tabella', `<label>Nome tabella</label><input id="m-rtname" placeholder="Es. Fornitori">`,
+    ()=>{ const n=$('#m-rtname').value.trim(); if(!n)return; if(DB.tables[n]){toast('Esiste già');return;} DB.tables[n]={fields:[{name:'ID',type:'Numero',pk:true,indexed:true}],rows:[]}; const i=Object.keys(DB.tables).length-1; DB._relPos[n]={x:30+(i%4)*270,y:30+Math.floor(i/4)*240}; relCommit(); toast('Tabella creata'); });
+}
+function relTableMenu(ev,name){
+  ev.stopPropagation();
+  const old=document.getElementById('relTblMenu'); if(old)old.remove();
+  const m=document.createElement('div'); m.id='relTblMenu';
+  m.style.cssText=`position:fixed;top:${ev.clientY+4}px;left:${ev.clientX-10}px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.2);z-index:1100;min-width:200px;padding:5px;font-size:13px;`;
+  const it=(ic,lbl,fn)=>`<button onclick="document.getElementById('relTblMenu').remove();${fn}" style="display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:none;background:none;padding:8px 11px;border-radius:6px;cursor:pointer;font-size:13px;color:#333;" onmouseenter="this.style.background='#f3f2f1'" onmouseleave="this.style.background='none'"><i class="fas ${ic}" style="width:15px;color:var(--accent);"></i> ${lbl}</button>`;
+  const N=name.replace(/'/g,"\\'");
+  m.innerHTML=it('fa-plus','Aggiungi campo',`relAddField('${N}')`)+it('fa-list-ol','Gestione indici',`relIndexes('${N}')`)+it('fa-i-cursor','Rinomina tabella',`relRenameTable('${N}')`)+it('fa-table-cells','Apri foglio dati',`openObject('table','${N}');document.getElementById('relModal').remove()`)+`<div style="height:1px;background:#eee;margin:4px 0;"></div>`+it('fa-trash','Elimina tabella',`relDeleteTable('${N}')`);
+  document.body.appendChild(m);
+  setTimeout(()=>{ const close=(e)=>{ if(!m.contains(e.target)){m.remove();document.removeEventListener('click',close);} }; document.addEventListener('click',close); },0);
+}
+function relRenameTable(name){
+  showModal('Rinomina tabella', `<label>Nuovo nome</label><input id="m-rtnew" value="${esc(name)}">`,
+    ()=>{ const nn=$('#m-rtnew').value.trim(); if(!nn||nn===name)return; if(DB.tables[nn]){toast('Nome già usato');return;}
+      DB.tables[nn]=DB.tables[name]; delete DB.tables[name];
+      if(DB._relPos[name]){DB._relPos[nn]=DB._relPos[name];delete DB._relPos[name];}
+      // aggiorna doc aperti
+      openDocs.forEach(d=>{ if(d.kind==='table'&&d.name===name){d.name=nn;d.id='table:'+nn;} }); if(activeDoc==='table:'+name)activeDoc='table:'+nn;
+      Object.values(DB.forms).forEach(f=>{if(f.table===name)f.table=nn;}); Object.values(DB.reports).forEach(r=>{if(r.table===name)r.table=nn;}); Object.values(DB.queries).forEach(q=>{if(q.table===name)q.table=nn;});
+      relCommit(); renderDocTabs(); toast('Tabella rinominata'); });
+}
+function relDeleteTable(name){ if(!confirm('Eliminare la tabella "'+name+'" e tutti i suoi dati?'))return; delete DB.tables[name]; delete DB._relPos[name]; closeDoc('table:'+name); relCommit(); toast('Tabella eliminata'); }
+function relAddField(table){
+  const tbl=DB.tables[table]; if(!tbl)return;
+  showModal('Nuovo campo — '+table, `<label>Nome campo</label><input id="m-nfname" placeholder="Es. Telefono">
+    <label>Tipo dati</label><select id="m-nftype">${FIELD_TYPES.map(t=>`<option>${t}</option>`).join('')}</select>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:400;"><input type="checkbox" id="m-nfidx" style="width:auto;"> Indicizzato</label>`,
+    ()=>{ const n=$('#m-nfname').value.trim(); if(!n)return; if(tbl.fields.find(f=>f.name===n)){toast('Campo già esistente');return;} tbl.fields.push({name:n,type:$('#m-nftype').value,indexed:$('#m-nfidx').checked}); tbl.rows.forEach(r=>r[n]=''); relCommit(); toast('Campo aggiunto'); });
+}
+function relEditField(table,fi){
+  const tbl=DB.tables[table]; if(!tbl)return; const f=tbl.fields[fi]; if(!f)return;
+  showModal('Modifica campo — '+table, `<label>Nome campo</label><input id="m-efname" value="${esc(f.name)}">
+    <label>Tipo dati</label><select id="m-eftype">${FIELD_TYPES.map(t=>`<option ${t===f.type?'selected':''}>${t}</option>`).join('')}</select>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:400;"><input type="checkbox" id="m-efpk" ${isPK(f)?'checked':''} style="width:auto;"> Chiave primaria</label>
+    <label style="display:flex;align-items:center;gap:8px;font-weight:400;"><input type="checkbox" id="m-efidx" ${(f.indexed||isPK(f))?'checked':''} style="width:auto;"> Indicizzato</label>`,
+    ()=>{ const nn=$('#m-efname').value.trim(); if(!nn){toast('Nome obbligatorio');return;} const old=f.name;
+      if(nn!==old){ if(tbl.fields.find((x,j)=>j!==fi&&x.name===nn)){toast('Nome già usato');return;} tbl.fields.forEach(()=>{}); tbl.rows.forEach(r=>{r[nn]=r[old];delete r[old];}); f.name=nn; }
+      f.type=$('#m-eftype').value;
+      const pk=$('#m-efpk').checked;
+      if(pk){ tbl.fields.forEach(x=>x.pk=false); f.pk=true; f.indexed=true; } else { f.pk=false; f.indexed=$('#m-efidx').checked; }
+      relCommit(); toast('Campo aggiornato'); });
+}
+function relDeleteField(table,fi){ const tbl=DB.tables[table]; if(!tbl)return; const f=tbl.fields[fi]; if(tbl.fields.length<=1){toast('La tabella deve avere almeno un campo');return;} if(!confirm('Eliminare il campo "'+f.name+'"?'))return; tbl.fields.splice(fi,1); tbl.rows.forEach(r=>delete r[f.name]); relCommit(); }
+function relIndexes(table){
+  const tbl=DB.tables[table]; if(!tbl)return;
+  const rows=tbl.fields.map((f,i)=>`<tr>
+    <td style="padding:6px 8px;">${esc(f.name)}</td>
+    <td style="padding:6px 8px;color:#888;">${esc(f.type)}</td>
+    <td style="text-align:center;"><input type="radio" name="idxpk" ${isPK(f)?'checked':''} onchange="relSetIdx('${esc(table).replace(/'/g,"\\'")}',${i},'pk')"></td>
+    <td style="text-align:center;"><input type="checkbox" class="idx-chk" data-i="${i}" ${(f.indexed||isPK(f))?'checked':''} onchange="relSetIdx('${esc(table).replace(/'/g,"\\'")}',${i},'idx',this.checked)"></td>
+  </tr>`).join('');
+  showModal('Gestione indici — '+table, `<p style="font-size:13px;color:#666;margin-bottom:8px;">Imposta la chiave primaria e i campi indicizzati (velocizzano ricerche e ordinamenti).</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="border-bottom:2px solid var(--accent);"><th style="text-align:left;padding:6px 8px;">Campo</th><th style="text-align:left;padding:6px 8px;">Tipo</th><th>Chiave</th><th>Indice</th></tr></thead><tbody>${rows}</tbody></table>`, null);
+  // niente OK: le modifiche sono immediate; cambio l'etichetta del pulsante
+  setTimeout(()=>{ const ok=document.querySelector('#accModal .modal-f .primary'); if(ok)ok.textContent='Fatto'; },0);
+}
+function relSetIdx(table,i,what,val){ const tbl=DB.tables[table]; if(!tbl)return; const f=tbl.fields[i];
+  if(what==='pk'){ tbl.fields.forEach(x=>x.pk=false); f.pk=true; f.indexed=true; }
+  else { if(isPK(f)){return;} f.indexed=val; }
+  saveDB(); renderNav(); relDraw(); renderActiveDoc();
+}
+
+function toggleRelFullscreen(){
+  const box=document.getElementById('relModalBox'); if(!box)return;
+  const icon=document.getElementById('relFsIcon');
+  if(!document.fullscreenElement){
+    (box.requestFullscreen?box.requestFullscreen():Promise.reject()).then(()=>{ box.style.width='100vw';box.style.maxWidth='100vw';box.style.height='100vh';box.style.borderRadius='0'; if(icon){icon.className='fas fa-compress';} }).catch(()=>{
+      // fallback senza Fullscreen API: espandi a tutto schermo
+      box.style.cssText='width:100vw;max-width:100vw;height:100vh;border-radius:0;display:flex;flex-direction:column;'; box.dataset.fs='1'; if(icon)icon.className='fas fa-compress';
+    });
+  } else {
+    document.exitFullscreen&&document.exitFullscreen();
+  }
+}
+document.addEventListener('fullscreenchange',()=>{ const box=document.getElementById('relModalBox'); const icon=document.getElementById('relFsIcon'); if(!document.fullscreenElement&&box){ box.style.width='92vw';box.style.maxWidth='1000px';box.style.height='80vh';box.style.borderRadius='8px'; if(icon)icon.className='fas fa-expand'; } });
+
+/* ---------- INTEGRAZIONE SUITE ---------- */
+function sendToPowerBI(){
+  const a=activeTableForExport(); if(!a)return;
+  const headers=a.tbl.fields.map(f=>f.name);
+  const rows=a.tbl.rows.map(r=>headers.map(h=>r[h]));
+  try{ localStorage.setItem('powerbi_handoff', JSON.stringify({name:a.name,headers,rows,source:'access'})); }catch(e){}
+  toast('Invio a Power BI…'); window.open('../powerbi-clone/index.html','_blank');
+}
+function exportTableCSV(){
+  const a=activeTableForExport(); if(!a)return;
+  const headers=a.tbl.fields.map(f=>f.name);
+  const esc2=v=>{ v=String(v==null?'':v); return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+  let csv=headers.map(esc2).join(';')+'\n'+a.tbl.rows.map(r=>headers.map(h=>esc2(r[h])).join(';')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
+  const link=document.createElement('a'); link.href=url; link.download=a.name+'.csv'; link.click(); URL.revokeObjectURL(url);
+  toast('CSV esportato');
+}
+function activeTableForExport(){ const a=activeTable(); if(!a){ const tn=Object.keys(DB.tables)[0]; if(tn)return{name:tn,tbl:DB.tables[tn]}; toast('Nessuna tabella');return null;} return a; }
+function sortActive(dir){ const a=activeTable(); if(!a)return; const d=curDoc(); const f=a.tbl.fields[0]; if(!f)return; const fn=a.tbl.fields.find(x=>x._sortPick)||f; a.tbl.rows.sort((x,y)=>{const xa=x[fn.name],ya=y[fn.name];const n=parseFloat(xa),m=parseFloat(ya); if(!isNaN(n)&&!isNaN(m))return (n-m)*dir; return String(xa).localeCompare(String(ya))*dir;}); saveDB(); renderActiveDoc(); toast('Ordinato per '+fn.name+(dir>0?' (crescente)':' (decrescente)')); }
+function findActive(){ const a=activeTable(); if(!a){toast('Apri una tabella');return;} showModal('Trova',`<label>Cerca testo</label><input id="m-find" placeholder="Testo da cercare">`,()=>{ const q=($('#m-find').value||'').toLowerCase(); if(!q)return; const idx=a.tbl.rows.findIndex(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(q))); if(idx<0){toast('Nessun risultato');return;} const d=curDoc(); d.view='form'; d.recIndex=idx; renderActiveDoc(); toast('Trovato nel record '+(idx+1)); }); }
+
+/* ---------- FORM VIEW ---------- */
+function renderFormView(d){
+  const tname = d.kind==='form' ? (DB.forms[d.name]&&DB.forms[d.name].table) : d.name;
+  const tbl=DB.tables[tname];
+  if(!tbl){ $('#docBody').innerHTML='<div class="doc-empty">Tabella non trovata</div>'; return; }
+  if(d.recIndex==null)d.recIndex=0; if(d.recIndex>=tbl.rows.length)d.recIndex=Math.max(0,tbl.rows.length-1);
+  const row=tbl.rows[d.recIndex]||{};
+  let h=`<div class="form-view"><div class="form-head"><i class="fas fa-id-card"></i> ${esc(d.name)}</div><div class="form-body">`;
+  tbl.fields.forEach(c=>{
+    const v=row[c.name];
+    if(c.type==='Sì/No') h+=`<div class="form-row"><label>${esc(c.name)}</label><select onchange="formSet('${esc(tname).replace(/'/g,"\\'")}',${d.recIndex},'${esc(c.name).replace(/'/g,"\\'")}',this.value)"><option ${v==='Sì'?'selected':''}>Sì</option><option ${v!=='Sì'?'selected':''}>No</option></select></div>`;
+    else h+=`<div class="form-row"><label>${esc(c.name)}</label><input value="${esc(v)}" ${(c.type==='Numero'||c.type==='Valuta')?'type="number" step="any"':(c.type==='Data/ora'?'':'')} onchange="formSet('${esc(tname).replace(/'/g,"\\'")}',${d.recIndex},'${esc(c.name).replace(/'/g,"\\'")}',this.value)"></div>`;
+  });
+  h+=`</div><div class="form-nav">
+    <button onclick="formNav(-9999)" title="Primo">&laquo;</button>
+    <button onclick="formNav(-1)" title="Precedente">&lsaquo;</button>
+    <span class="rec-info">Record ${tbl.rows.length?d.recIndex+1:0} di ${tbl.rows.length}</span>
+    <button onclick="formNav(1)" title="Successivo">&rsaquo;</button>
+    <button onclick="formNav(9999)" title="Ultimo">&raquo;</button>
+    <button onclick="addRecord()" title="Nuovo record"><i class="fas fa-plus"></i></button>
+  </div></div>`;
+  $('#docBody').innerHTML=h;
+}
+function formSet(tname,ri,field,val){ DB.tables[tname].rows[ri][field]=val; scheduleSave(); }
+function formNav(delta){ const d=curDoc(); const a=activeTable(); if(!a)return; const n=a.tbl.rows.length; if(!n)return; if(delta<=-9999)d.recIndex=0; else if(delta>=9999)d.recIndex=n-1; else d.recIndex=Math.max(0,Math.min(n-1,d.recIndex+delta)); renderActiveDoc(); }
+
+/* ---------- QUERY ---------- */
+function createQuery(){
+  const tnames=Object.keys(DB.tables); if(!tnames.length){toast('Crea prima una tabella');return;}
+  let t0=tnames[0];
+  const fieldsHtml=(t)=>DB.tables[t].fields.map(f=>`<div class="qb-field"><input type="checkbox" class="qb-f" value="${esc(f.name)}" checked> ${esc(f.name)} <small style="color:#999">(${f.type})</small></div>`).join('');
+  const opts=tnames.map(t=>`<option>${esc(t)}</option>`).join('');
+  showModal('Nuova query (struttura semplice)', `
+    <label>Tabella</label><select id="qb-table" onchange="document.getElementById('qb-fields').innerHTML=window._qbFields(this.value);document.getElementById('qb-sortf').innerHTML=window._qbSortOpts(this.value);">${opts}</select>
+    <label>Campi da mostrare</label><div id="qb-fields" style="max-height:140px;overflow:auto;border:1px solid #eee;border-radius:5px;padding:8px;">${fieldsHtml(t0)}</div>
+    <label>Criterio (facoltativo)</label>
+    <div class="qb-crit"><select id="qb-cf">${DB.tables[t0].fields.map(f=>`<option>${esc(f.name)}</option>`).join('')}</select><select id="qb-op"><option>=</option><option>≠</option><option>contiene</option><option>&gt;</option><option>&lt;</option></select><input id="qb-cv" placeholder="valore"></div>
+    <label>Ordina per</label><div style="display:flex;gap:6px;"><select id="qb-sortf" style="flex:1;">${window._qbSortOpts?window._qbSortOpts(t0):''}</select><select id="qb-sortd"><option value="1">Crescente</option><option value="-1">Decrescente</option></select></div>
+    <label>Nome query</label><input id="qb-name" value="Query${Object.keys(DB.queries).length+1}">`,
+    ()=>{
+      const t=$('#qb-table').value;
+      const fields=[...document.querySelectorAll('.qb-f:checked')].map(c=>c.value);
+      if(!fields.length){toast('Seleziona almeno un campo');return;}
+      const name=($('#qb-name').value||('Query'+(Object.keys(DB.queries).length+1))).trim();
+      const crit = $('#qb-cv').value.trim() ? {field:$('#qb-cf').value,op:$('#qb-op').value,value:$('#qb-cv').value.trim()} : null;
+      DB.queries[name]={table:t,fields,criteria:crit?[crit]:[],sort:{field:$('#qb-sortf').value,dir:+$('#qb-sortd').value}};
+      saveDB(); renderNav(); openObject('query',name); toast('Query creata');
+    });
+  // helper globali per il refresh dei campi nel modal
+  window._qbFields=fieldsHtml;
+  window._qbSortOpts=(t)=>'<option value="">(nessuno)</option>'+DB.tables[t].fields.map(f=>`<option>${esc(f.name)}</option>`).join('');
+  // aggiorna criterio campo quando cambia tabella
+  setTimeout(()=>{ const ts=$('#qb-table'); if(ts) ts.addEventListener('change',()=>{ $('#qb-cf').innerHTML=DB.tables[ts.value].fields.map(f=>`<option>${esc(f.name)}</option>`).join(''); }); },0);
+}
+function runQuery(q){
+  const tbl=DB.tables[q.table]; if(!tbl)return {fields:[],rows:[]};
+  let rows=tbl.rows.slice();
+  (q.criteria||[]).forEach(c=>{
+    rows=rows.filter(r=>{ const v=r[c.field]; const cv=c.value;
+      const nv=parseFloat(v),ncv=parseFloat(cv);
+      switch(c.op){ case'=':return String(v)==cv; case'≠':return String(v)!=cv; case'contiene':return String(v).toLowerCase().includes(cv.toLowerCase()); case'>':return !isNaN(nv)&&!isNaN(ncv)?nv>ncv:String(v)>cv; case'<':return !isNaN(nv)&&!isNaN(ncv)?nv<ncv:String(v)<cv; } return true; });
+  });
+  if(q.sort&&q.sort.field){ const f=q.sort.field,dir=q.sort.dir||1; rows.sort((x,y)=>{const a=x[f],b=y[f];const n=parseFloat(a),m=parseFloat(b);if(!isNaN(n)&&!isNaN(m))return(n-m)*dir;return String(a).localeCompare(String(b))*dir;}); }
+  return {fields:q.fields,rows};
+}
+function renderQueryResult(d){
+  const q=DB.queries[d.name]; if(!q){$('#docBody').innerHTML='<div class="doc-empty">Query non trovata</div>';return;}
+  const res=runQuery(q);
+  let h=`<div class="ds-toolbar"><span class="ds-title"><i class="fas fa-filter"></i> ${esc(d.name)}</span>
+    <span style="font-size:12px;color:#666;">${res.rows.length} righe · origine: ${esc(q.table)}</span></div>`;
+  h+='<table class="ds"><thead><tr>'+res.fields.map(f=>`<th>${esc(f)}</th>`).join('')+'</tr></thead><tbody>';
+  res.rows.forEach(r=>{ h+='<tr>'+res.fields.map(f=>`<td><input value="${esc(r[f])}" readonly style="background:transparent;"></td>`).join('')+'</tr>'; });
+  h+='</tbody></table>';
+  $('#docBody').innerHTML=h;
+}
+
+/* ---------- CREATE TABLE / FORM / REPORT ---------- */
+function createTable(){
+  showModal('Nuova tabella', `<label>Nome tabella</label><input id="m-tname" placeholder="Es. Ordini">`,
+    ()=>{ const n=$('#m-tname').value.trim(); if(!n)return; if(DB.tables[n]){toast('Esiste già');return;} DB.tables[n]={fields:[{name:'ID',type:'Numero'}],rows:[]}; saveDB(); renderNav(); openObject('table',n); toast('Tabella creata — aggiungi campi e record'); });
+}
+function createForm(){
+  const tnames=Object.keys(DB.tables); if(!tnames.length){toast('Crea prima una tabella');return;}
+  showModal('Nuova maschera', `<label>Tabella di origine</label><select id="m-ft">${tnames.map(t=>`<option>${esc(t)}</option>`).join('')}</select><label>Nome maschera</label><input id="m-fname2" value="Maschera ${tnames[0]}">`,
+    ()=>{ const t=$('#m-ft').value; const n=($('#m-fname2').value||('Maschera '+t)).trim(); DB.forms[n]={table:t}; saveDB(); renderNav(); openObject('form',n); toast('Maschera creata'); });
+}
+function createReport(){
+  const tnames=Object.keys(DB.tables); if(!tnames.length){toast('Crea prima una tabella');return;}
+  showModal('Nuovo report', `<label>Tabella di origine</label><select id="m-rt">${tnames.map(t=>`<option>${esc(t)}</option>`).join('')}</select><label>Nome report</label><input id="m-rname" value="Report ${tnames[0]}">`,
+    ()=>{ const t=$('#m-rt').value; const n=($('#m-rname').value||('Report '+t)).trim(); DB.reports[n]={table:t,fields:DB.tables[t].fields.map(f=>f.name)}; saveDB(); renderNav(); openObject('report',n); toast('Report creato'); });
+}
+function renderReport(d){
+  const rep=DB.reports[d.name]; const tbl=rep&&DB.tables[rep.table];
+  if(!tbl){$('#docBody').innerHTML='<div class="doc-empty">Report non valido</div>';return;}
+  let h=`<div style="margin-bottom:10px;"><button class="mini-btn primary" onclick="printAccessReport('${esc(d.name).replace(/'/g,"\\'")}')"><i class="fas fa-print"></i> Stampa</button></div>`;
+  h+=`<div class="report"><h1>${esc(d.name)}</h1><div class="rep-date">Generato il ${new Date().toLocaleString('it-IT')} · Origine: ${esc(rep.table)}</div>`;
+  h+='<table><thead><tr>'+rep.fields.map(f=>`<th>${esc(f)}</th>`).join('')+'</tr></thead><tbody>';
+  tbl.rows.forEach(r=>h+='<tr>'+rep.fields.map(f=>`<td>${esc(r[f])}</td>`).join('')+'</tr>');
+  h+=`</tbody></table><div class="rep-foot">${tbl.rows.length} record</div></div>`;
+  $('#docBody').innerHTML=h;
+}
+// Stampa SOLO il report, in una finestra dedicata ed elegante (non tutta la schermata)
+function printAccessReport(name){
+  const rep=DB.reports[name]; const tbl=rep&&DB.tables[rep.table]; if(!tbl){toast('Report non valido');return;}
+  const rows=tbl.rows.map(r=>'<tr>'+rep.fields.map(f=>`<td>${esc(r[f])}</td>`).join('')+'</tr>').join('');
+  const html=`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>${esc(name)}</title><style>
+    *{box-sizing:border-box;} body{font-family:'Segoe UI',Calibri,Arial,sans-serif;color:#222;margin:26px;}
+    h1{font-size:24px;color:#7d2a2c;border-bottom:3px solid #a4373a;padding-bottom:8px;margin:0 0 4px;}
+    .d{font-size:12px;color:#888;margin-bottom:18px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{text-align:left;border-bottom:2px solid #a4373a;padding:7px 8px;color:#7d2a2c;}
+    td{border-bottom:1px solid #eee;padding:6px 8px;}
+    tr:nth-child(even) td{background:#faf6f6;}
+    .f{margin-top:16px;font-size:12px;color:#888;text-align:right;}
+    @media print{body{margin:0;} @page{margin:14mm;}}
+  </style></head><body>
+    <h1>${esc(name)}</h1>
+    <div class="d">Generato il ${new Date().toLocaleString('it-IT')} · Origine: ${esc(rep.table)} · ${tbl.rows.length} record</div>
+    <table><thead><tr>${rep.fields.map(f=>`<th>${esc(f)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
+    <div class="f">${tbl.rows.length} record &middot; Clone-Access</div>
+  </body></html>`;
+  const w=window.open('','_blank','width=900,height=700'); if(!w){toast('Consenti i popup per stampare');return;}
+  w.document.write(html); w.document.close();
+  w.addEventListener('load',()=>{ w.focus(); w.print(); });
+  setTimeout(()=>{ try{ w.focus(); w.print(); }catch(e){} }, 500);
+}
+
+function deleteObject(kind,name){
+  const map={table:'tables',query:'queries',form:'forms',report:'reports'}[kind];
+  if(!confirm('Eliminare "'+name+'"?'))return;
+  delete DB[map][name]; closeDoc(kind+':'+name); saveDB(); renderNav(); toast('Eliminato');
+}
+
+/* ---------- MODAL ---------- */
+let _modalCb=null;
+function showModal(title,bodyHtml,onOk){
+  _modalCb=onOk;
+  const ov=document.createElement('div'); ov.className='modal-ov'; ov.id='accModal';
+  ov.innerHTML=`<div class="modal"><h3><i class="fas fa-database"></i> ${title} <span class="mclose" onclick="closeAccModal()">&times;</span></h3><div class="modal-b">${bodyHtml}</div><div class="modal-f"><button class="mini-btn" onclick="closeAccModal()">Annulla</button><button class="mini-btn primary" onclick="accModalOk()">OK</button></div></div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)closeAccModal();});
+  document.body.appendChild(ov);
+  const first=ov.querySelector('input,select'); if(first)setTimeout(()=>first.focus(),30);
+}
+function closeAccModal(){ const m=$('#accModal'); if(m)m.remove(); _modalCb=null; }
+function accModalOk(){ const cb=_modalCb; if(cb)cb(); if($('#accModal')) closeAccModal(); }
+
+/* ---------- GUIDE ---------- */
+function openGuide(){ window.open('guida.html','_blank'); }
+
+/* ---------- INIT ---------- */
+function init(){
+  loadDB();
+  $('#dbName').value=DB.name||'Database1';
+  $('#dbName').addEventListener('change',e=>{DB.name=e.target.value;scheduleSave();});
+  renderRibbon('home'); renderNav(); renderDocTabs(); renderActiveDoc();
+  // apri la prima tabella
+  const t0=Object.keys(DB.tables)[0]; if(t0) openObject('table',t0);
+  document.addEventListener('keydown',e=>{ if(e.key==='F1'){e.preventDefault();openGuide();} });
+}
+init();
+
+/* ---------- AUTH (pattern suite) ---------- */
+let authInitAccess=false;
+function toggleAuthAccess(){ $('#authModal').classList.add('active'); initAuthAccessFn(); }
+function closeAuthAccess(){ $('#authModal').classList.remove('active'); }
+function initAuthAccessFn(){
+  if(authInitAccess)return; authInitAccess=true;
+  const a=window.CloneOfficeAuth; if(!a)return;
+  a.onAuthChange(u=>{ const l=$('#auth-label-access'); if(l)l.textContent=u?u.name.split(' ')[0]:'Utente'; if(u){hideAuthBlockerAccess();} });
+  a.init().then(u=>{ if(u){const l=$('#auth-label-access');if(l)l.textContent=u.name.split(' ')[0];hideAuthBlockerAccess();} else showAuthBlockerAccess(); });
+}
+function showAuthBlockerAccess(){ if($('#auth-blocker-access'))return; const b=document.createElement('div'); b.id='auth-blocker-access'; b.innerHTML='<div style="position:fixed;inset:0;background:#f0f2f5;z-index:4000;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="text-align:center;padding:40px;"><div style="font-size:64px;margin-bottom:20px;">🔐</div><h2 style="font-size:24px;color:#1a1a2e;margin-bottom:8px;">Accesso richiesto</h2><p style="color:#888;font-size:14px;margin-bottom:24px;">Devi effettuare l\'accesso per utilizzare questa applicazione.</p><button onclick="toggleAuthAccess()" style="padding:12px 32px;background:#a4373a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Accedi con QR Code</button><br><br><a href="../index.html" style="color:#a4373a;font-size:13px;text-decoration:none;">Torna alla Home</a></div></div>'; document.body.appendChild(b); }
+function hideAuthBlockerAccess(){ const b=$('#auth-blocker-access'); if(b)b.remove(); }
+if(window.CloneOfficeAuth){ initAuthAccessFn(); } else { window.addEventListener('load',initAuthAccessFn); }
+</script>
+<script src="../shared/app-launcher.js"></script>
+</body>
+</html>

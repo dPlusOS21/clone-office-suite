@@ -1,0 +1,4316 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation 1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        /* Barra superiore */
+        .top-bar {
+            background: white;
+            border-bottom: 1px solid #edebe9;
+            display: flex;
+            align-items: center;
+            padding: 4px 12px;
+            gap: 12px;
+            height: 48px;
+        }
+
+        .app-grid {
+            width: 24px;
+            height: 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 6px);
+            gap: 2px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .app-grid:hover {
+            background: #f3f2f1;
+            border-radius: 2px;
+        }
+
+        .grid-dot {
+            width: 6px;
+            height: 6px;
+            background: #605e5c;
+            border-radius: 50%;
+        }
+
+        .app-icon {
+            width: 24px;
+            height: 24px;
+            background: #d24726;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .doc-title {
+            font-size: 13px;
+            padding: 6px 8px;
+            border: none;
+            outline: none;
+            border-radius: 2px;
+            background: transparent;
+        }
+
+        .doc-title:hover {
+            background: #f3f2f1;
+        }
+
+        .save-status {
+            font-size: 11px;
+            color: #605e5c;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .top-right {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .top-btn {
+            padding: 6px 12px;
+            border: 1px solid #8a8886;
+            background: white;
+            border-radius: 2px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-btn:hover {
+            background: #f3f2f1;
+        }
+
+        .top-btn.primary {
+            background: #d24726;
+            color: white;
+            border: none;
+        }
+
+        .top-btn.primary:hover {
+            background: #b93b1d;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 2px;
+            font-size: 16px;
+        }
+
+        .icon-btn:hover {
+            background: #f3f2f1;
+        }
+
+        .user-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #0078d4;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #f3f2f1;
+            border-radius: 4px;
+            width: 300px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        /* Ribbon tabs */
+        .ribbon-tabs {
+            background: white;
+            border-bottom: 1px solid #edebe9;
+            display: flex;
+            padding: 0 12px;
+            gap: 16px;
+        }
+
+        .ribbon-tab {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            color: #323130;
+        }
+
+        .ribbon-tab:hover {
+            background: #f3f2f1;
+        }
+
+        .ribbon-tab.active {
+            border-bottom-color: #d24726;
+        }
+
+        /* Ribbon content */
+        .ribbon-content {
+            background: #fafafa;
+            padding: 8px 12px;
+            display: flex;
+            gap: 2px;
+            border-bottom: 1px solid #edebe9;
+            align-items: flex-start;
+            min-height: 92px;
+            overflow-x: auto;
+        }
+
+        .ribbon-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 0 8px;
+            border-right: 1px solid #edebe9;
+            min-width: fit-content;
+        }
+
+        .ribbon-group:last-child {
+            border-right: none;
+        }
+
+        .ribbon-group-content {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .ribbon-group-label {
+            font-size: 11px;
+            color: #605e5c;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .ribbon-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 56px;
+            font-size: 11px;
+            color: #323130;
+        }
+
+        .ribbon-btn:hover {
+            background: #f3f2f1;
+            border-color: #edebe9;
+        }
+
+        .ribbon-btn-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .ribbon-btn.small {
+            flex-direction: row;
+            min-width: auto;
+            padding: 4px 8px;
+        }
+
+        .ribbon-btn.small .ribbon-btn-icon {
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+        }
+
+        .ribbon-dropdown {
+            background: white;
+            border: 1px solid #edebe9;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ribbon-dropdown:hover {
+            background: #f3f2f1;
+        }
+
+        /* App launcher popup */
+        .app-launcher {
+            position: fixed;
+            top: 48px;
+            left: 12px;
+            background: white;
+            border: 1px solid #edebe9;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 24px;
+            width: 480px;
+            display: none;
+            z-index: 2000;
+        }
+
+        .app-launcher.show {
+            display: block;
+        }
+
+        .app-search {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .app-grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .app-item:hover {
+            background: #f3f2f1;
+        }
+
+        .app-item-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 32px;
+        }
+
+        .app-item-label {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .create-section {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #edebe9;
+        }
+
+        .create-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .create-item:hover {
+            background: #f3f2f1;
+        }
+
+        .create-item-preview {
+            width: 60px;
+            height: 48px;
+            border: 1px solid #edebe9;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .create-item-label {
+            font-size: 11px;
+            text-align: center;
+        }
+
+        /* Workspace */
+        .workspace {
+            display: flex;
+            height: calc(100vh - 210px);
+            background: #f3f2f1;
+        }
+
+        /* Slide thumbnails */
+        .thumbnails-panel {
+            width: 180px;
+            background: white;
+            border-right: 1px solid #edebe9;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .slide-thumb {
+            background: white;
+            border: 1px solid #edebe9;
+            margin-bottom: 12px;
+            cursor: pointer;
+            position: relative;
+            aspect-ratio: 16/9;
+            box-shadow: 0 1.6px 3.6px rgba(0,0,0,0.13);
+        }
+
+        .slide-thumb:hover {
+            border-color: #d24726;
+        }
+
+        .slide-thumb.active {
+            border: 2px solid #d24726;
+            box-shadow: 0 0 0 1px #d24726;
+        }
+
+        .slide-thumb-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 2px;
+        }
+
+        /* Canvas area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            overflow: auto;
+        }
+
+        .slide-canvas {
+            background: white;
+            width: 960px;
+            height: 580px;
+            box-shadow: 0 3.2px 7.2px rgba(0,0,0,0.13);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+            top: 20px;
+        }
+
+        /* Designer panel */
+        .designer-panel {
+            width: 320px;
+            background: white;
+            border-left: 1px solid #edebe9;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .designer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .designer-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .design-template {
+            margin-bottom: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1.6px 3.6px rgba(0,0,0,0.13);
+        }
+
+        .design-template:hover {
+            box-shadow: 0 3.2px 7.2px rgba(0,0,0,0.13);
+        }
+
+        .design-preview {
+            width: 100%;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .design-caption {
+            padding: 8px;
+            font-size: 11px;
+            background: white;
+            text-align: center;
+        }
+
+        /* Slide elements */
+        .slide-element {
+            position: absolute;
+            cursor: move;
+            border: 2px solid transparent;
+        }
+
+        .slide-element.selected {
+            border: 2px solid #d24726;
+        }
+
+        /* resize handles now DOM elements */
+
+        .text-element {
+            padding: 16px;
+            min-width: 200px;
+            min-height: 60px;
+        }
+
+        .text-element[contenteditable="true"] {
+            outline: none;
+        }
+
+        .text-placeholder {
+            color: #a19f9d;
+        }
+
+        .image-element img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .shape-element {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Bottom bar */
+        .bottom-bar {
+            background: white;
+            border-top: 1px solid #edebe9;
+            padding: 4px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #605e5c;
+            height: 32px;
+        }
+
+        .bottom-left {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .bottom-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .zoom-control {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .zoom-btn {
+            background: transparent;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .zoom-btn:hover {
+            background: #f3f2f1;
+        }
+
+        .zoom-slider {
+            width: 100px;
+        }
+
+        input[type="color"] {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #edebe9;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        select {
+            padding: 4px 8px;
+            border: 1px solid #edebe9;
+            background: white;
+            font-size: 12px;
+            border-radius: 2px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* File Menu Overlay */
+        .file-menu-overlay {
+            position: fixed;
+            top: 48px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1500;
+            display: none;
+        }
+
+        .file-menu-overlay.show {
+            display: flex;
+        }
+
+        .file-menu-sidebar {
+            width: 280px;
+            background: #f3f2f1;
+            border-right: 1px solid #edebe9;
+            padding: 16px 0;
+        }
+
+        .file-menu-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #323130;
+            position: relative;
+        }
+
+        .file-menu-item:hover {
+            background: #e5e5e5;
+        }
+
+        .file-menu-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .file-menu-icon {
+            width: 20px;
+            font-size: 16px;
+        }
+
+        .file-menu-arrow {
+            margin-left: auto;
+            font-size: 18px;
+            color: #605e5c;
+        }
+
+        .file-menu-content {
+            flex: 1;
+            padding: 40px 60px;
+            overflow-y: auto;
+        }
+
+        .file-section {
+            max-width: 800px;
+        }
+
+        .file-section.hidden {
+            display: none;
+        }
+
+        .file-section-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #323130;
+        }
+
+        .file-property {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #edebe9;
+        }
+
+        .file-property-label {
+            font-size: 12px;
+            color: #605e5c;
+            margin-bottom: 4px;
+        }
+
+        .file-property-value {
+            font-size: 14px;
+            color: #323130;
+        }
+
+        .file-property-value a {
+            color: #d24726;
+            text-decoration: none;
+        }
+
+        .file-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .file-link {
+            color: #0078d4;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .new-options, .open-section, .share-options, .copy-options, .export-options, .print-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .new-option, .share-option, .copy-option, .export-option, .print-option {
+            padding: 16px;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: white;
+        }
+
+        .new-option:hover, .share-option:hover, .copy-option:hover, .export-option:hover, .print-option:hover {
+            background: #f3f2f1;
+            border-color: #d1d1d1;
+        }
+
+        .new-option-icon, .share-option-icon, .copy-option-icon, .export-option-icon, .print-option-icon {
+            font-size: 24px;
+        }
+
+        .new-option-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .recent-file, .file-action {
+            padding: 12px 16px;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            background: white;
+        }
+
+        .recent-file:hover, .file-action:hover {
+            background: #f3f2f1;
+        }
+
+        .recent-file-icon, .file-action-icon {
+            font-size: 20px;
+        }
+
+        .recent-file-name {
+            font-size: 14px;
+        }
+
+        .open-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 24px 0 12px 0;
+            color: #323130;
+        }
+
+        .rename-section {
+            max-width: 500px;
+        }
+
+        .rename-section label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #323130;
+        }
+
+        .rename-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #8a8886;
+            border-radius: 2px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #d24726;
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #b93b1d;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .history-item {
+            padding: 16px;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background: #f3f2f1;
+        }
+
+        .history-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 4px;
+        }
+
+        .history-author {
+            font-size: 13px;
+            color: #605e5c;
+        }
+
+        .file-menu-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: transparent;
+            border: 1px solid #edebe9;
+            padding: 8px 16px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #323130;
+        }
+
+        .file-menu-close:hover {
+            background: #f3f2f1;
+        }
+
+        /* Toast notification */
+        .ppt-toast {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #323130;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .ppt-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Server load modal */
+        .ppt-server-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .ppt-server-modal-overlay.show {
+            display: flex;
+        }
+        .ppt-server-modal {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 420px;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .ppt-server-modal h3 {
+            margin: 0 0 16px 0;
+            font-size: 18px;
+            color: #323130;
+        }
+        .ppt-server-modal-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .ppt-server-modal-item:hover {
+            background: #f3f2f1;
+            border-color: #d24726;
+        }
+        .ppt-server-modal-item span {
+            flex: 1;
+            font-size: 14px;
+        }
+        .ppt-server-modal-item .delete-btn {
+            background: none;
+            border: none;
+            color: #a4262c;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 8px;
+        }
+        .ppt-server-modal-item .delete-btn:hover {
+            background: #fde7e9;
+            border-radius: 2px;
+        }
+        .ppt-server-modal-close {
+            margin-top: 12px;
+            padding: 8px 16px;
+            border: 1px solid #edebe9;
+            background: white;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .ppt-server-modal-close:hover {
+            background: #f3f2f1;
+        }
+
+        /* Comments panel */
+        .comments-panel {
+            position: fixed;
+            top: 0; right: -340px; bottom: 0;
+            width: 340px;
+            background: white;
+            box-shadow: -4px 0 16px rgba(0,0,0,0.15);
+            z-index: 5000;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .comments-panel.open { right: 0; }
+        .comments-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid #edebe9;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .comments-panel-header button {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #605e5c;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .comments-panel-header button:hover { background: #f3f2f1; }
+        .comments-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .comment-item {
+            padding: 12px;
+            border: 1px solid #edebe9;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .comment-item .comment-meta {
+            font-size: 12px;
+            color: #605e5c;
+            margin-bottom: 4px;
+        }
+        .comment-item .comment-text {
+            font-size: 14px;
+        }
+        .comments-panel-footer {
+            padding: 12px;
+            border-top: 1px solid #edebe9;
+            display: flex;
+            gap: 8px;
+        }
+        .comments-panel-footer input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        .comments-panel-footer input:focus { border-color: #d24726; }
+        .comments-panel-footer button {
+            padding: 8px 16px;
+            background: #d24726;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .comments-panel-footer button:hover { background: #b83d20; }
+        .comments-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 4999;
+            display: none;
+        }
+        .comments-overlay.open { display: block; }
+
+        /* Share modal */
+        .share-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 6000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .share-modal-overlay.open { display: flex; }
+        .share-modal {
+            background: white;
+            border-radius: 8px;
+            width: 480px;
+            max-width: 90vw;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .share-modal h3 { margin-bottom: 16px; font-size: 18px; }
+        .share-modal .share-link-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .share-modal .share-link-box input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #f3f2f1;
+        }
+        .share-modal .share-link-box button {
+            padding: 10px 16px;
+            background: #d24726;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .share-modal .share-close {
+            display: block;
+            margin: 12px auto 0;
+            padding: 8px 24px;
+            border: 1px solid #edebe9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Mobile bars - hidden by default on desktop */
+        .ppt-mobile-title-bar {
+            display: none;
+        }
+        .ppt-mobile-bottom-bar {
+            display: none;
+        }
+
+        /* Mobile menu overlay */
+        .ppt-mobile-menu-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 4000;
+            display: none;
+        }
+        .ppt-mobile-menu-overlay.show {
+            display: block;
+        }
+        .ppt-mobile-menu {
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 280px;
+            background: white;
+            padding: 16px 0;
+            overflow-y: auto;
+            box-shadow: -4px 0 16px rgba(0,0,0,0.15);
+        }
+        .ppt-mobile-menu-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            color: #323130;
+        }
+        .ppt-mobile-menu-item:hover, .ppt-mobile-menu-item:active {
+            background: #f3f2f1;
+        }
+        .ppt-mobile-menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #605e5c;
+        }
+
+        /* Mobile slide-in thumbnails panel */
+        .ppt-mobile-thumbs-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 3500;
+            display: none;
+        }
+        .ppt-mobile-thumbs-overlay.show {
+            display: block;
+        }
+        .ppt-mobile-thumbs-panel {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 220px;
+            background: #f3f2f1;
+            padding: 0 0 80px;
+            overflow-y: auto;
+            box-shadow: 4px 0 16px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        .ppt-mobile-thumbs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #d24726;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .ppt-mobile-thumbs-header button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .ppt-mobile-thumbs-header button:active {
+            background: rgba(255,255,255,0.2);
+        }
+        .ppt-mobile-thumbs-actions {
+            display: flex;
+            gap: 4px;
+            padding: 8px;
+            background: white;
+            border-bottom: 1px solid #edebe9;
+        }
+        .ppt-mobile-thumbs-actions button {
+            flex: 1;
+            padding: 8px 4px;
+            border: 1px solid #edebe9;
+            background: white;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #323130;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .ppt-mobile-thumbs-actions button:active {
+            background: #edebe9;
+        }
+        .ppt-mobile-thumbs-actions button i {
+            font-size: 16px;
+            color: #d24726;
+        }
+        .ppt-mobile-thumbs-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        .ppt-mobile-thumbs-panel .slide-thumb {
+            margin-bottom: 8px;
+            position: relative;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            background: white;
+            padding: 4px;
+        }
+        .ppt-mobile-thumbs-panel .slide-thumb.active {
+            border-color: #d24726;
+        }
+        .ppt-mobile-thumb-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .ppt-mobile-thumbs-panel .slide-thumb:active .ppt-mobile-thumb-actions,
+        .ppt-mobile-thumbs-panel .slide-thumb .ppt-mobile-thumb-actions {
+            opacity: 1;
+        }
+        .ppt-mobile-thumb-actions button {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ppt-mobile-thumb-actions button:active {
+            background: rgba(0,0,0,0.7);
+        }
+
+        /* Resize handles touch */
+        .resize-handle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #d24726;
+            border: 2px solid white;
+            border-radius: 50%;
+            z-index: 10;
+            display: none;
+            touch-action: none;
+        }
+        .slide-element.selected .resize-handle {
+            display: block;
+        }
+        .resize-handle-se { right: -10px; bottom: -10px; cursor: nwse-resize; }
+        .resize-handle-sw { left: -10px; bottom: -10px; cursor: nesw-resize; }
+        .resize-handle-ne { right: -10px; top: -10px; cursor: nesw-resize; }
+        .resize-handle-nw { left: -10px; top: -10px; cursor: nwse-resize; }
+
+        /* =========== MOBILE RESPONSIVE =========== */
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+            }
+            .top-bar, .ribbon-tabs, .ribbon-content, .bottom-bar {
+                display: none !important;
+            }
+            .ppt-mobile-title-bar {
+                display: flex !important;
+                align-items: center;
+                background: #d24726;
+                color: white;
+                height: 48px;
+                padding: 0 8px;
+                gap: 6px;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            .ppt-mobile-title-bar a {
+                color: white;
+                text-decoration: none;
+                font-size: 20px;
+                padding: 6px;
+                display: flex;
+                align-items: center;
+            }
+            .ppt-mobile-title-bar .ppt-mob-title {
+                flex: 1;
+                background: transparent;
+                border: none;
+                color: white;
+                font-size: 15px;
+                font-weight: 600;
+                padding: 4px 8px;
+                outline: none;
+                min-width: 0;
+            }
+            .ppt-mobile-title-bar .ppt-mob-title::placeholder {
+                color: rgba(255,255,255,0.7);
+            }
+            .ppt-mobile-title-bar button {
+                background: transparent;
+                border: none;
+                color: white;
+                font-size: 18px;
+                padding: 6px 8px;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+            .ppt-mobile-title-bar button:active {
+                background: rgba(255,255,255,0.2);
+            }
+            .ppt-mobile-bottom-bar {
+                display: flex !important;
+                align-items: center;
+                background: white;
+                border-top: 1px solid #edebe9;
+                height: 48px;
+                padding: 0 4px;
+                gap: 2px;
+                overflow-x: auto;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                -webkit-overflow-scrolling: touch;
+            }
+            .ppt-mobile-bottom-bar button {
+                background: transparent;
+                border: none;
+                font-size: 18px;
+                padding: 8px 10px;
+                cursor: pointer;
+                border-radius: 4px;
+                color: #323130;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .ppt-mobile-bottom-bar button:active {
+                background: #edebe9;
+            }
+            .ppt-mobile-bottom-bar input[type="color"] {
+                width: 32px;
+                height: 32px;
+                border: 1px solid #edebe9;
+                cursor: pointer;
+                border-radius: 4px;
+                flex-shrink: 0;
+                padding: 2px;
+            }
+            .ppt-mobile-bottom-bar .mob-sep {
+                width: 1px;
+                height: 28px;
+                background: #edebe9;
+                flex-shrink: 0;
+            }
+            .workspace {
+                flex-direction: column;
+                height: auto;
+                min-height: calc(100vh - 48px - 48px);
+            }
+            .thumbnails-panel {
+                display: none !important;
+            }
+            .designer-panel {
+                display: none !important;
+            }
+            .canvas-area {
+                flex: 1;
+                padding: 8px;
+                align-items: stretch;
+                overflow: visible;
+            }
+            .slide-canvas {
+                width: 100% !important;
+                height: auto !important;
+                aspect-ratio: 16 / 9;
+                top: 0;
+                transform: none !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            }
+            .slide-element {
+                touch-action: none;
+            }
+            .file-menu-overlay {
+                top: 0;
+            }
+            .file-menu-sidebar {
+                width: 200px;
+            }
+            .file-menu-content {
+                padding: 20px;
+            }
+            .ppt-server-modal {
+                width: calc(100vw - 32px);
+            }
+            .comments-panel {
+                width: 280px;
+            }
+            .share-modal {
+                width: calc(100vw - 32px);
+            }
+            .resize-handle {
+                width: 24px;
+                height: 24px;
+            }
+            .resize-handle-se { right: -12px; bottom: -12px; }
+            .resize-handle-sw { left: -12px; bottom: -12px; }
+            .resize-handle-ne { right: -12px; top: -12px; }
+            .resize-handle-nw { left: -12px; top: -12px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Title Bar -->
+    <div class="ppt-mobile-title-bar">
+        <a href="../index.html"><i class="fas fa-arrow-left"></i></a>
+        <input type="text" class="ppt-mob-title" id="mobDocTitle" value="Presentation 1" placeholder="Nome presentazione" oninput="presentation.name=this.value; document.getElementById('docTitle').value=this.value;">
+        <button onclick="undo()" title="Annulla"><i class="fas fa-undo"></i></button>
+        <button onclick="redo()" title="Ripristina"><i class="fas fa-redo"></i></button>
+        <button onclick="OfficeLauncher.toggle()" title="App"><i class="fas fa-th"></i></button>
+        <button onclick="toggleMobileMenu()" title="Menu"><i class="fas fa-ellipsis-v"></i></button>
+    </div>
+
+    <!-- Top bar -->
+    <div class="top-bar">
+        <button class="waffle-btn" onclick="OfficeLauncher.toggle()" title="App Office Suite" style="color:#605e5c;"><div class="waffle-grid"><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span><span class="waffle-dot"></span></div></button>
+        <div class="app-icon">P</div>
+        <input type="text" class="doc-title" value="Presentation 1" id="docTitle" title="Nome presentazione">
+        <div class="save-status">
+            <span>🔄</span>
+            <span>Salvato</span>
+        </div>
+
+        <div class="top-right">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Cerca" title="Cerca nella presentazione">
+            </div>
+            <button class="icon-btn" onclick="showToast('Nessuna nuova notifica')" title="Notifiche">🔔</button>
+            <button class="icon-btn" onclick="showSettings()" title="Impostazioni">⚙️</button>
+            <button class="top-btn" onclick="toggleCommentsPanel()" title="Mostra/Nascondi commenti">💬 Commenti</button>
+            <button class="top-btn" onclick="checkForUpdates()" title="Controlla aggiornamenti">🔄 Aggiornamento</button>
+            <button class="top-btn" onclick="startSlideshow()" title="Avvia presentazione">📊 Presenta</button>
+            <button class="top-btn" onclick="toggleEditMode()" title="Attiva/Disattiva modalità modifica">✏️ Modifica</button>
+            <button class="top-btn primary" onclick="sharePresentation()" title="Condividi presentazione">Condividi</button>
+            <div class="user-icon">DD</div>
+        </div>
+    </div>
+
+    <!-- App Launcher gestito da shared/app-launcher.js -->
+
+    <!-- File Menu Overlay -->
+    <div class="file-menu-overlay" id="fileMenuOverlay">
+        <div class="file-menu-sidebar">
+            <div class="file-menu-item" onclick="showFileSection('info')">
+                <span class="file-menu-icon">ℹ️</span>
+                <span>Informazioni</span>
+                <span class="file-menu-arrow">›</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('new')">
+                <span class="file-menu-icon">➕</span>
+                <span>Nuovo</span>
+                <span class="file-menu-arrow">›</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('open')">
+                <span class="file-menu-icon">📁</span>
+                <span>Apri</span>
+                <span class="file-menu-arrow">›</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('share')">
+                <span class="file-menu-icon">🔗</span>
+                <span>Condividi</span>
+                <span class="file-menu-arrow">›</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('copy')">
+                <span class="file-menu-icon">📄</span>
+                <span>Crea una copia</span>
+                <span class="file-menu-arrow">›</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('export')">
+                <span class="file-menu-icon">📤</span>
+                <span>esportazione</span>
+                <span class="file-menu-arrow">›</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('print')">
+                <span class="file-menu-icon">🖨️</span>
+                <span>Stampa</span>
+                <span class="file-menu-arrow">›</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('rename')">
+                <span class="file-menu-icon">✏️</span>
+                <span>Rinomina</span>
+            </div>
+            <div class="file-menu-item disabled">
+                <span class="file-menu-icon">📧</span>
+                <span>Sposta file</span>
+            </div>
+            <div class="file-menu-item" onclick="showFileSection('history')">
+                <span class="file-menu-icon">🕐</span>
+                <span>Cronologia versioni</span>
+            </div>
+        </div>
+
+        <div class="file-menu-content" id="fileMenuContent">
+            <!-- Info Section -->
+            <div class="file-section" id="section-info">
+                <div class="file-section-header">
+                    <h2>Proprietà del file</h2>
+                </div>
+                <div class="file-property">
+                    <div class="file-property-label">Luogo</div>
+                    <div class="file-property-value">
+                        <a href="#">OneDrive</a> › <a href="#">Documents</a>
+                    </div>
+                </div>
+                <div class="file-property">
+                    <div class="file-property-label">ID sessione</div>
+                    <div class="file-property-value">477e1d66-ff2d-4967-b4e5-2689b857b012</div>
+                </div>
+                <div class="file-property">
+                    <div class="file-property-label">Build</div>
+                    <div class="file-property-value">16.0.19503.40509</div>
+                </div>
+                <div class="file-links">
+                    <a href="#" class="file-link">📄 Condizioni d'uso</a>
+                    <a href="#" class="file-link">📄 Comunicazioni di terze parti</a>
+                    <a href="#" class="file-link">📄 Criteri sui dati sanitari dei consumatori</a>
+                    <a href="#" class="file-link">🍪 Privacy e cookie</a>
+                </div>
+            </div>
+
+            <!-- New Section -->
+            <div class="file-section hidden" id="section-new">
+                <div class="file-section-header">
+                    <h2>Nuovo</h2>
+                </div>
+                <div class="new-options">
+                    <div class="new-option" onclick="addSlide(); closeFileMenu();">
+                        <div class="new-option-icon">📄</div>
+                        <div class="new-option-label">Presentazione vuota</div>
+                    </div>
+                    <div class="new-option">
+                        <div class="new-option-icon">📋</div>
+                        <div class="new-option-label">Sfoglia modelli</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Open Section -->
+            <div class="file-section hidden" id="section-open">
+                <div class="file-section-header">
+                    <h2>Apri</h2>
+                </div>
+                <div class="open-section">
+                    <h3>Aperti di recente</h3>
+                    <div class="recent-file" onclick="document.getElementById('fileInput').click(); closeFileMenu();">
+                        <span class="recent-file-icon">📄</span>
+                        <span class="recent-file-name">Presentation 1.pptx</span>
+                    </div>
+                    <div class="recent-file" onclick="document.getElementById('fileInput').click(); closeFileMenu();">
+                        <span class="recent-file-icon">📄</span>
+                        <span class="recent-file-name">Presentation.pptx</span>
+                    </div>
+                    <div class="file-action" onclick="document.getElementById('fileInput').click(); closeFileMenu();">
+                        <span class="file-action-icon">📂</span>
+                        <span>Visualizza tutti i file</span>
+                    </div>
+                    <div class="file-action" onclick="document.getElementById('fileInput').click(); closeFileMenu();">
+                        <span class="file-action-icon">💻</span>
+                        <span>Apri file da questo dispositivo</span>
+                    </div>
+                    <div class="file-action" onclick="loadFromServerList(); closeFileMenu();">
+                        <span class="file-action-icon">☁️</span>
+                        <span>Carica dal server</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share Section -->
+            <div class="file-section hidden" id="section-share">
+                <div class="file-section-header">
+                    <h2>Condividi</h2>
+                </div>
+                <div class="share-options">
+                    <div class="share-option" onclick="sharePresentation(); closeFileMenu();" style="cursor:pointer;">
+                        <span class="share-option-icon">👥</span>
+                        <span>Condividi con le persone</span>
+                    </div>
+                    <div class="share-option" onclick="copyShareLinkDirect(); closeFileMenu();" style="cursor:pointer;">
+                        <span class="share-option-icon">🔗</span>
+                        <span>Copia collegamento a questa presentazione</span>
+                    </div>
+                    <div class="share-option" onclick="embedPresentation(); closeFileMenu();" style="cursor:pointer;">
+                        <span class="share-option-icon">💻</span>
+                        <span>Incorpora questa presentazione</span>
+                    </div>
+                    <div class="share-option" onclick="showToast('Accesso: solo tu puoi modificare'); closeFileMenu();" style="cursor:pointer;">
+                        <span class="share-option-icon">⚙️</span>
+                        <span>Gestisci accesso</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copy Section -->
+            <div class="file-section hidden" id="section-copy">
+                <div class="file-section-header">
+                    <h2>Crea una copia</h2>
+                </div>
+                <div class="copy-options">
+                    <div class="copy-option" onclick="downloadPresentation(); closeFileMenu();">
+                        <span class="copy-option-icon">☁️</span>
+                        <span>Crea una copia online</span>
+                    </div>
+                    <div class="copy-option" onclick="downloadPresentation(); closeFileMenu();">
+                        <span class="copy-option-icon">⬇️</span>
+                        <span>Scarica una copia</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="file-section hidden" id="section-export">
+                <div class="file-section-header">
+                    <h2>Esportazione</h2>
+                </div>
+                <div class="export-options">
+                    <div class="export-option" onclick="exportAsPDF(); closeFileMenu();">
+                        <span class="export-option-icon">📄</span>
+                        <span>Scarica come PDF</span>
+                    </div>
+                    <div class="export-option" onclick="exportAsODP(); closeFileMenu();">
+                        <span class="export-option-icon">📊</span>
+                        <span>Esporta in ODP</span>
+                    </div>
+                    <div class="export-option" onclick="exportAsImage(); closeFileMenu();">
+                        <span class="export-option-icon">🖼️</span>
+                        <span>Esporta come immagine</span>
+                    </div>
+                    <div class="export-option" onclick="saveToServer(); closeFileMenu();">
+                        <span class="export-option-icon">☁️</span>
+                        <span>Salva sul server</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print Section -->
+            <div class="file-section hidden" id="section-print">
+                <div class="file-section-header">
+                    <h2>Stampa</h2>
+                </div>
+                <div class="print-options">
+                    <div class="print-option" onclick="printPresentation(); closeFileMenu();">
+                        <span class="print-option-icon">🖨️</span>
+                        <span>Stampa diapositive a pagina intera</span>
+                    </div>
+                    <div class="print-option" onclick="printPresentation(); closeFileMenu();">
+                        <span class="print-option-icon">📝</span>
+                        <span>Stampa diapositive con note</span>
+                    </div>
+                    <div class="print-option" onclick="printPresentation(); closeFileMenu();">
+                        <span class="print-option-icon">📋</span>
+                        <span>Stampa stampati</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rename Section -->
+            <div class="file-section hidden" id="section-rename">
+                <div class="file-section-header">
+                    <h2>Rinomina</h2>
+                </div>
+                <div class="rename-section">
+                    <label>Nome file</label>
+                    <input type="text" class="rename-input" value="Presentation 1" id="renameInput">
+                    <div style="margin-top: 8px; font-size: 12px; color: #605e5c;">.pptx</div>
+                    <div style="margin-top: 16px;">
+                        <label>Luogo</label>
+                        <div style="margin-top: 8px; padding: 8px; border: 1px solid #edebe9; border-radius: 2px;">
+                            <a href="#" style="color: #d24726;">OneDrive</a> › <a href="#" style="color: #d24726;">Documents</a>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="renamePresentation(); closeFileMenu();" style="margin-top: 16px;">Salva</button>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="file-section hidden" id="section-history">
+                <div class="file-section-header">
+                    <h2>Cronologia versioni</h2>
+                </div>
+                <div class="history-list">
+                    <div class="history-item">
+                        <div class="history-time">Oggi alle 14:30</div>
+                        <div class="history-author">Modificato da te</div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-time">Ieri alle 10:15</div>
+                        <div class="history-author">Modificato da te</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="file-menu-close" onclick="closeFileMenu()">✕ Chiudi</button>
+    </div>
+
+    <!-- Ribbon tabs -->
+    <div class="ribbon-tabs">
+        <div class="ribbon-tab" id="tab-file" onclick="toggleFileMenu()">File</div>
+        <div class="ribbon-tab active" id="tab-home" onclick="switchTab('home')">Home</div>
+        <div class="ribbon-tab" id="tab-insert" onclick="switchTab('insert')">Inserisci</div>
+        <div class="ribbon-tab" id="tab-design" onclick="switchTab('design')">Disegno</div>
+        <div class="ribbon-tab" id="tab-layout" onclick="switchTab('layout')">Progettazione</div>
+        <div class="ribbon-tab" id="tab-transitions" onclick="switchTab('transitions')">Transizioni</div>
+        <div class="ribbon-tab" id="tab-animations" onclick="switchTab('animations')">Animazioni</div>
+        <div class="ribbon-tab" id="tab-slideshow" onclick="switchTab('slideshow')">Presentazione</div>
+        <div class="ribbon-tab" id="tab-review" onclick="switchTab('review')">Revisione</div>
+        <div class="ribbon-tab" id="tab-view" onclick="switchTab('view')">Visualizza</div>
+        <div class="ribbon-tab" id="tab-help" onclick="switchTab('help')">Guida</div>
+    </div>
+
+    <!-- Ribbon Home -->
+    <div class="ribbon-content" id="ribbon-home">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="addSlide()" title="Aggiungi nuova diapositiva">
+                    <div class="ribbon-btn-icon">📄</div>
+                    <div>Nuova<br>diapositiva</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="cutElement()" title="Taglia (Ctrl+X)">
+                    <div class="ribbon-btn-icon">✂️</div>
+                    <div>Taglia</div>
+                </button>
+                <button class="ribbon-btn small" onclick="copyElement()" title="Copia (Ctrl+C)">
+                    <div class="ribbon-btn-icon">📋</div>
+                    <div>Copia</div>
+                </button>
+                <button class="ribbon-btn small" onclick="pasteElement()" title="Incolla (Ctrl+V)">
+                    <div class="ribbon-btn-icon">📄</div>
+                    <div>Incolla</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <select onchange="changeFontFamily(this.value)" style="width: 140px;" title="Seleziona carattere">
+                    <option>Calibri</option>
+                    <option>Arial</option>
+                    <option>Times New Roman</option>
+                    <option>Verdana</option>
+                    <option>Georgia</option>
+                </select>
+                <select onchange="changeFontSize(this.value)" style="width: 60px;" title="Dimensione carattere">
+                    <option value="10">10</option>
+                    <option value="12">12</option>
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                    <option value="18" selected>18</option>
+                    <option value="20">20</option>
+                    <option value="24">24</option>
+                    <option value="28">28</option>
+                    <option value="32">32</option>
+                    <option value="36">36</option>
+                    <option value="44">44</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="formatText('bold')" title="Grassetto (Ctrl+B)">
+                    <div class="ribbon-btn-icon"><strong>B</strong></div>
+                </button>
+                <button class="ribbon-btn small" onclick="formatText('italic')" title="Corsivo (Ctrl+I)">
+                    <div class="ribbon-btn-icon"><em>I</em></div>
+                </button>
+                <button class="ribbon-btn small" onclick="formatText('underline')" title="Sottolineato (Ctrl+U)">
+                    <div class="ribbon-btn-icon"><u>U</u></div>
+                </button>
+                <button class="ribbon-btn small" onclick="formatText('strikeThrough')" title="Barrato">
+                    <div class="ribbon-btn-icon">S</div>
+                </button>
+                <button class="ribbon-btn small" onclick="highlightText()" title="Evidenzia testo">
+                    <div class="ribbon-btn-icon">🎨</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="alignText('left')" title="Allinea a sinistra">
+                    <div class="ribbon-btn-icon">≡</div>
+                </button>
+                <button class="ribbon-btn small" onclick="alignText('center')" title="Centra">
+                    <div class="ribbon-btn-icon">⋮</div>
+                </button>
+                <button class="ribbon-btn small" onclick="toggleBullets()" title="Elenco puntato">
+                    <div class="ribbon-btn-icon">📋</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="addTextBox()" title="Inserisci casella di testo">
+                    <div class="ribbon-btn-icon">📝</div>
+                    <div>Casella<br>di testo</div>
+                </button>
+                <button class="ribbon-btn" onclick="addShape('rectangle')" title="Inserisci forma">
+                    <div class="ribbon-btn-icon">▭</div>
+                    <div>Forme</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="document.getElementById('imageUpload').click()" title="Inserisci immagine">
+                    <div class="ribbon-btn-icon">🖼️</div>
+                    <div>Immagini</div>
+                </button>
+                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="addImage(event)">
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <input type="color" id="textColor" value="#000000" onchange="changeTextColor(this.value)" title="Colore testo">
+                <input type="color" id="bgColor" value="#ffffff" onchange="changeBgColor(this.value)" title="Colore sfondo elemento">
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="deleteSlide()" title="Elimina diapositiva">
+                    <div class="ribbon-btn-icon">🗑️</div>
+                    <div>Elimina</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Inserisci -->
+    <div class="ribbon-content hidden" id="ribbon-insert">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="addSlide()">
+                    <div class="ribbon-btn-icon">📄</div>
+                    <div>Nuova<br>diapositiva</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="addTextBox()">
+                    <div class="ribbon-btn-icon">📝</div>
+                    <div>Casella di<br>testo</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertTable()">
+                    <div class="ribbon-btn-icon">📊</div>
+                    <div>Tabella</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="document.getElementById('imageUpload').click()">
+                    <div class="ribbon-btn-icon">🖼️</div>
+                    <div>Immagini</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertCameo()">
+                    <div class="ribbon-btn-icon">📹</div>
+                    <div>Cameo</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertVideo()">
+                    <div class="ribbon-btn-icon">🎬</div>
+                    <div>Video</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertAudio()">
+                    <div class="ribbon-btn-icon">🔊</div>
+                    <div>Audio</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="addShape('rectangle')">
+                    <div class="ribbon-btn-icon">▭</div>
+                    <div>Forme</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="document.getElementById('imageUpload').click()">
+                    <div class="ribbon-btn-icon">📷</div>
+                    <div>Immagini di<br>archivio</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertIcon()">
+                    <div class="ribbon-btn-icon">🎨</div>
+                    <div>Icone</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertSmartArt()">
+                    <div class="ribbon-btn-icon">💡</div>
+                    <div>SmartArt</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertChart()">
+                    <div class="ribbon-btn-icon">📈</div>
+                    <div>Grafico</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertLink()">
+                    <div class="ribbon-btn-icon">🔗</div>
+                    <div>Collegamento</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="toggleCommentsPanel()">
+                    <div class="ribbon-btn-icon">💬</div>
+                    <div>Nuovo<br>commento</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertFooter()">
+                    <div class="ribbon-btn-icon">📄</div>
+                    <div>Piè di<br>pagina</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="insertSymbol()">
+                    <div class="ribbon-btn-icon">🔣</div>
+                    <div>Simbolo</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Disegno -->
+    <div class="ribbon-content hidden" id="ribbon-design">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="undo()">
+                    <div class="ribbon-btn-icon">↩️</div>
+                    <div>Annulla</div>
+                </button>
+                <button class="ribbon-btn small" onclick="redo()">
+                    <div class="ribbon-btn-icon">↪️</div>
+                    <div>Ripeti</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="setDrawTool('pencil')" id="drawPencil">
+                    <div class="ribbon-btn-icon">✏️</div>
+                </button>
+                <button class="ribbon-btn small" onclick="setDrawTool('marker')" id="drawMarker">
+                    <div class="ribbon-btn-icon">🖍️</div>
+                </button>
+                <button class="ribbon-btn small" onclick="setDrawTool('pen')" id="drawPen">
+                    <div class="ribbon-btn-icon">🖊️</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <input type="color" value="#000000" onchange="drawColor=this.value" title="Colore disegno" style="width:28px;height:28px;border:1px solid #ccc;cursor:pointer;">
+                <select onchange="drawWidth=parseInt(this.value)" style="width:60px;padding:2px;">
+                    <option value="2">Sottile</option>
+                    <option value="4" selected>Medio</option>
+                    <option value="8">Spesso</option>
+                    <option value="16">Largo</option>
+                </select>
+                <button class="ribbon-btn small" onclick="clearDrawing()">
+                    <div class="ribbon-btn-icon">🗑️</div>
+                    <div>Cancella</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="setDrawTool(null)">
+                    <div class="ribbon-btn-icon">🔍</div>
+                    <div>Seleziona</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Progettazione -->
+    <div class="ribbon-content hidden" id="ribbon-layout">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content" style="gap: 8px;">
+                <div style="width: 120px; height: 70px; border: 1px solid #ccc; background: white; cursor:pointer;" onclick="applyTheme('#ffffff')"></div>
+                <div style="width: 120px; height: 70px; border: 1px solid #ccc; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor:pointer;" onclick="applyTheme('linear-gradient(135deg, #667eea 0%, #764ba2 100%)')"></div>
+                <div style="width: 120px; height: 70px; border: 1px solid #ccc; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); cursor:pointer;" onclick="applyTheme('linear-gradient(135deg, #f093fb 0%, #f5576c 100%)')"></div>
+                <div style="width: 120px; height: 70px; border: 1px solid #ccc; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); cursor:pointer;" onclick="applyTheme('linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')"></div>
+            </div>
+            <div class="ribbon-group-label">Temi</div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="changeSlideLayout()">
+                    <div class="ribbon-btn-icon">📐</div>
+                    <div>Layout<br>diapositiva</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="formatSlide()">
+                    <div class="ribbon-btn-icon">🎨</div>
+                    <div>Formato<br>diapositiva</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="changeBackground()">
+                    <div class="ribbon-btn-icon">🖼️</div>
+                    <div>Sfondo</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="toggleDesigner()">
+                    <div class="ribbon-btn-icon">✨</div>
+                    <div>Designer</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Transizioni -->
+    <div class="ribbon-content hidden" id="ribbon-transitions">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="previewTransition()">
+                    <div class="ribbon-btn-icon">⏸️</div>
+                    <div>Anteprima</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content" style="gap: 8px;">
+                <button class="ribbon-btn" style="min-width: 80px;" onclick="setTransition('none')">
+                    <div style="width: 60px; height: 40px; border: 1px solid #ccc; background: white;"></div>
+                    <div>Nessuna</div>
+                </button>
+                <button class="ribbon-btn" style="min-width: 80px;" onclick="setTransition('morph')">
+                    <div style="width: 60px; height: 40px; border: 1px solid #ccc; background: linear-gradient(to right, white 50%, #4472c4 50%);"></div>
+                    <div>Morphing</div>
+                </button>
+                <button class="ribbon-btn" style="min-width: 80px;" onclick="setTransition('cut')">
+                    <div style="width: 60px; height: 40px; border: 1px solid #ccc; background: linear-gradient(45deg, white 30%, #4472c4 30%);"></div>
+                    <div>Taglio netto</div>
+                </button>
+                <button class="ribbon-btn" style="min-width: 80px;" onclick="setTransition('fade')">
+                    <div style="width: 60px; height: 40px; border: 1px solid #ccc; background: linear-gradient(to bottom, white 50%, #4472c4 50%);"></div>
+                    <div>Dissolvenza</div>
+                </button>
+                <button class="ribbon-btn" style="min-width: 80px;" onclick="setTransition('push')">
+                    <div style="width: 60px; height: 40px; border: 1px solid #ccc; background: #4472c4;"></div>
+                    <div>Spinta</div>
+                </button>
+                <button class="ribbon-btn" style="min-width: 80px;" onclick="setTransition('wipe')">
+                    <div style="width: 60px; height: 40px; border: 1px solid #ccc; background: #ed7d31;"></div>
+                    <div>Tendina</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <select onchange="setTransitionDirection(this.value)" style="padding:4px;">
+                    <option value="left">Da sinistra</option>
+                    <option value="right">Da destra</option>
+                    <option value="top">Dall'alto</option>
+                    <option value="bottom">Dal basso</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <span style="font-size: 11px; margin-right: 4px;">Durata</span>
+                <input type="number" value="0.5" step="0.1" min="0" max="5" id="transitionDuration" onchange="setTransitionDuration(this.value)" style="width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 2px;">
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="applyTransitionToAll()">
+                    <div class="ribbon-btn-icon">✓</div>
+                    <div>Applica a<br>tutto</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Animazioni -->
+    <div class="ribbon-content hidden" id="ribbon-animations">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="previewAnimation()">
+                    <div class="ribbon-btn-icon">⏸️</div>
+                    <div>Anteprima</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="setAnimation('none')">
+                    <div class="ribbon-btn-icon">🌟</div>
+                    <div>Nessuna</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content" style="gap: 4px;">
+                <button class="ribbon-btn" style="min-width: 60px;" onclick="setAnimation('appear')">
+                    <div class="ribbon-btn-icon">↗️</div>
+                    <div>Comparsa</div>
+                </button>
+                <button class="ribbon-btn" style="min-width: 60px;" onclick="setAnimation('fadeIn')">
+                    <div class="ribbon-btn-icon">💫</div>
+                    <div>Dissolvenza</div>
+                </button>
+                <button class="ribbon-btn" style="min-width: 60px;" onclick="setAnimation('flyIn')">
+                    <div class="ribbon-btn-icon">↘️</div>
+                    <div>Entrata<br>veloce</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <select onchange="setAnimationOption(this.value)" style="padding:4px;">
+                    <option value="left">Da sinistra</option>
+                    <option value="right">Da destra</option>
+                    <option value="top">Dall'alto</option>
+                    <option value="bottom">Dal basso</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <select id="animStart" onchange="setAnimationStart(this.value)" style="padding:4px;">
+                    <option value="click">Al clic</option>
+                    <option value="withPrev">Con precedente</option>
+                    <option value="afterPrev">Dopo precedente</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <span style="font-size: 11px;">Durata</span>
+                <input type="number" value="0.50" step="0.1" min="0" max="5" id="animDuration" onchange="setAnimationDuration(this.value)" style="width: 60px; padding: 4px;">
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <span style="font-size: 11px;">Ritardo</span>
+                <input type="number" value="0.00" step="0.1" min="0" max="10" id="animDelay" onchange="setAnimationDelay(this.value)" style="width: 60px; padding: 4px;">
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="moveAnimationUp()">
+                    <div class="ribbon-btn-icon">⬆️</div>
+                    <div>Sposta prima</div>
+                </button>
+                <button class="ribbon-btn small" onclick="moveAnimationDown()">
+                    <div class="ribbon-btn-icon">⬇️</div>
+                    <div>Sposta dopo</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="toggleAnimationPane()">
+                    <div class="ribbon-btn-icon">🎬</div>
+                    <div>Riquadro<br>Animazione</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Presentazione -->
+    <div class="ribbon-content hidden" id="ribbon-slideshow">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="startSlideshowFrom(0)">
+                    <div class="ribbon-btn-icon">▶️</div>
+                    <div>Dall'inizio</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="startSlideshowFrom(presentation.currentSlide)">
+                    <div class="ribbon-btn-icon">📄</div>
+                    <div>Dalla<br>diapositiva<br>corrente</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="startPresenterView()">
+                    <div class="ribbon-btn-icon">📺</div>
+                    <div>Visualizzazione<br>Relatore</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showToast('Seleziona le diapositive da presentare dalla lista')">
+                    <div class="ribbon-btn-icon">📋</div>
+                    <div>Personalizzata</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Revisione -->
+    <div class="ribbon-content hidden" id="ribbon-review">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="checkSlide()">
+                    <div class="ribbon-btn-icon">📝</div>
+                    <div>Controlla<br>diapositiva</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="checkAccessibility()">
+                    <div class="ribbon-btn-icon">♿</div>
+                    <div>Verifica<br>accessibilità</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showToast('Tutti i commenti segnati come letti')">
+                    <div class="ribbon-btn-icon">✓</div>
+                    <div>Segna tutti<br>come già letti</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showToast('Nessuna modifica da mostrare')">
+                    <div class="ribbon-btn-icon">📝</div>
+                    <div>Mostra<br>modifiche</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="toggleCommentsPanel()">
+                    <div class="ribbon-btn-icon">💬</div>
+                    <div>Nuovo<br>commento</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="deleteAllComments()">
+                    <div class="ribbon-btn-icon">🗑️</div>
+                    <div>Elimina tutti</div>
+                </button>
+                <button class="ribbon-btn small" onclick="navigateComment(-1)">
+                    <div class="ribbon-btn-icon">⬅️</div>
+                    <div>Indietro</div>
+                </button>
+                <button class="ribbon-btn small" onclick="navigateComment(1)">
+                    <div class="ribbon-btn-icon">➡️</div>
+                    <div>Avanti</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="toggleCommentsPanel()">
+                    <div class="ribbon-btn-icon">💬</div>
+                    <div>Mostra<br>commenti</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="searchInSlides()">
+                    <div class="ribbon-btn-icon">🔍</div>
+                    <div>Cerca</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Visualizza -->
+    <div class="ribbon-content hidden" id="ribbon-view">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="toggleNotes()">
+                    <div class="ribbon-btn-icon">📄</div>
+                    <div>Note</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="toggleRuler()">
+                    <div class="ribbon-btn-icon">📊</div>
+                    <div>Righello</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="toggleSlideSorter()">
+                    <div class="ribbon-btn-icon">⊞</div>
+                    <div>Sequenza<br>diapositive</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="setViewNormal()">
+                    <div class="ribbon-btn-icon">📐</div>
+                    <div>Normale</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="zoomDialog()">
+                    <div class="ribbon-btn-icon">🔍</div>
+                    <div>Zoom</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn small" onclick="fitToWindow()">
+                    <div class="ribbon-btn-icon">📺</div>
+                    <div>Adatta alla<br>finestra</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ribbon Guida -->
+    <div class="ribbon-content hidden" id="ribbon-help">
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showHelp()">
+                    <div class="ribbon-btn-icon">❓</div>
+                    <div>Guida</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showToast('Supporto: support@officesuite.local')">
+                    <div class="ribbon-btn-icon">☎️</div>
+                    <div>Contatta il<br>supporto</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showFeedback()">
+                    <div class="ribbon-btn-icon">💬</div>
+                    <div>Feedback</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showKeyboardShortcuts()">
+                    <div class="ribbon-btn-icon">🎓</div>
+                    <div>Scelte rapide<br>da tastiera</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-group-content">
+                <button class="ribbon-btn" onclick="showWhatsNew()">
+                    <div class="ribbon-btn-icon">🌟</div>
+                    <div>Novità</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Thumbnails panel -->
+        <div class="thumbnails-panel" id="thumbnailsPanel"></div>
+
+        <!-- Canvas area -->
+        <div class="canvas-area">
+            <div class="slide-canvas" id="slideCanvas"></div>
+        </div>
+
+        <!-- Designer panel -->
+        <div class="designer-panel">
+            <div class="designer-header">
+                <div class="designer-title">Designer</div>
+                <button class="close-btn" onclick="toggleDesigner()">✕</button>
+            </div>
+            
+            <div class="design-template" onclick="applyDesign('gradient1')">
+                <div class="design-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    Fare clic per inserire il titolo
+                </div>
+                <div class="design-caption">Design moderno</div>
+            </div>
+
+            <div class="design-template" onclick="applyDesign('gradient2')">
+                <div class="design-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    Fare clic per inserire il titolo
+                </div>
+                <div class="design-caption">Design vivace</div>
+            </div>
+
+            <div class="design-template" onclick="applyDesign('gradient3')">
+                <div class="design-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    Fare clic per inserire il titolo
+                </div>
+                <div class="design-caption">Design professionale</div>
+            </div>
+
+            <div class="design-template" onclick="applyDesign('gradient4')">
+                <div class="design-preview" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    Fare clic per inserire il titolo
+                </div>
+                <div class="design-caption">Design fresco</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Bar -->
+    <div class="ppt-mobile-bottom-bar">
+        <button onclick="addSlide()" title="Nuova diapositiva"><i class="fas fa-plus-square"></i></button>
+        <button onclick="toggleMobileThumbs()" title="Diapositive"><i class="fas fa-layer-group"></i></button>
+        <div class="mob-sep"></div>
+        <button onclick="addTextBox()" title="Testo"><i class="fas fa-font"></i></button>
+        <button onclick="addShape('rectangle')" title="Forma"><i class="fas fa-square"></i></button>
+        <button onclick="document.getElementById('mobileImageUpload').click()" title="Immagine"><i class="fas fa-image"></i></button>
+        <input type="file" id="mobileImageUpload" accept="image/*" style="display:none" onchange="addImage(event)">
+        <div class="mob-sep"></div>
+        <button onclick="formatText('bold')" title="Grassetto"><i class="fas fa-bold"></i></button>
+        <button onclick="formatText('italic')" title="Corsivo"><i class="fas fa-italic"></i></button>
+        <button onclick="formatText('underline')" title="Sottolineato"><i class="fas fa-underline"></i></button>
+        <input type="color" id="mobTextColor" value="#000000" onchange="changeTextColor(this.value)" title="Colore testo">
+        <div class="mob-sep"></div>
+        <button onclick="startSlideshow()" title="Presenta"><i class="fas fa-play"></i></button>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="ppt-mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu(event)">
+        <div class="ppt-mobile-menu">
+            <div class="ppt-mobile-menu-item" onclick="saveToServer(); closeMobileMenu();">
+                <i class="fas fa-cloud-upload-alt"></i> Salva sul server
+            </div>
+            <div class="ppt-mobile-menu-item" onclick="loadFromServerList(); closeMobileMenu();">
+                <i class="fas fa-cloud-download-alt"></i> Carica dal server
+            </div>
+            <div class="ppt-mobile-menu-item" onclick="downloadPresentation(); closeMobileMenu();">
+                <i class="fas fa-download"></i> Scarica JSON
+            </div>
+            <div class="ppt-mobile-menu-item" onclick="document.getElementById('fileInput').click(); closeMobileMenu();">
+                <i class="fas fa-folder-open"></i> Apri file locale
+            </div>
+            <div class="ppt-mobile-menu-item" onclick="exportAsPDF(); closeMobileMenu();">
+                <i class="fas fa-file-pdf"></i> Esporta PDF
+            </div>
+            <div class="ppt-mobile-menu-item" onclick="printPresentation(); closeMobileMenu();">
+                <i class="fas fa-print"></i> Stampa
+            </div>
+            <div class="ppt-mobile-menu-item" onclick="deleteSlide(); closeMobileMenu();">
+                <i class="fas fa-trash"></i> Elimina diapositiva
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Thumbnails Overlay -->
+    <div class="ppt-mobile-thumbs-overlay" id="mobileThumbsOverlay" onclick="closeMobileThumbs(event)">
+        <div class="ppt-mobile-thumbs-panel" onclick="event.stopPropagation()">
+            <div class="ppt-mobile-thumbs-header">
+                <span>Diapositive</span>
+                <button onclick="document.getElementById('mobileThumbsOverlay').classList.remove('show')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="ppt-mobile-thumbs-actions">
+                <button onclick="addSlide(); renderMobileThumbnails();" title="Nuova"><i class="fas fa-plus"></i>Nuova</button>
+                <button onclick="duplicateCurrentSlide(); renderMobileThumbnails();" title="Duplica"><i class="fas fa-copy"></i>Duplica</button>
+                <button onclick="deleteSlide(); renderMobileThumbnails();" title="Elimina"><i class="fas fa-trash"></i>Elimina</button>
+            </div>
+            <div class="ppt-mobile-thumbs-list" id="mobileThumbsPanel"></div>
+        </div>
+    </div>
+
+    <!-- Comments Panel -->
+    <div class="comments-overlay" id="commentsOverlay" onclick="toggleCommentsPanel()"></div>
+    <div class="comments-panel" id="commentsPanel">
+        <div class="comments-panel-header">
+            <span>Commenti</span>
+            <button onclick="toggleCommentsPanel()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="comments-panel-body" id="commentsList">
+            <p style="color:#a19f9d; text-align:center; margin-top:40px;">Nessun commento ancora.<br>Aggiungi il primo commento!</p>
+        </div>
+        <div class="comments-panel-footer">
+            <input type="text" id="commentInput" placeholder="Aggiungi un commento..." onkeydown="if(event.key==='Enter') addComment()">
+            <button onclick="addComment()">Invia</button>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="share-modal-overlay" id="shareModalOverlay" onclick="if(event.target===this) this.classList.remove('open')">
+        <div class="share-modal">
+            <h3>Condividi presentazione</h3>
+            <p style="font-size:14px; color:#605e5c; margin-bottom:12px;">Condividi il link della presentazione salvata sul server:</p>
+            <div class="share-link-box">
+                <input type="text" id="shareLink" readonly value="" placeholder="Salva prima la presentazione sul server">
+                <button onclick="copyShareLink()"><i class="fas fa-copy"></i> Copia</button>
+            </div>
+            <p style="font-size:13px; color:#a19f9d;">Oppure salva sul server per generare un link condivisibile.</p>
+            <button class="share-close" onclick="document.getElementById('shareModalOverlay').classList.remove('open')">Chiudi</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="ppt-toast" id="pptToast"></div>
+
+    <!-- Server Load Modal -->
+    <div class="ppt-server-modal-overlay" id="serverModalOverlay">
+        <div class="ppt-server-modal">
+            <h3>Presentazioni sul server</h3>
+            <div id="serverFileList"></div>
+            <button class="ppt-server-modal-close" onclick="document.getElementById('serverModalOverlay').classList.remove('show')">Chiudi</button>
+        </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottom-bar">
+        <div class="bottom-left">
+            <span>Diapositiva <span id="slideNumber">1</span> di <span id="totalSlides">1</span></span>
+            <span>Italiano (Italia)</span>
+        </div>
+        <div class="bottom-right">
+            <button class="zoom-btn" onclick="zoom(-10)">−</button>
+            <input type="range" class="zoom-slider" min="50" max="200" value="100" id="zoomSlider" onchange="updateZoom(this.value)">
+            <button class="zoom-btn" onclick="zoom(10)">+</button>
+            <span id="zoomLabel">100%</span>
+            <button class="zoom-btn" onclick="fitToWindow()">⊞</button>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadPresentation(event)">
+
+    <script>
+        let presentation = {
+            slides: [],
+            currentSlide: 0,
+            name: 'Presentation 1'
+        };
+
+        let selectedElement = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let zoomLevel = 100;
+        let currentTab = 'home';
+
+        function init() {
+            addSlide();
+            if (typeof OfficeLauncher !== 'undefined') {
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.waffle-btn') && !e.target.closest('.office-launcher-panel')) {
+                        OfficeLauncher.close();
+                    }
+                });
+            }
+        }
+
+
+        function switchTab(tab) {
+            document.querySelectorAll('.ribbon-tab').forEach(t => t.classList.remove('active'));
+            const activeTab = document.querySelector(`.ribbon-tab[onclick*="'${tab}'"]`);
+            if (activeTab) activeTab.classList.add('active');
+            document.querySelectorAll('.ribbon-content').forEach(r => r.classList.add('hidden'));
+            const ribbonId = 'ribbon-' + tab;
+            const ribbon = document.getElementById(ribbonId);
+            if (ribbon) ribbon.classList.remove('hidden');
+            currentTab = tab;
+        }
+
+        // Undo/Redo system
+        let undoHistory = [];
+        let redoHistory = [];
+
+        function saveState() {
+            undoHistory.push(JSON.stringify(presentation));
+            if (undoHistory.length > 30) undoHistory.shift();
+            redoHistory = [];
+        }
+
+        function undo() {
+            if (undoHistory.length === 0) { showToast('Niente da annullare'); return; }
+            redoHistory.push(JSON.stringify(presentation));
+            const prev = undoHistory.pop();
+            presentation = JSON.parse(prev);
+            document.getElementById('docTitle').value = presentation.name;
+            syncMobileTitle();
+            renderThumbnails();
+            renderCurrentSlide();
+            updateSlideCounter();
+            showToast('Annullato');
+        }
+
+        function redo() {
+            if (redoHistory.length === 0) { showToast('Niente da ripristinare'); return; }
+            undoHistory.push(JSON.stringify(presentation));
+            const next = redoHistory.pop();
+            presentation = JSON.parse(next);
+            document.getElementById('docTitle').value = presentation.name;
+            syncMobileTitle();
+            renderThumbnails();
+            renderCurrentSlide();
+            updateSlideCounter();
+            showToast('Ripristinato');
+        }
+
+        function syncMobileTitle() {
+            const mob = document.getElementById('mobDocTitle');
+            if (mob) mob.value = presentation.name;
+        }
+
+        function addSlide() {
+            saveState();
+            const slide = {
+                id: Date.now(),
+                elements: [
+                    {
+                        id: Date.now() + 1,
+                        type: 'text',
+                        x: 60,
+                        y: 100,
+                        width: 840,
+                        height: 120,
+                        content: 'Fare clic per inserire il titolo',
+                        fontSize: 44,
+                        color: '#000000',
+                        bgColor: 'transparent',
+                        bold: false,
+                        italic: false,
+                        underline: false,
+                        fontFamily: 'Calibri',
+                        isPlaceholder: true
+                    },
+                    {
+                        id: Date.now() + 2,
+                        type: 'text',
+                        x: 60,
+                        y: 280,
+                        width: 840,
+                        height: 200,
+                        content: 'Fare clic per inserire il sottotitolo',
+                        fontSize: 20,
+                        color: '#000000',
+                        bgColor: 'transparent',
+                        bold: false,
+                        italic: false,
+                        underline: false,
+                        fontFamily: 'Calibri',
+                        isPlaceholder: true
+                    }
+                ],
+                background: '#ffffff'
+            };
+            presentation.slides.push(slide);
+            presentation.currentSlide = presentation.slides.length - 1;
+            renderThumbnails();
+            renderCurrentSlide();
+            updateSlideCounter();
+        }
+
+        function deleteSlide() {
+            saveState();
+            if (presentation.slides.length > 1) {
+                presentation.slides.splice(presentation.currentSlide, 1);
+                if (presentation.currentSlide >= presentation.slides.length) {
+                    presentation.currentSlide = presentation.slides.length - 1;
+                }
+                renderThumbnails();
+                renderCurrentSlide();
+                updateSlideCounter();
+            } else {
+                alert('Devi avere almeno una diapositiva!');
+            }
+        }
+
+        function renderThumbnails() {
+            const panel = document.getElementById('thumbnailsPanel');
+            panel.innerHTML = '';
+            presentation.slides.forEach((slide, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'slide-thumb' + (index === presentation.currentSlide ? ' active' : '');
+                thumb.innerHTML = `<div class="slide-thumb-number">${index + 1}</div>`;
+                thumb.onclick = () => {
+                    presentation.currentSlide = index;
+                    renderThumbnails();
+                    renderCurrentSlide();
+                    updateSlideCounter();
+                };
+                panel.appendChild(thumb);
+            });
+        }
+
+        function renderCurrentSlide() {
+            const canvas = document.getElementById('slideCanvas');
+            const slide = presentation.slides[presentation.currentSlide];
+            canvas.innerHTML = '';
+            canvas.style.background = slide.background;
+            
+            slide.elements.forEach(elem => {
+                const div = document.createElement('div');
+                div.className = 'slide-element';
+                div.dataset.id = elem.id;
+                div.style.left = elem.x + 'px';
+                div.style.top = elem.y + 'px';
+                div.style.width = elem.width + 'px';
+                div.style.height = elem.height + 'px';
+
+                if (elem.type === 'text') {
+                    div.className += ' text-element';
+                    if (elem.isPlaceholder) {
+                        div.className += ' text-placeholder';
+                    }
+                    div.contentEditable = 'false';
+                    div.innerHTML = elem.content;
+                    div.style.fontSize = elem.fontSize + 'px';
+                    div.style.color = elem.color;
+                    div.style.backgroundColor = elem.bgColor;
+                    div.style.fontWeight = elem.bold ? 'bold' : 'normal';
+                    div.style.fontStyle = elem.italic ? 'italic' : 'normal';
+                    div.style.textDecoration = elem.underline ? 'underline' : 'none';
+                    div.style.fontFamily = elem.fontFamily || 'Calibri';
+
+                    // Doppio click per entrare in modalità editing testo
+                    div.ondblclick = (e) => {
+                        e.stopPropagation();
+                        div.contentEditable = 'true';
+                        div.focus();
+                        div.style.cursor = 'text';
+                        if (elem.isPlaceholder) {
+                            div.innerHTML = '';
+                            div.classList.remove('text-placeholder');
+                            elem.isPlaceholder = false;
+                        }
+                    };
+
+                    div.onblur = () => {
+                        div.contentEditable = 'false';
+                        div.style.cursor = 'move';
+                        elem.content = div.innerHTML;
+                        if (div.innerHTML.trim() === '') {
+                            div.innerHTML = elem.content = 'Fare clic per inserire testo';
+                            elem.isPlaceholder = true;
+                            div.classList.add('text-placeholder');
+                        }
+                    };
+                } else if (elem.type === 'shape') {
+                    div.className += ' shape-element';
+                    div.style.backgroundColor = elem.bgColor;
+                    if (elem.shape === 'circle') {
+                        div.style.borderRadius = '50%';
+                    }
+                } else if (elem.type === 'image') {
+                    div.className += ' image-element';
+                    div.innerHTML = `<img src="${elem.src}" alt="image">`;
+                }
+
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    selectElement(div);
+                };
+
+                div.onmousedown = (e) => {
+                    if (e.target.closest('.resize-handle')) return;
+                    if (div.contentEditable === 'true' && document.activeElement === div) return;
+                    e.preventDefault();
+                    startDrag(e, div);
+                };
+
+                addTouchDrag(div, elem);
+                addResizeHandles(div, elem);
+
+                canvas.appendChild(div);
+            });
+        }
+
+        function selectElement(elem) {
+            if (selectedElement) {
+                selectedElement.classList.remove('selected');
+            }
+            selectedElement = elem;
+            elem.classList.add('selected');
+        }
+
+        function startDrag(e, elem) {
+            isDragging = true;
+            const rect = elem.getBoundingClientRect();
+            const canvas = document.getElementById('slideCanvas').getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+
+            document.onmousemove = (e) => {
+                if (isDragging) {
+                    const x = e.clientX - canvas.left - dragOffset.x;
+                    const y = e.clientY - canvas.top - dragOffset.y;
+                    elem.style.left = x + 'px';
+                    elem.style.top = y + 'px';
+                    
+                    const id = elem.dataset.id;
+                    const slide = presentation.slides[presentation.currentSlide];
+                    const element = slide.elements.find(e => e.id == id);
+                    element.x = x;
+                    element.y = y;
+                }
+            };
+
+            document.onmouseup = () => {
+                isDragging = false;
+                document.onmousemove = null;
+                document.onmouseup = null;
+            };
+        }
+
+        function addTextBox() {
+            saveState();
+            const element = {
+                id: Date.now(),
+                type: 'text',
+                x: 200,
+                y: 200,
+                width: 400,
+                height: 100,
+                content: 'Inserisci testo qui',
+                fontSize: 18,
+                color: '#000000',
+                bgColor: 'transparent',
+                bold: false,
+                italic: false,
+                underline: false,
+                fontFamily: 'Calibri'
+            };
+            presentation.slides[presentation.currentSlide].elements.push(element);
+            renderCurrentSlide();
+        }
+
+        function addShape(shape) {
+            saveState();
+            const element = {
+                id: Date.now(),
+                type: 'shape',
+                shape: shape,
+                x: 300,
+                y: 200,
+                width: 200,
+                height: 150,
+                bgColor: '#4472c4'
+            };
+            presentation.slides[presentation.currentSlide].elements.push(element);
+            renderCurrentSlide();
+        }
+
+        function addImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                saveState();
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const element = {
+                        id: Date.now(),
+                        type: 'image',
+                        x: 200,
+                        y: 100,
+                        width: 400,
+                        height: 300,
+                        src: e.target.result
+                    };
+                    presentation.slides[presentation.currentSlide].elements.push(element);
+                    renderCurrentSlide();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function formatText(format) {
+            if (selectedElement && selectedElement.classList.contains('text-element')) {
+                saveState();
+                const id = selectedElement.dataset.id;
+                const slide = presentation.slides[presentation.currentSlide];
+                const element = slide.elements.find(e => e.id == id);
+                
+                element[format] = !element[format];
+                renderCurrentSlide();
+            }
+        }
+
+        function changeFontSize(size) {
+            if (selectedElement && selectedElement.classList.contains('text-element')) {
+                saveState();
+                const id = selectedElement.dataset.id;
+                const slide = presentation.slides[presentation.currentSlide];
+                const element = slide.elements.find(e => e.id == id);
+                element.fontSize = parseInt(size);
+                renderCurrentSlide();
+            }
+        }
+
+        function changeFontFamily(family) {
+            if (selectedElement && selectedElement.classList.contains('text-element')) {
+                saveState();
+                const id = selectedElement.dataset.id;
+                const slide = presentation.slides[presentation.currentSlide];
+                const element = slide.elements.find(e => e.id == id);
+                element.fontFamily = family;
+                renderCurrentSlide();
+            }
+        }
+
+        function changeTextColor(color) {
+            if (selectedElement && selectedElement.classList.contains('text-element')) {
+                saveState();
+                const id = selectedElement.dataset.id;
+                const slide = presentation.slides[presentation.currentSlide];
+                const element = slide.elements.find(e => e.id == id);
+                element.color = color;
+                renderCurrentSlide();
+            }
+        }
+
+        function changeBgColor(color) {
+            if (selectedElement) {
+                saveState();
+                const id = selectedElement.dataset.id;
+                const slide = presentation.slides[presentation.currentSlide];
+                const element = slide.elements.find(e => e.id == id);
+                element.bgColor = color;
+                renderCurrentSlide();
+            }
+        }
+
+        function applyDesign(design) {
+            saveState();
+            const slide = presentation.slides[presentation.currentSlide];
+            const designs = {
+                'gradient1': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'gradient2': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'gradient3': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'gradient4': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+            };
+            slide.background = designs[design] || '#ffffff';
+            renderCurrentSlide();
+        }
+
+        function updateSlideCounter() {
+            document.getElementById('slideNumber').textContent = presentation.currentSlide + 1;
+            document.getElementById('totalSlides').textContent = presentation.slides.length;
+        }
+
+        function zoom(delta) {
+            zoomLevel = Math.max(50, Math.min(200, zoomLevel + delta));
+            document.getElementById('zoomSlider').value = zoomLevel;
+            updateZoom(zoomLevel);
+        }
+
+        function updateZoom(value) {
+            zoomLevel = parseInt(value);
+            const label = document.getElementById('zoomLabel');
+            if (label) label.textContent = zoomLevel + '%';
+            const canvas = document.getElementById('slideCanvas');
+            canvas.style.transform = `scale(${zoomLevel / 100})`;
+            canvas.style.transformOrigin = 'center center';
+        }
+
+        function toggleDesigner() {
+            const panel = document.querySelector('.designer-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function downloadPresentation() {
+            const dataStr = JSON.stringify(presentation, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = presentation.name + '.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function loadPresentation(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        presentation = JSON.parse(e.target.result);
+                        document.getElementById('docTitle').value = presentation.name;
+                        renderThumbnails();
+                        renderCurrentSlide();
+                        updateSlideCounter();
+                    } catch (error) {
+                        alert('Errore nel caricamento del file');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Toast notification
+        function showToast(msg) {
+            const t = document.getElementById('pptToast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        // Server save/load functions
+        async function saveToServer() {
+            const filename = (presentation.name || 'Presentation 1').replace(/[^a-zA-Z0-9_\- ]/g, '') + '.json';
+            try {
+                const response = await fetch('save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, data: presentation })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Salvato sul server con successo!');
+                } else {
+                    showToast('Errore: ' + (result.message || 'salvataggio fallito'));
+                }
+            } catch (error) {
+                console.error('Errore salvataggio server:', error);
+                showToast('Server non raggiungibile, scarico il file...');
+                downloadPresentation();
+            }
+        }
+
+        async function loadFromServerList() {
+            try {
+                const response = await fetch('list_presentations.php');
+                const files = await response.json();
+                const listDiv = document.getElementById('serverFileList');
+                listDiv.innerHTML = '';
+                if (!files || files.length === 0) {
+                    listDiv.innerHTML = '<p style="color:#605e5c;font-size:14px;">Nessuna presentazione trovata sul server.</p>';
+                } else {
+                    files.forEach(f => {
+                        const item = document.createElement('div');
+                        item.className = 'ppt-server-modal-item';
+                        item.innerHTML = `<span onclick="loadFromServer('${f}')">${f}</span><button class="delete-btn" onclick="event.stopPropagation(); deleteFromServer('${f}')" title="Elimina"><i class="fas fa-trash"></i></button>`;
+                        listDiv.appendChild(item);
+                    });
+                }
+                document.getElementById('serverModalOverlay').classList.add('show');
+            } catch (error) {
+                showToast('Impossibile caricare la lista dal server');
+            }
+        }
+
+        async function loadFromServer(filename) {
+            try {
+                const response = await fetch('load_presentation.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename })
+                });
+                const result = await response.json();
+                if (result.success && result.data) {
+                    saveState();
+                    presentation = result.data;
+                    document.getElementById('docTitle').value = presentation.name || 'Presentation';
+                    syncMobileTitle();
+                    renderThumbnails();
+                    renderCurrentSlide();
+                    updateSlideCounter();
+                    document.getElementById('serverModalOverlay').classList.remove('show');
+                    showToast('Presentazione caricata!');
+                } else {
+                    showToast('Errore: ' + (result.message || 'caricamento fallito'));
+                }
+            } catch (error) {
+                showToast('Errore nel caricamento dal server');
+            }
+        }
+
+        async function deleteFromServer(filename) {
+            if (!confirm('Eliminare "' + filename + '" dal server?')) return;
+            try {
+                const response = await fetch('delete_presentation.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Eliminato dal server');
+                    loadFromServerList();
+                } else {
+                    showToast('Errore eliminazione');
+                }
+            } catch (error) {
+                showToast('Errore comunicazione server');
+            }
+        }
+
+        // Print function using Blob URL
+        function printPresentation() {
+            const slide = presentation.slides[presentation.currentSlide];
+            let html = '<!DOCTYPE html><html><head><title>Stampa</title><style>';
+            html += 'body{margin:0;padding:20px;font-family:Calibri,sans-serif;}';
+            html += '.slide{width:100%;max-width:960px;aspect-ratio:16/9;position:relative;margin:0 auto 40px;page-break-after:always;border:1px solid #ccc;overflow:hidden;}';
+            html += '.elem{position:absolute;}';
+            html += '@media print{body{padding:0;}.slide{border:none;}}';
+            html += '</style></head><body>';
+            presentation.slides.forEach((s, i) => {
+                html += `<div class="slide" style="background:${s.background}">`;
+                s.elements.forEach(el => {
+                    let style = `left:${(el.x/960)*100}%;top:${(el.y/580)*100}%;width:${(el.width/960)*100}%;`;
+                    if (el.type === 'text') {
+                        style += `font-size:${el.fontSize}px;color:${el.color};font-family:${el.fontFamily || 'Calibri'};`;
+                        if (el.bold) style += 'font-weight:bold;';
+                        if (el.italic) style += 'font-style:italic;';
+                        if (el.underline) style += 'text-decoration:underline;';
+                        if (el.bgColor && el.bgColor !== 'transparent') style += `background:${el.bgColor};`;
+                        html += `<div class="elem" style="${style}">${el.content}</div>`;
+                    } else if (el.type === 'shape') {
+                        style += `height:${(el.height/580)*100}%;background:${el.bgColor};`;
+                        if (el.shape === 'circle') style += 'border-radius:50%;';
+                        html += `<div class="elem" style="${style}"></div>`;
+                    } else if (el.type === 'image') {
+                        style += `height:${(el.height/580)*100}%;`;
+                        html += `<div class="elem" style="${style}"><img src="${el.src}" style="width:100%;height:100%;object-fit:contain;"></div>`;
+                    }
+                });
+                html += '</div>';
+            });
+            html += '</body></html>';
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const win = window.open(url, '_blank');
+            if (win) {
+                win.addEventListener('load', () => { win.print(); });
+            }
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+        }
+
+        // Slideshow
+        function startSlideshow() {
+            const el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            showToast('Premi ESC per uscire dalla presentazione');
+        }
+
+        // Comments
+        let comments = JSON.parse(localStorage.getItem('ppt_comments') || '[]');
+
+        function toggleCommentsPanel() {
+            document.getElementById('commentsPanel').classList.toggle('open');
+            document.getElementById('commentsOverlay').classList.toggle('open');
+            renderComments();
+        }
+
+        function renderComments() {
+            const list = document.getElementById('commentsList');
+            if (comments.length === 0) {
+                list.innerHTML = '<p style="color:#a19f9d; text-align:center; margin-top:40px;">Nessun commento ancora.<br>Aggiungi il primo commento!</p>';
+                return;
+            }
+            list.innerHTML = comments.map((c, i) => `
+                <div class="comment-item">
+                    <div class="comment-meta">Utente &bull; ${c.date} <button onclick="deleteComment(${i})" style="float:right;background:none;border:none;cursor:pointer;color:#a19f9d;" title="Elimina"><i class="fas fa-trash"></i></button></div>
+                    <div class="comment-text">${c.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function addComment() {
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            if (!text) return;
+            comments.push({
+                text: text,
+                date: new Date().toLocaleString('it-IT')
+            });
+            localStorage.setItem('ppt_comments', JSON.stringify(comments));
+            input.value = '';
+            renderComments();
+        }
+
+        function deleteComment(index) {
+            comments.splice(index, 1);
+            localStorage.setItem('ppt_comments', JSON.stringify(comments));
+            renderComments();
+        }
+
+        // Check for updates
+        function checkForUpdates() {
+            showToast('Stai utilizzando la versione più recente!');
+        }
+
+        // Edit mode toggle
+        let editMode = true;
+        function toggleEditMode() {
+            editMode = !editMode;
+            const canvas = document.getElementById('slideCanvas');
+            if (editMode) {
+                canvas.style.pointerEvents = 'auto';
+                showToast('Modalità modifica attivata');
+            } else {
+                canvas.style.pointerEvents = 'none';
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected');
+                    selectedElement = null;
+                }
+                showToast('Modalità sola lettura attivata');
+            }
+        }
+
+        // Share
+        function sharePresentation() {
+            const modal = document.getElementById('shareModalOverlay');
+            const linkInput = document.getElementById('shareLink');
+            const filename = presentation.name.replace(/[^a-zA-Z0-9_-]/g, '_') + '.json';
+            linkInput.value = window.location.origin + '/saved_presentations/' + filename;
+            modal.classList.add('open');
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareLink');
+            input.select();
+            document.execCommand('copy');
+            showToast('Link copiato negli appunti!');
+        }
+
+        // Mobile helpers
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenuOverlay').classList.toggle('show');
+        }
+        function closeMobileMenu(e) {
+            if (!e || e.target === e.currentTarget) {
+                document.getElementById('mobileMenuOverlay').classList.remove('show');
+            }
+        }
+        function toggleMobileThumbs() {
+            const overlay = document.getElementById('mobileThumbsOverlay');
+            overlay.classList.toggle('show');
+            if (overlay.classList.contains('show')) {
+                renderMobileThumbnails();
+            }
+        }
+        function closeMobileThumbs(e) {
+            if (e.target === e.currentTarget) {
+                document.getElementById('mobileThumbsOverlay').classList.remove('show');
+            }
+        }
+        function renderMobileThumbnails() {
+            const panel = document.getElementById('mobileThumbsPanel');
+            panel.innerHTML = '';
+            presentation.slides.forEach((slide, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'slide-thumb' + (index === presentation.currentSlide ? ' active' : '');
+                thumb.innerHTML = `
+                    <div class="slide-thumb-number">${index + 1}</div>
+                    <div class="ppt-mobile-thumb-actions">
+                        <button onclick="event.stopPropagation(); duplicateSlideAt(${index}); renderMobileThumbnails();" title="Duplica"><i class="fas fa-copy"></i></button>
+                        <button onclick="event.stopPropagation(); deleteSlideAt(${index}); renderMobileThumbnails();" title="Elimina"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                thumb.onclick = () => {
+                    presentation.currentSlide = index;
+                    renderThumbnails();
+                    renderCurrentSlide();
+                    updateSlideCounter();
+                    renderMobileThumbnails();
+                };
+                panel.appendChild(thumb);
+            });
+        }
+
+        function duplicateCurrentSlide() {
+            duplicateSlideAt(presentation.currentSlide);
+        }
+
+        function duplicateSlideAt(index) {
+            saveState();
+            const copy = JSON.parse(JSON.stringify(presentation.slides[index]));
+            copy.id = Date.now();
+            copy.elements.forEach(el => el.id = Date.now() + Math.random() * 1000);
+            presentation.slides.splice(index + 1, 0, copy);
+            presentation.currentSlide = index + 1;
+            renderThumbnails();
+            renderCurrentSlide();
+            updateSlideCounter();
+        }
+
+        function deleteSlideAt(index) {
+            saveState();
+            if (presentation.slides.length > 1) {
+                presentation.slides.splice(index, 1);
+                if (presentation.currentSlide >= presentation.slides.length) {
+                    presentation.currentSlide = presentation.slides.length - 1;
+                }
+                renderThumbnails();
+                renderCurrentSlide();
+                updateSlideCounter();
+            } else {
+                showToast('Devi avere almeno una diapositiva!');
+            }
+        }
+
+        // Touch drag support for mobile
+        function addTouchDrag(div, elem) {
+            let touchStartX, touchStartY, elemStartX, elemStartY;
+            div.addEventListener('touchstart', function(e) {
+                if (div.classList.contains('text-element') && document.activeElement === div) return;
+                const touch = e.touches[0];
+                const canvas = document.getElementById('slideCanvas');
+                const canvasRect = canvas.getBoundingClientRect();
+                const scaleX = 960 / canvasRect.width;
+                const scaleY = 580 / canvasRect.height;
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                elemStartX = elem.x;
+                elemStartY = elem.y;
+                selectElement(div);
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+            div.addEventListener('touchmove', function(e) {
+                if (!touchStartX) return;
+                const touch = e.touches[0];
+                const canvas = document.getElementById('slideCanvas');
+                const canvasRect = canvas.getBoundingClientRect();
+                const scaleX = 960 / canvasRect.width;
+                const scaleY = 580 / canvasRect.height;
+                const dx = (touch.clientX - touchStartX) * scaleX;
+                const dy = (touch.clientY - touchStartY) * scaleY;
+                elem.x = elemStartX + dx;
+                elem.y = elemStartY + dy;
+                div.style.left = elem.x + 'px';
+                div.style.top = elem.y + 'px';
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+            div.addEventListener('touchend', function() {
+                touchStartX = null;
+                touchStartY = null;
+            });
+        }
+
+        // Resize handles (mouse + touch)
+        function addResizeHandles(div, elem) {
+            const positions = ['se', 'sw', 'ne', 'nw'];
+            positions.forEach(pos => {
+                const handle = document.createElement('div');
+                handle.className = `resize-handle resize-handle-${pos}`;
+                handle.contentEditable = 'false';
+
+                // Mouse resize
+                handle.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const canvas = document.getElementById('slideCanvas');
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const scaleX = 960 / canvasRect.width;
+                    const scaleY = 580 / canvasRect.height;
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startW = elem.width;
+                    const startH = elem.height;
+                    const startElemX = elem.x;
+                    const startElemY = elem.y;
+
+                    function onMove(e) {
+                        const dx = (e.clientX - startX) * scaleX;
+                        const dy = (e.clientY - startY) * scaleY;
+                        applyResize(pos, dx, dy, startW, startH, startElemX, startElemY, elem, div);
+                    }
+                    function onUp() {
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                    }
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                });
+
+                // Touch resize
+                handle.addEventListener('touchstart', function(e) {
+                    e.stopPropagation();
+                    if (e.cancelable) e.preventDefault();
+                    const touch = e.touches[0];
+                    const canvas = document.getElementById('slideCanvas');
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const scaleX = 960 / canvasRect.width;
+                    const scaleY = 580 / canvasRect.height;
+                    const startX = touch.clientX;
+                    const startY = touch.clientY;
+                    const startW = elem.width;
+                    const startH = elem.height;
+                    const startElemX = elem.x;
+                    const startElemY = elem.y;
+
+                    function onMove(e) {
+                        const t = e.touches[0];
+                        const dx = (t.clientX - startX) * scaleX;
+                        const dy = (t.clientY - startY) * scaleY;
+                        applyResize(pos, dx, dy, startW, startH, startElemX, startElemY, elem, div);
+                        if (e.cancelable) e.preventDefault();
+                    }
+                    function onUp() {
+                        document.removeEventListener('touchmove', onMove);
+                        document.removeEventListener('touchend', onUp);
+                    }
+                    document.addEventListener('touchmove', onMove, { passive: false });
+                    document.addEventListener('touchend', onUp);
+                }, { passive: false });
+
+                div.appendChild(handle);
+            });
+        }
+
+        function applyResize(pos, dx, dy, startW, startH, startX, startY, elem, div) {
+            let newW = startW, newH = startH, newX = startX, newY = startY;
+            if (pos === 'se') {
+                newW = Math.max(40, startW + dx);
+                newH = Math.max(30, startH + dy);
+            } else if (pos === 'sw') {
+                newW = Math.max(40, startW - dx);
+                newH = Math.max(30, startH + dy);
+                newX = startX + (startW - newW);
+            } else if (pos === 'ne') {
+                newW = Math.max(40, startW + dx);
+                newH = Math.max(30, startH - dy);
+                newY = startY + (startH - newH);
+            } else if (pos === 'nw') {
+                newW = Math.max(40, startW - dx);
+                newH = Math.max(30, startH - dy);
+                newX = startX + (startW - newW);
+                newY = startY + (startH - newH);
+            }
+            elem.width = newW;
+            elem.height = newH;
+            elem.x = newX;
+            elem.y = newY;
+            div.style.width = newW + 'px';
+            div.style.height = newH + 'px';
+            div.style.left = newX + 'px';
+            div.style.top = newY + 'px';
+        }
+
+        // Aggiorna titolo documento
+        document.getElementById('docTitle').addEventListener('input', (e) => {
+            presentation.name = e.target.value;
+        });
+
+        // Deseleziona elemento cliccando sul canvas
+        document.getElementById('slideCanvas').addEventListener('click', (e) => {
+            if (e.target.id === 'slideCanvas') {
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected');
+                    selectedElement = null;
+                }
+            }
+        });
+
+        // Tasti rapidi
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+S per salvare
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveToServer();
+            }
+            // Canc per eliminare elemento
+            if (e.key === 'Delete' && selectedElement) {
+                saveState();
+                const id = selectedElement.dataset.id;
+                const slide = presentation.slides[presentation.currentSlide];
+                const index = slide.elements.findIndex(e => e.id == id);
+                if (index > -1) {
+                    slide.elements.splice(index, 1);
+                    renderCurrentSlide();
+                }
+            }
+            // Ctrl+Z per annullare
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            }
+            // Ctrl+Y per ripristinare
+            if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                redo();
+            }
+            // Ctrl+C per copiare
+            if (e.ctrlKey && e.key === 'c' && selectedElement) {
+                e.preventDefault();
+                const id = selectedElement.dataset.id;
+                const slide = presentation.slides[presentation.currentSlide];
+                const element = slide.elements.find(e => e.id == id);
+                window.copiedElement = JSON.parse(JSON.stringify(element));
+                console.log('Elemento copiato');
+            }
+            // Ctrl+V per incollare
+            if (e.ctrlKey && e.key === 'v' && window.copiedElement) {
+                e.preventDefault();
+                const newElement = JSON.parse(JSON.stringify(window.copiedElement));
+                newElement.id = Date.now();
+                newElement.x += 20;
+                newElement.y += 20;
+                presentation.slides[presentation.currentSlide].elements.push(newElement);
+                renderCurrentSlide();
+                console.log('Elemento incollato');
+            }
+        });
+
+        // Salvataggio automatico
+        setInterval(() => {
+            try {
+                localStorage.setItem('powerpoint_autosave', JSON.stringify(presentation));
+            } catch (e) {
+                console.log('Autosave non disponibile');
+            }
+        }, 30000); // Ogni 30 secondi
+
+        // Carica autosave all'avvio
+        window.addEventListener('load', () => {
+            try {
+                const saved = localStorage.getItem('powerpoint_autosave');
+                if (saved && confirm('Trovato salvataggio automatico. Vuoi ripristinarlo?')) {
+                    presentation = JSON.parse(saved);
+                    document.getElementById('docTitle').value = presentation.name;
+                    renderThumbnails();
+                    renderCurrentSlide();
+                    updateSlideCounter();
+                }
+            } catch (e) {
+                console.log('Nessun autosave disponibile');
+            }
+        });
+
+        // Inizializza
+        init();
+
+        // File Menu Functions
+        function toggleFileMenu() {
+            const overlay = document.getElementById('fileMenuOverlay');
+            overlay.classList.toggle('show');
+            if (overlay.classList.contains('show')) {
+                showFileSection('info');
+            }
+        }
+
+        function closeFileMenu() {
+            document.getElementById('fileMenuOverlay').classList.remove('show');
+        }
+
+        function showFileSection(section) {
+            // Nascondi tutte le sezioni
+            document.querySelectorAll('.file-section').forEach(s => s.classList.add('hidden'));
+            
+            // Mostra la sezione selezionata
+            const sectionElement = document.getElementById('section-' + section);
+            if (sectionElement) {
+                sectionElement.classList.remove('hidden');
+            }
+        }
+
+        function renamePresentation() {
+            const newName = document.getElementById('renameInput').value;
+            if (newName.trim()) {
+                presentation.name = newName;
+                document.getElementById('docTitle').value = newName;
+            }
+        }
+
+        function exportAsPDF() {
+            alert('Esportazione PDF - Funzionalità in sviluppo.\nIl file verrà scaricato come JSON.');
+            downloadPresentation();
+        }
+
+        function exportAsODP() {
+            alert('Esportazione ODP - Funzionalità in sviluppo.\nIl file verrà scaricato come JSON.');
+            downloadPresentation();
+        }
+
+        function exportAsImage() {
+            alert('Esportazione come immagine - Funzionalità in sviluppo.\nIl file verrà scaricato come JSON.');
+            downloadPresentation();
+        }
+
+        // ===== HOME RIBBON FUNCTIONS =====
+        function cutElement() {
+            if (!selectedElement) { showToast('Seleziona un elemento'); return; }
+            copyElement();
+            const id = selectedElement.dataset.id;
+            const slide = presentation.slides[presentation.currentSlide];
+            const index = slide.elements.findIndex(e => e.id == id);
+            if (index > -1) { saveState(); slide.elements.splice(index, 1); renderCurrentSlide(); showToast('Elemento tagliato'); }
+        }
+
+        function copyElement() {
+            if (!selectedElement) { showToast('Seleziona un elemento'); return; }
+            const id = selectedElement.dataset.id;
+            const slide = presentation.slides[presentation.currentSlide];
+            const element = slide.elements.find(e => e.id == id);
+            if (element) { window.copiedElement = JSON.parse(JSON.stringify(element)); showToast('Elemento copiato'); }
+        }
+
+        function pasteElement() {
+            if (!window.copiedElement) { showToast('Niente da incollare'); return; }
+            saveState();
+            const el = JSON.parse(JSON.stringify(window.copiedElement));
+            el.id = Date.now();
+            el.x += 20; el.y += 20;
+            presentation.slides[presentation.currentSlide].elements.push(el);
+            renderCurrentSlide();
+            showToast('Elemento incollato');
+        }
+
+        function highlightText() {
+            if (!selectedElement || !selectedElement.classList.contains('text-element')) { showToast('Seleziona un campo di testo'); return; }
+            const id = selectedElement.dataset.id;
+            const slide = presentation.slides[presentation.currentSlide];
+            const elem = slide.elements.find(e => e.id == id);
+            if (elem) {
+                elem.bgColor = elem.bgColor === 'yellow' ? 'transparent' : 'yellow';
+                renderCurrentSlide();
+            }
+        }
+
+        function alignText(align) {
+            if (!selectedElement || !selectedElement.classList.contains('text-element')) { showToast('Seleziona un campo di testo'); return; }
+            const id = selectedElement.dataset.id;
+            const slide = presentation.slides[presentation.currentSlide];
+            const elem = slide.elements.find(e => e.id == id);
+            if (elem) { elem.textAlign = align; selectedElement.style.textAlign = align; }
+        }
+
+        function toggleBullets() {
+            if (!selectedElement || !selectedElement.classList.contains('text-element')) { showToast('Seleziona un campo di testo'); return; }
+            document.execCommand('insertUnorderedList');
+        }
+
+        // ===== INSERT RIBBON FUNCTIONS =====
+        function insertTable() {
+            saveState();
+            const rows = 3, cols = 3;
+            let html = '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
+            for (let r = 0; r < rows; r++) {
+                html += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    html += '<td style="border:1px solid #ccc;padding:8px;" contenteditable="false">Cella</td>';
+                }
+                html += '</tr>';
+            }
+            html += '</table>';
+            const element = { id: Date.now(), type: 'text', x: 100, y: 150, width: 500, height: 200, content: html, fontSize: 14, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+            presentation.slides[presentation.currentSlide].elements.push(element);
+            renderCurrentSlide();
+            showToast('Tabella inserita');
+        }
+
+        function insertCameo() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                showToast('Cameo: funzionalità webcam non ancora supportata nel browser');
+            } else {
+                showToast('Webcam non disponibile');
+            }
+        }
+
+        function insertVideo() {
+            const url = prompt('Inserisci URL del video (YouTube, Vimeo, ecc.):');
+            if (!url) return;
+            saveState();
+            let embedUrl = url;
+            const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+            if (ytMatch) embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
+            const element = { id: Date.now(), type: 'text', x: 100, y: 100, width: 480, height: 270, content: `<iframe src="${embedUrl}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>`, fontSize: 14, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+            presentation.slides[presentation.currentSlide].elements.push(element);
+            renderCurrentSlide();
+            showToast('Video inserito');
+        }
+
+        function insertAudio() {
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'audio/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    saveState();
+                    const element = { id: Date.now(), type: 'text', x: 200, y: 300, width: 300, height: 60, content: `<audio controls style="width:100%;"><source src="${ev.target.result}"></audio>`, fontSize: 14, color: '#000', bgColor: '#f3f2f1', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+                    presentation.slides[presentation.currentSlide].elements.push(element);
+                    renderCurrentSlide();
+                    showToast('Audio inserito');
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function insertIcon() {
+            const icons = ['⭐', '❤️', '✅', '⚡', '🔥', '💡', '🎯', '📌', '🏆', '🚀', '💎', '🔔', '📊', '🎨', '🔧', '📱'];
+            const icon = prompt('Scegli un\'icona (copia e incolla):\n\n' + icons.join('  '));
+            if (!icon) return;
+            saveState();
+            const element = { id: Date.now(), type: 'text', x: 400, y: 250, width: 80, height: 80, content: icon, fontSize: 48, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+            presentation.slides[presentation.currentSlide].elements.push(element);
+            renderCurrentSlide();
+        }
+
+        function insertSmartArt() {
+            saveState();
+            const colors = ['#4472c4', '#ed7d31', '#a5a5a5', '#ffc000'];
+            let html = '<div style="display:flex;gap:8px;align-items:center;height:100%;">';
+            ['Idea', 'Piano', 'Azione', 'Risultato'].forEach((t, i) => {
+                html += `<div style="flex:1;background:${colors[i]};color:white;padding:12px;text-align:center;border-radius:4px;font-size:14px;font-weight:bold;">${t}</div>`;
+                if (i < 3) html += '<div style="font-size:24px;color:#666;">→</div>';
+            });
+            html += '</div>';
+            const element = { id: Date.now(), type: 'text', x: 60, y: 200, width: 840, height: 80, content: html, fontSize: 14, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+            presentation.slides[presentation.currentSlide].elements.push(element);
+            renderCurrentSlide();
+            showToast('SmartArt inserito');
+        }
+
+        function insertChart() {
+            saveState();
+            const data = [65, 80, 45, 90, 55];
+            const labels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag'];
+            const maxVal = Math.max(...data);
+            let html = '<div style="display:flex;align-items:flex-end;gap:16px;height:100%;padding:10px 20px 30px;">';
+            data.forEach((v, i) => {
+                const h = (v / maxVal) * 100;
+                html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="width:100%;background:#4472c4;height:${h}%;border-radius:2px 2px 0 0;min-height:4px;"></div><div style="font-size:11px;margin-top:4px;">${labels[i]}</div></div>`;
+            });
+            html += '</div>';
+            const element = { id: Date.now(), type: 'text', x: 150, y: 150, width: 600, height: 300, content: html, fontSize: 14, color: '#000', bgColor: '#fff', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+            presentation.slides[presentation.currentSlide].elements.push(element);
+            renderCurrentSlide();
+            showToast('Grafico inserito');
+        }
+
+        function insertLink() {
+            if (!selectedElement || !selectedElement.classList.contains('text-element')) {
+                showToast('Seleziona un campo di testo prima');
+                return;
+            }
+            const url = prompt('Inserisci URL:');
+            if (url) {
+                const text = prompt('Testo del collegamento:', url);
+                document.execCommand('insertHTML', false, `<a href="${url}" target="_blank" style="color:#4472c4;text-decoration:underline;">${text || url}</a>`);
+            }
+        }
+
+        function insertFooter() {
+            saveState();
+            const slide = presentation.slides[presentation.currentSlide];
+            const element = { id: Date.now(), type: 'text', x: 60, y: 530, width: 840, height: 30, content: `Diapositiva ${presentation.currentSlide + 1} | ${new Date().toLocaleDateString('it-IT')}`, fontSize: 12, color: '#888', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+            slide.elements.push(element);
+            renderCurrentSlide();
+            showToast('Pie di pagina inserito');
+        }
+
+        function insertSymbol() {
+            const symbols = '© ® ™ § ¶ † ‡ ° ± × ÷ ≠ ≈ ≤ ≥ ∞ ∑ √ π Ω α β γ δ ε ← → ↑ ↓ ★ ♠ ♣ ♥ ♦';
+            const sym = prompt('Scegli un simbolo (copia e incolla):\n\n' + symbols);
+            if (!sym) return;
+            if (selectedElement && selectedElement.classList.contains('text-element') && document.activeElement === selectedElement) {
+                document.execCommand('insertText', false, sym);
+            } else {
+                saveState();
+                const element = { id: Date.now(), type: 'text', x: 400, y: 250, width: 60, height: 60, content: sym, fontSize: 36, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: false };
+                presentation.slides[presentation.currentSlide].elements.push(element);
+                renderCurrentSlide();
+            }
+        }
+
+        // ===== DRAW RIBBON FUNCTIONS =====
+        let currentDrawTool = null;
+        let drawColor = '#000000';
+        let drawWidth = 4;
+        let isDrawing = false;
+        let drawPaths = {};
+
+        function setDrawTool(tool) {
+            currentDrawTool = tool;
+            const canvas = document.getElementById('slideCanvas');
+            if (tool) {
+                canvas.style.cursor = 'crosshair';
+                showToast('Strumento disegno: ' + (tool === 'pencil' ? 'Matita' : tool === 'marker' ? 'Pennarello' : 'Penna'));
+            } else {
+                canvas.style.cursor = 'default';
+                showToast('Modalita selezione');
+            }
+        }
+
+        function clearDrawing() {
+            const slideId = presentation.slides[presentation.currentSlide].id;
+            drawPaths[slideId] = [];
+            const drawCanvas = document.getElementById('drawCanvas');
+            if (drawCanvas) { drawCanvas.getContext('2d').clearRect(0, 0, drawCanvas.width, drawCanvas.height); }
+            showToast('Disegno cancellato');
+        }
+
+        // ===== LAYOUT/DESIGN FUNCTIONS =====
+        function applyTheme(bg) {
+            saveState();
+            const slide = presentation.slides[presentation.currentSlide];
+            slide.background = bg;
+            renderCurrentSlide();
+            showToast('Tema applicato');
+        }
+
+        function changeSlideLayout() {
+            const layouts = ['Titolo', 'Titolo e contenuto', 'Vuoto', 'Due contenuti', 'Solo titolo'];
+            const choice = prompt('Scegli layout:\n' + layouts.map((l, i) => (i + 1) + '. ' + l).join('\n'));
+            if (!choice) return;
+            saveState();
+            const slide = presentation.slides[presentation.currentSlide];
+            slide.elements = [];
+            const idx = parseInt(choice) - 1;
+            if (idx === 0) {
+                slide.elements.push({ id: Date.now(), type: 'text', x: 60, y: 180, width: 840, height: 120, content: 'Titolo', fontSize: 44, color: '#000', bgColor: 'transparent', bold: true, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+                slide.elements.push({ id: Date.now()+1, type: 'text', x: 60, y: 320, width: 840, height: 60, content: 'Sottotitolo', fontSize: 20, color: '#666', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+            } else if (idx === 1) {
+                slide.elements.push({ id: Date.now(), type: 'text', x: 60, y: 20, width: 840, height: 60, content: 'Titolo', fontSize: 32, color: '#000', bgColor: 'transparent', bold: true, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+                slide.elements.push({ id: Date.now()+1, type: 'text', x: 60, y: 100, width: 840, height: 400, content: 'Contenuto', fontSize: 18, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+            } else if (idx === 3) {
+                slide.elements.push({ id: Date.now(), type: 'text', x: 60, y: 20, width: 840, height: 60, content: 'Titolo', fontSize: 32, color: '#000', bgColor: 'transparent', bold: true, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+                slide.elements.push({ id: Date.now()+1, type: 'text', x: 60, y: 100, width: 400, height: 400, content: 'Contenuto sinistro', fontSize: 16, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+                slide.elements.push({ id: Date.now()+2, type: 'text', x: 500, y: 100, width: 400, height: 400, content: 'Contenuto destro', fontSize: 16, color: '#000', bgColor: 'transparent', bold: false, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+            } else if (idx === 4) {
+                slide.elements.push({ id: Date.now(), type: 'text', x: 60, y: 20, width: 840, height: 80, content: 'Solo Titolo', fontSize: 36, color: '#000', bgColor: 'transparent', bold: true, italic: false, underline: false, fontFamily: 'Calibri', isPlaceholder: true });
+            }
+            renderThumbnails();
+            renderCurrentSlide();
+            showToast('Layout applicato');
+        }
+
+        function formatSlide() {
+            const color = prompt('Colore testo diapositiva (es. #333, red, blue):');
+            if (!color) return;
+            saveState();
+            presentation.slides[presentation.currentSlide].elements.forEach(el => { if (el.type === 'text') el.color = color; });
+            renderCurrentSlide();
+        }
+
+        function changeBackground() {
+            const color = prompt('Colore sfondo (es. #ffffff, #f0f0f0, lightblue):');
+            if (!color) return;
+            saveState();
+            presentation.slides[presentation.currentSlide].background = color;
+            renderCurrentSlide();
+            showToast('Sfondo modificato');
+        }
+
+        // ===== TRANSITION FUNCTIONS =====
+        function setTransition(type) {
+            const slide = presentation.slides[presentation.currentSlide];
+            slide.transition = type;
+            slide.transitionDuration = parseFloat(document.getElementById('transitionDuration').value) || 0.5;
+            showToast('Transizione: ' + (type === 'none' ? 'Nessuna' : type));
+        }
+
+        function setTransitionDirection(dir) {
+            presentation.slides[presentation.currentSlide].transitionDirection = dir;
+        }
+
+        function setTransitionDuration(val) {
+            presentation.slides[presentation.currentSlide].transitionDuration = parseFloat(val);
+        }
+
+        function applyTransitionToAll() {
+            const current = presentation.slides[presentation.currentSlide];
+            presentation.slides.forEach(s => {
+                s.transition = current.transition;
+                s.transitionDuration = current.transitionDuration;
+                s.transitionDirection = current.transitionDirection;
+            });
+            showToast('Transizione applicata a tutte le diapositive');
+        }
+
+        function previewTransition() {
+            const slide = presentation.slides[presentation.currentSlide];
+            const type = slide.transition || 'none';
+            if (type === 'none') { showToast('Nessuna transizione impostata'); return; }
+            const canvas = document.getElementById('slideCanvas');
+            const dur = (slide.transitionDuration || 0.5) * 1000;
+            const animations = {
+                'fade': [{ opacity: 0 }, { opacity: 1 }],
+                'morph': [{ transform: 'scale(0.8)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }],
+                'cut': [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
+                'push': [{ transform: 'translateX(-100%)' }, { transform: 'translateX(0)' }],
+                'wipe': [{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0 0)' }]
+            };
+            canvas.animate(animations[type] || animations['fade'], { duration: dur, easing: 'ease-in-out' });
+            showToast('Anteprima: ' + type);
+        }
+
+        // ===== ANIMATION FUNCTIONS =====
+        function setAnimation(type) {
+            if (!selectedElement) { showToast('Seleziona un elemento'); return; }
+            const id = selectedElement.dataset.id;
+            const slide = presentation.slides[presentation.currentSlide];
+            const elem = slide.elements.find(e => e.id == id);
+            if (elem) {
+                elem.animation = type;
+                elem.animDuration = parseFloat(document.getElementById('animDuration').value) || 0.5;
+                elem.animDelay = parseFloat(document.getElementById('animDelay').value) || 0;
+                showToast('Animazione: ' + (type === 'none' ? 'Nessuna' : type));
+            }
+        }
+
+        function setAnimationOption(val) { if (selectedElement) { const id = selectedElement.dataset.id; const el = presentation.slides[presentation.currentSlide].elements.find(e=>e.id==id); if(el) el.animDirection = val; } }
+        function setAnimationStart(val) { if (selectedElement) { const id = selectedElement.dataset.id; const el = presentation.slides[presentation.currentSlide].elements.find(e=>e.id==id); if(el) el.animStart = val; } }
+        function setAnimationDuration(val) { if (selectedElement) { const id = selectedElement.dataset.id; const el = presentation.slides[presentation.currentSlide].elements.find(e=>e.id==id); if(el) el.animDuration = parseFloat(val); } }
+        function setAnimationDelay(val) { if (selectedElement) { const id = selectedElement.dataset.id; const el = presentation.slides[presentation.currentSlide].elements.find(e=>e.id==id); if(el) el.animDelay = parseFloat(val); } }
+
+        function previewAnimation() {
+            if (!selectedElement) { showToast('Seleziona un elemento'); return; }
+            const id = selectedElement.dataset.id;
+            const elem = presentation.slides[presentation.currentSlide].elements.find(e => e.id == id);
+            if (!elem || !elem.animation || elem.animation === 'none') { showToast('Nessuna animazione impostata'); return; }
+            const dur = (elem.animDuration || 0.5) * 1000;
+            const anims = {
+                'appear': [{ opacity: 0, transform: 'scale(0)' }, { opacity: 1, transform: 'scale(1)' }],
+                'fadeIn': [{ opacity: 0 }, { opacity: 1 }],
+                'flyIn': [{ transform: 'translateX(-200px)', opacity: 0 }, { transform: 'translateX(0)', opacity: 1 }]
+            };
+            selectedElement.animate(anims[elem.animation] || anims['fadeIn'], { duration: dur, easing: 'ease-out' });
+        }
+
+        function moveAnimationUp() { showToast('Ordine animazione spostato'); }
+        function moveAnimationDown() { showToast('Ordine animazione spostato'); }
+        function toggleAnimationPane() { showToast('Riquadro animazione: usa i controlli nel ribbon'); }
+
+        // ===== SLIDESHOW FUNCTIONS =====
+        function startSlideshowFrom(startIndex) {
+            let currentIdx = startIndex;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;cursor:none;';
+            const slideContainer = document.createElement('div');
+            slideContainer.style.cssText = 'width:100vw;height:100vh;position:relative;overflow:hidden;';
+            overlay.appendChild(slideContainer);
+            document.body.appendChild(overlay);
+
+            function renderSlide(idx) {
+                const slide = presentation.slides[idx];
+                slideContainer.style.background = slide.background || '#fff';
+                slideContainer.innerHTML = '';
+                const scaleX = window.innerWidth / 960;
+                const scaleY = window.innerHeight / 580;
+                const scale = Math.min(scaleX, scaleY);
+                const offsetX = (window.innerWidth - 960 * scale) / 2;
+                const offsetY = (window.innerHeight - 580 * scale) / 2;
+                slide.elements.forEach(elem => {
+                    const div = document.createElement('div');
+                    div.style.cssText = `position:absolute;left:${offsetX + elem.x * scale}px;top:${offsetY + elem.y * scale}px;width:${elem.width * scale}px;height:${elem.height * scale}px;font-size:${elem.fontSize * scale}px;color:${elem.color};background:${elem.bgColor};font-weight:${elem.bold?'bold':'normal'};font-style:${elem.italic?'italic':'normal'};text-decoration:${elem.underline?'underline':'none'};font-family:${elem.fontFamily||'Calibri'};padding:${16*scale}px;overflow:hidden;`;
+                    if (elem.type === 'image') { div.innerHTML = `<img src="${elem.src}" style="width:100%;height:100%;object-fit:contain;">`; }
+                    else if (elem.type === 'shape') { div.style.backgroundColor = elem.bgColor; if (elem.shape==='circle') div.style.borderRadius='50%'; }
+                    else { div.innerHTML = elem.content; }
+                    slideContainer.appendChild(div);
+                });
+                const counter = document.createElement('div');
+                counter.style.cssText = 'position:absolute;bottom:10px;right:20px;color:rgba(255,255,255,0.5);font-size:14px;';
+                counter.textContent = (idx + 1) + ' / ' + presentation.slides.length;
+                slideContainer.appendChild(counter);
+            }
+
+            renderSlide(currentIdx);
+
+            function next() { if (currentIdx < presentation.slides.length - 1) { currentIdx++; renderSlide(currentIdx); } else { overlay.remove(); } }
+            function prev() { if (currentIdx > 0) { currentIdx--; renderSlide(currentIdx); } }
+
+            overlay.addEventListener('click', next);
+            document.addEventListener('keydown', function handler(e) {
+                if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', handler); }
+                else if (e.key === 'ArrowRight' || e.key === ' ') next();
+                else if (e.key === 'ArrowLeft') prev();
+            });
+        }
+
+        function startPresenterView() {
+            startSlideshowFrom(0);
+            showToast('Usa frecce per navigare, ESC per uscire');
+        }
+
+        // ===== REVIEW FUNCTIONS =====
+        function checkSlide() {
+            const slide = presentation.slides[presentation.currentSlide];
+            const count = slide.elements.length;
+            const textCount = slide.elements.filter(e => e.type === 'text').length;
+            const imgCount = slide.elements.filter(e => e.type === 'image').length;
+            showToast(`Diapositiva ${presentation.currentSlide + 1}: ${count} elementi (${textCount} testi, ${imgCount} immagini)`);
+        }
+
+        function checkAccessibility() {
+            const slide = presentation.slides[presentation.currentSlide];
+            let issues = [];
+            slide.elements.forEach(el => {
+                if (el.type === 'text' && el.fontSize < 14) issues.push('Testo troppo piccolo (< 14px)');
+                if (el.type === 'image' && !el.alt) issues.push('Immagine senza testo alternativo');
+            });
+            if (issues.length === 0) showToast('Nessun problema di accessibilita trovato!');
+            else alert('Problemi di accessibilita:\n\n' + issues.join('\n'));
+        }
+
+        function deleteAllComments() {
+            if (comments.length === 0) { showToast('Nessun commento'); return; }
+            if (confirm('Eliminare tutti i commenti?')) {
+                comments = [];
+                localStorage.setItem('ppt_comments', '[]');
+                showToast('Tutti i commenti eliminati');
+                if (document.getElementById('commentsPanel').classList.contains('open')) renderComments();
+            }
+        }
+
+        function navigateComment(dir) {
+            if (comments.length === 0) { showToast('Nessun commento'); return; }
+            if (!document.getElementById('commentsPanel').classList.contains('open')) toggleCommentsPanel();
+        }
+
+        function searchInSlides() {
+            const term = prompt('Cerca nelle diapositive:');
+            if (!term) return;
+            const results = [];
+            presentation.slides.forEach((slide, idx) => {
+                slide.elements.forEach(el => {
+                    if (el.type === 'text' && el.content.toLowerCase().includes(term.toLowerCase())) {
+                        results.push('Diapositiva ' + (idx + 1));
+                    }
+                });
+            });
+            if (results.length === 0) showToast('Nessun risultato per "' + term + '"');
+            else alert('Trovato in:\n' + [...new Set(results)].join('\n'));
+        }
+
+        // ===== VIEW FUNCTIONS =====
+        let notesVisible = false;
+        function toggleNotes() {
+            notesVisible = !notesVisible;
+            let notesPanel = document.getElementById('notesPanel');
+            if (!notesPanel) {
+                notesPanel = document.createElement('div');
+                notesPanel.id = 'notesPanel';
+                notesPanel.style.cssText = 'background:#fff;border-top:1px solid #edebe9;padding:8px 16px;min-height:80px;max-height:150px;overflow-y:auto;';
+                notesPanel.innerHTML = '<div style="font-size:11px;color:#666;margin-bottom:4px;">Note della diapositiva</div><div contenteditable="true" style="font-size:13px;outline:none;min-height:40px;" id="slideNotes" oninput="presentation.slides[presentation.currentSlide].notes=this.innerHTML"></div>';
+                document.querySelector('.workspace').appendChild(notesPanel);
+            }
+            notesPanel.style.display = notesVisible ? 'block' : 'none';
+            if (notesVisible) {
+                const n = document.getElementById('slideNotes');
+                if (n) n.innerHTML = presentation.slides[presentation.currentSlide].notes || '';
+            }
+            showToast(notesVisible ? 'Note visibili' : 'Note nascoste');
+        }
+
+        function toggleRuler() {
+            let ruler = document.getElementById('canvasRuler');
+            if (ruler) { ruler.remove(); showToast('Righello nascosto'); return; }
+            ruler = document.createElement('div');
+            ruler.id = 'canvasRuler';
+            ruler.style.cssText = 'height:20px;background:#f3f2f1;border-bottom:1px solid #ccc;display:flex;align-items:flex-end;padding:0 4px;font-size:9px;color:#666;';
+            for (let i = 0; i <= 24; i++) { const m = document.createElement('span'); m.style.cssText = 'flex:1;border-left:1px solid #ccc;padding-left:2px;'; m.textContent = i; ruler.appendChild(m); }
+            const area = document.querySelector('.canvas-area');
+            area.insertBefore(ruler, area.firstChild);
+            showToast('Righello visibile');
+        }
+
+        function toggleSlideSorter() {
+            const panel = document.querySelector('.thumbnails-panel');
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                showToast(panel.style.display === 'none' ? 'Pannello miniature nascosto' : 'Pannello miniature visibile');
+            }
+        }
+
+        function setViewNormal() {
+            const panel = document.querySelector('.thumbnails-panel');
+            if (panel) panel.style.display = '';
+            const designer = document.querySelector('.designer-panel');
+            if (designer) designer.style.display = '';
+            showToast('Vista normale');
+        }
+
+        function zoomDialog() {
+            const val = prompt('Livello di zoom (10-400):', zoomLevel);
+            if (val) { zoomLevel = parseInt(val); updateZoom(zoomLevel); }
+        }
+
+        function fitToWindow() {
+            zoomLevel = 100;
+            updateZoom(100);
+            const slider = document.querySelector('.zoom-control input[type="range"]');
+            if (slider) slider.value = 100;
+            showToast('Adattato alla finestra');
+        }
+
+        // ===== HELP FUNCTIONS =====
+        function showHelp() {
+            alert('Guida di Office Suite - PowerPoint Clone\n\n' +
+                '- Clic: seleziona un elemento\n' +
+                '- Doppio clic: modifica testo\n' +
+                '- Trascina: sposta elementi\n' +
+                '- Maniglie angolari: ridimensiona\n' +
+                '- Ctrl+S: salva\n- Ctrl+Z: annulla\n- Ctrl+Y: ripristina\n' +
+                '- Ctrl+C/V: copia/incolla\n- Canc: elimina elemento\n' +
+                '- F5: presentazione dall\'inizio');
+        }
+
+        function showFeedback() {
+            const fb = prompt('Scrivi il tuo feedback:');
+            if (fb) showToast('Grazie per il feedback!');
+        }
+
+        function showKeyboardShortcuts() {
+            alert('Scelte rapide da tastiera:\n\n' +
+                'Ctrl+S  - Salva sul server\n' +
+                'Ctrl+Z  - Annulla\n' +
+                'Ctrl+Y  - Ripristina\n' +
+                'Ctrl+C  - Copia elemento\n' +
+                'Ctrl+V  - Incolla elemento\n' +
+                'Canc    - Elimina elemento\n' +
+                'Esc     - Esci da presentazione\n' +
+                'Frecce  - Naviga nella presentazione');
+        }
+
+        function showWhatsNew() {
+            alert('Novita di PowerPoint Clone v2.0:\n\n' +
+                '- Ridimensionamento touch su mobile\n' +
+                '- Sistema commenti\n' +
+                '- Transizioni e animazioni\n' +
+                '- Strumenti di disegno\n' +
+                '- Gestione diapositive mobile\n' +
+                '- Temi e layout\n' +
+                '- Esportazione multipla\n' +
+                '- App Launcher integrato');
+        }
+
+        // ===== SETTINGS =====
+        function showSettings() {
+            alert('Impostazioni:\n\n' +
+                'Autosalvataggio: attivo\n' +
+                'Lingua: Italiano\n' +
+                'Tema: Chiaro\n\n' +
+                'Le impostazioni avanzate saranno disponibili in una futura versione.');
+        }
+
+        // ===== SHARE HELPERS =====
+        function copyShareLinkDirect() {
+            const filename = presentation.name.replace(/[^a-zA-Z0-9_-]/g, '_') + '.json';
+            const link = window.location.origin + '/saved_presentations/' + filename;
+            navigator.clipboard.writeText(link).then(() => showToast('Link copiato!')).catch(() => showToast('Salva prima la presentazione'));
+        }
+
+        function embedPresentation() {
+            const filename = presentation.name.replace(/[^a-zA-Z0-9_-]/g, '_') + '.json';
+            const url = window.location.href;
+            const code = '<iframe src="' + url + '" width="800" height="500" frameborder="0"></iframe>';
+            prompt('Copia il codice di incorporamento:', code);
+        }
+
+    </script>
+    <script src="../shared/app-launcher.js"></script>
+    <script>OfficeLauncher.init();</script>
+</body>
+</html>

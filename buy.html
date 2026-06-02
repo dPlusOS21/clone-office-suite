@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acquista Clone Office - Licenze</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.03) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo i { color: #e94560; }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .main {
+            flex: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 30px;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 300;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .page-title span {
+            font-weight: 700;
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-sub {
+            text-align: center;
+            color: #888;
+            font-size: 15px;
+            margin-bottom: 40px;
+        }
+
+        .plans {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .plan {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #eee;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plan:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        }
+
+        .plan.featured {
+            border-color: #e94560;
+            box-shadow: 0 4px 20px rgba(233,69,96,0.15);
+            transform: scale(1.03);
+        }
+
+        .plan.featured:hover {
+            transform: scale(1.03) translateY(-4px);
+        }
+
+        .plan-header {
+            padding: 28px 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .plan.featured .plan-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+        }
+
+        .plan.featured .plan-header .plan-price { color: #e94560; }
+        .plan.featured .plan-header .plan-subprice { color: rgba(255,255,255,0.6); }
+
+        .plan-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .plan-desc {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+
+        .plan.featured .plan-desc { color: rgba(255,255,255,0.6); }
+
+        .plan-price {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .plan-price .currency {
+            font-size: 20px;
+            vertical-align: super;
+        }
+
+        .plan-subprice {
+            font-size: 13px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .plan-body {
+            padding: 20px 24px 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 24px;
+            flex: 1;
+        }
+
+        .plan-features li {
+            padding: 7px 0;
+            font-size: 13px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .plan-features li:last-child { border-bottom: none; }
+
+        .plan-features li i.fa-check { color: #217346; width: 16px; }
+        .plan-features li i.fa-times { color: #ccc; width: 16px; }
+        .plan-features li i.fa-star { color: #ff8c00; width: 16px; }
+
+        .plan-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .plan-btn:hover {
+            background: #0f3460;
+            transform: translateY(-1px);
+        }
+
+        .plan.featured .plan-btn {
+            background: #e94560;
+        }
+
+        .plan.featured .plan-btn:hover {
+            background: #d63851;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .section h2 i { color: #e94560; margin-right: 10px; }
+
+        .section p {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .offer-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .offer-field {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .offer-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .offer-field input, .offer-field select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .offer-field input:focus, .offer-field select:focus {
+            border-color: #e94560;
+        }
+
+        .offer-btn {
+            padding: 10px 28px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            height: 42px;
+        }
+
+        .offer-btn:hover { background: #0f3460; }
+
+        .offer-btn i { margin-right: 6px; }
+
+        .paypal-settings {
+            background: #fafafa;
+            border: 1px dashed #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .paypal-settings label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .paypal-settings input {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 4px;
+            outline: none;
+        }
+
+        .paypal-settings input:focus { border-color: #e94560; }
+
+        .paypal-settings .note {
+            font-size: 11px;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        .notice {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-size: 13px;
+            color: #795548;
+            margin-top: 20px;
+        }
+
+        .notice i { margin-right: 8px; color: #ff8c00; }
+
+        /* Auth Modal */
+        .auth-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .auth-modal-overlay.active { display: flex; }
+        .auth-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+            position: relative;
+            animation: authFadeIn 0.25s ease;
+        }
+        @keyframes authFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .auth-close {
+            position: absolute;
+            top: 12px; right: 16px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #aaa;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+        .auth-close:hover { color: #d32f2f; }
+
+        .footer {
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        .footer a { color: #e94560; text-decoration: none; }
+
+        @media (max-width: 900px) {
+            .plans { grid-template-columns: 1fr; }
+            .plan.featured { transform: none; }
+            .plan.featured:hover { transform: translateY(-4px); }
+        }
+
+        @media (max-width: 600px) {
+            .header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+            .header-right { flex-wrap: wrap; }
+            .main { padding: 20px 16px; }
+            .plan-price { font-size: 32px; }
+            .offer-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">
+            <i class="fas fa-cubes"></i>
+            Office Suite Clone
+        </a>
+        <div class="header-right">
+            <a href="index.html" class="header-btn"><i class="fas fa-home"></i> Home</a>
+            <button class="header-btn" id="btn-auth-buy" onclick="toggleAuthBuy()"><i class="fas fa-user"></i> <span id="auth-label-buy">Utente</span></button>
+            <a href="mailto:deplano.d@gmail.com" class="header-btn"><i class="fas fa-envelope"></i> Contatti</a>
+        </div>
+    </header>
+
+    <main class="main">
+        <h1 class="page-title">Scegli il piano <span>Clone Office</span></h1>
+        <p class="page-sub">Una licenza per tutte le applicazioni della suite. Supporta lo sviluppo del progetto.</p>
+
+        <!-- Piani -->
+        <div class="plans">
+            <!-- Base -->
+            <div class="plan">
+                <div class="plan-header">
+                    <div class="plan-name">Base</div>
+                    <div class="plan-desc">Per uso personale</div>
+                    <div class="plan-price"><span class="currency">&euro;</span>9</div>
+                    <div class="plan-subprice">Una tantum &middot; 1 dispositivo</div>
+                </div>
+                <div class="plan-body">
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Word Clone</li>
+                        <li><i class="fas fa-check"></i> Excel Clone</li>
+                        <li><i class="fas fa-check"></i> PowerPoint Clone</li>
+                        <li><i class="fas fa-check"></i> Outlook Clone</li>
+                        <li><i class="fas fa-check"></i> OneNote Clone</li>
+                        <li><i class="fas fa-check"></i> OneDrive Clone</li>
+                        <li><i class="fas fa-times"></i> Supporto prioritario</li>
+                        <li><i class="fas fa-times"></i> Aggiornamenti premium</li>
+                    </ul>
+                    <a class="plan-btn" id="btn-buy-base" href="#">Acquista &euro;9</a>
+                </div>
+            </div>
+
+            <!-- Pro (in evidenza) -->
+            <div class="plan featured">
+                <div class="plan-header">
+                    <div class="plan-name">Pro</div>
+                    <div class="plan-desc">Per professionisti</div>
+                    <div class="plan-price"><span class="currency">&euro;</span>19</div>
+                    <div class="plan-subprice">Una tantum &middot; 3 dispositivi</div>
+                </div>
+                <div class="plan-body">
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Tutte le app della suite</li>
+                        <li><i class="fas fa-check"></i> Fino a 3 dispositivi</li>
+                        <li><i class="fas fa-check"></i> Supporto via email</li>
+                        <li><i class="fas fa-check"></i> Aggiornamenti inclusi</li>
+                        <li><i class="fas fa-check"></i> Temi e personalizzazioni</li>
+                        <li><i class="fas fa-check"></i> Esportazione PDF avanzata</li>
+                        <li><i class="fas fa-star"></i> Accesso anticipo nuove feature</li>
+                        <li><i class="fas fa-check"></i> Funzioni offline</li>
+                    </ul>
+                    <a class="plan-btn" id="btn-buy-pro" href="#">Acquista &euro;19</a>
+                </div>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="plan">
+                <div class="plan-header">
+                    <div class="plan-name">Enterprise</div>
+                    <div class="plan-desc">Per team e aziende</div>
+                    <div class="plan-price"><span class="currency">&euro;</span>49</div>
+                    <div class="plan-subprice">Una tantum &middot; 10 dispositivi</div>
+                </div>
+                <div class="plan-body">
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Tutte le app della suite</li>
+                        <li><i class="fas fa-check"></i> Fino a 10 dispositivi</li>
+                        <li><i class="fas fa-check"></i> Supporto prioritario</li>
+                        <li><i class="fas fa-check"></i> Aggiornamenti premium</li>
+                        <li><i class="fas fa-check"></i> API e integrazioni</li>
+                        <li><i class="fas fa-check"></i> Gestione centralizzata</li>
+                        <li><i class="fas fa-check"></i> White-label</li>
+                        <li><i class="fas fa-star"></i> Installazione assistita</li>
+                    </ul>
+                    <a class="plan-btn" id="btn-buy-enterprise" href="#">Acquista &euro;49</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offerta personalizzata -->
+        <div class="section">
+            <h2><i class="fas fa-gift"></i> Fai un'offerta</h2>
+            <p>Puoi scegliere tu quanto pagare. Se il progetto ti è utile, supportalo con un contributo libero.</p>
+            <div class="offer-row">
+                <div class="offer-field">
+                    <label for="offer-amount">Importo (&euro;)</label>
+                    <input type="number" id="offer-amount" value="15" min="1" step="1">
+                </div>
+                <div class="offer-field">
+                    <label for="offer-items">Cosa desideri</label>
+                    <select id="offer-items">
+                        <option value="Licenza Clone Office">Licenza Clone Office</option>
+                        <option value="Offerta volontaria Clone Office">Offerta volontaria</option>
+                        <option value="Contributo sviluppo Clone Office">Contributo sviluppo</option>
+                    </select>
+                </div>
+                <button class="offer-btn" id="btn-offer"><i class="fab fa-paypal"></i> Paga con PayPal</button>
+            </div>
+        </div>
+
+        <!-- Configurazione PayPal -->
+        <div class="section">
+            <h2><i class="fab fa-paypal"></i> Configurazione PayPal</h2>
+            <p>Inserisci il tuo indirizzo email PayPal Business per ricevere i pagamenti.</p>
+            <div class="paypal-settings">
+                <label for="paypal-email">Email PayPal Business</label>
+                <input type="email" id="paypal-email" placeholder="deplano.d@gmail.com" value="deplano.d@gmail.com">
+                <div class="note">I pagamenti vengono processati direttamente da PayPal. Non conserviamo dati di pagamento.</div>
+            </div>
+            <div class="notice">
+                <i class="fas fa-info-circle"></i>
+                <strong>Come funziona:</strong> Inserisci la tua email PayPal, scegli un piano o un'offerta, e verrai reindirizzato a PayPal per completare il pagamento in completa sicurezza.
+            </div>
+        </div>
+    </main>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModal" onclick="if(event.target===this) closeAuthBuy()">
+        <div class="auth-modal">
+            <button class="auth-close" onclick="closeAuthBuy()">&times;</button>
+            <div id="auth-container"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Office Suite Clone &copy; 2026 - <a href="index.html">Torna alla Home</a>
+    </footer>
+
+    <script>
+        // Email PayPal del progetto (predefinita): riceve pagamenti e donazioni.
+        const DEFAULT_PAYPAL_EMAIL = 'deplano.d@gmail.com';
+        const savedEmail = localStorage.getItem('clone_office_paypal_email') || DEFAULT_PAYPAL_EMAIL;
+        document.getElementById('paypal-email').value = savedEmail;
+
+        // Salva email PayPal
+        document.getElementById('paypal-email').addEventListener('change', function() {
+            localStorage.setItem('clone_office_paypal_email', this.value);
+        });
+
+        function paypalPay(amount, itemName) {
+            const email = document.getElementById('paypal-email').value.trim();
+            if (!email) {
+                alert('Inserisci la tua email PayPal Business nella sezione Configurazione PayPal.');
+                document.getElementById('paypal-email').focus();
+                return;
+            }
+            if (!email.includes('@')) {
+                alert('Inserisci un indirizzo email valido.');
+                return;
+            }
+            localStorage.setItem('clone_office_paypal_email', email);
+
+            const url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_xclick' +
+                '&business=' + encodeURIComponent(email) +
+                '&item_name=' + encodeURIComponent(itemName) +
+                '&amount=' + encodeURIComponent(amount.toFixed(2)) +
+                '&currency_code=EUR' +
+                '&return=' + encodeURIComponent(window.location.href) +
+                '&cancel_return=' + encodeURIComponent(window.location.href);
+
+            window.open(url, '_blank');
+        }
+
+        // Pulsanti piani
+        document.getElementById('btn-buy-base').addEventListener('click', function(e) {
+            e.preventDefault();
+            paypalPay(9, 'Clone Office - Licenza Base');
+        });
+
+        document.getElementById('btn-buy-pro').addEventListener('click', function(e) {
+            e.preventDefault();
+            paypalPay(19, 'Clone Office - Licenza Pro');
+        });
+
+        document.getElementById('btn-buy-enterprise').addEventListener('click', function(e) {
+            e.preventDefault();
+            paypalPay(49, 'Clone Office - Licenza Enterprise');
+        });
+
+        // Offerta personalizzata
+        document.getElementById('btn-offer').addEventListener('click', function() {
+            const amount = parseFloat(document.getElementById('offer-amount').value);
+            const item = document.getElementById('offer-items').value;
+            if (!amount || amount <= 0) {
+                alert('Inserisci un importo valido maggiore di 0.');
+                return;
+            }
+            paypalPay(amount, item);
+        });
+
+        // Tasto Enter nel campo importo
+        document.getElementById('offer-amount').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('btn-offer').click();
+        });
+
+        // ─── Autenticazione ───
+        function toggleAuthBuy() {
+            const auth = window.CloneOfficeAuth;
+            if (!auth) return;
+            document.getElementById('authModal').classList.add('active');
+            const container = document.getElementById('auth-container');
+            if (auth.isAuthenticated()) {
+                auth.showUserUI(container);
+            } else {
+                auth.showLoginUI(container);
+            }
+        }
+        function closeAuthBuy() { document.getElementById('authModal').classList.remove('active'); }
+
+        window.CloneOfficeAuth && window.CloneOfficeAuth.onAuthChange(function(user) {
+            const label = document.getElementById('auth-label-buy');
+            label.textContent = user ? user.name.split(' ')[0] : 'Utente';
+        });
+
+        window.addEventListener('load', function() {
+            window.CloneOfficeAuth && window.CloneOfficeAuth.init().then(function(user) {
+                if (user) document.getElementById('auth-label-buy').textContent = user.name.split(' ')[0];
+            });
+        });
+    </script>
+</body>
+</html>
