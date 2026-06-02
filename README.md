@@ -145,3 +145,11 @@ I selettori di colore e gli input usano **interfacce eleganti** integrate (nient
 ## 🛠️ Tecnologie
 
 HTML/CSS/JavaScript vanilla (nessun framework) · PHP + SQLite (PDO) · Font Awesome · html2pdf/html2canvas (export) · API Web (Selection, Pointer Events, CSS Custom Highlight).
+
+---
+
+## 📄 Licenza
+
+Distribuito con licenza **MIT** — vedi il file [LICENSE](LICENSE).
+
+© 2026 **Daniele Deplano**. Sei libero di usare, modificare e distribuire il software, **a condizione di mantenere la nota di copyright e di licenza** (quindi l'attribuzione all'autore originale) in tutte le copie o parti sostanziali del software.
