@@ -157,8 +157,8 @@ microsoft-clone/
 ## 🎨 Note di stile / fedeltà
 
 Le app puntano a somigliare alle versioni **online** di Office:
-- **Word**: tema chiaro Office, icone Fluent colorate, gallery Stili, righelli.
-- **Excel**: ribbon verde, gruppi Home, icone colorate.
+- **Word**: tema chiaro Office, barra blu (#2b579a), icone Fluent colorate, gallery Stili, righelli; etichette dei gruppi del ribbon **in basso** come in Word online.
+- **Excel**: tema **verde Excel** (#217346) coerente su barra del titolo, tab attivo, selezione celle, intestazioni e controlli zoom della barra di stato; gruppi Home, icone colorate.
 - **PowerPoint**: ribbon a riga singola, icone colorate.
 - **OneNote**: chrome **bianco** con accenti viola, **G/C/S**, "Dimmi cosa vuoi fare", Modifica/Condividi; icone del ribbon **monocromatiche** (come l'originale, NON colorate).
 - **Outlook**: barra blu, riga menu (File/Home/Visualizza/Guida) e **command bar** (Nuovo messaggio, Elimina, Archivia, Segnala, Sposta in, Rispondi a tutti, …) con icone monocromatiche; tema scuro opzionale.
@@ -184,6 +184,7 @@ Ogni utente vede **solo i propri dati**:
 - **Eliminazione file dal server (Excel, OneNote, PowerPoint)** — il pulsante *Elimina* nella finestra "Apri dal server" aveva un apice doppio (`"`) dentro l'attributo `onclick="…"`: l'attributo veniva troncato e al click **non accadeva nulla** (nessun avviso, file non eliminato). Corretto; l'elenco ora si **aggiorna** dopo l'eliminazione. Coperto da un test e2e che clicca il pulsante reale.
 - **Crash/Warning PHP su `date()`** — impostato il fuso orario di default (`Europe/Rome`) in `backend/config.php` e in `outlook-clone/api.php`, evitando l'avviso PHP che poteva corrompere l'output JSON delle API (stesso problema affrontato dalla PR #1, qui risolto alla radice mantenendo l'orario locale).
 - **HTTPS** — aggiunto avvio cifrato locale (`start-https.sh` + `ssl/`) e redirect a HTTPS nel `.htaccess` per la produzione.
+- **Fedeltà grafica Excel/Word** — Excel reso interamente a **tema verde** (#217346): barra del titolo (prima era blu), tab attivo, selezione celle, pulsanti vista e cursore dello **zoom** nella barra di stato. Word: etichette dei gruppi del ribbon spostate **in basso** come nella versione online.
 
 ---
 

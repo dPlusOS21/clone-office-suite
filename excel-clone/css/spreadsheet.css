@@ -178,25 +178,25 @@
 }
 
 .cell.active {
-    outline: 2px solid #0078d4;
+    outline: 2px solid #217346;
     outline-offset: -1px;
     z-index: 6;
 }
 
 .cell.selected-top {
-    border-top: 2px solid #0078d4 !important;
+    border-top: 2px solid #217346 !important;
 }
 
 .cell.selected-bottom {
-    border-bottom: 2px solid #0078d4 !important;
+    border-bottom: 2px solid #217346 !important;
 }
 
 .cell.selected-left {
-    border-left: 2px solid #0078d4 !important;
+    border-left: 2px solid #217346 !important;
 }
 
 .cell.selected-right {
-    border-right: 2px solid #0078d4 !important;
+    border-right: 2px solid #217346 !important;
 }
 
 /* Stili per il contenuto delle celle */
@@ -282,7 +282,7 @@
 
 /* Split divider */
 .split-divider:hover {
-    background: #0078d4 !important;
+    background: #217346 !important;
     height: 4px !important;
 }
 

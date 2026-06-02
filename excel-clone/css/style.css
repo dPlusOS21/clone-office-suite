@@ -64,7 +64,7 @@ body {
 
 .modal-content input:focus {
     outline: none;
-    border-color: #0078d4;
+    border-color: #217346;
 }
 
 .modal-buttons {
@@ -89,13 +89,13 @@ body {
 }
 
 .modal-buttons button.primary {
-    background-color: #0078d4;
+    background-color: #217346;
     color: white;
-    border-color: #0078d4;
+    border-color: #217346;
 }
 
 .modal-buttons button.primary:hover {
-    background-color: #106ebe;
+    background-color: #1a5c38;
 }
 
 #file-list {
@@ -121,9 +121,9 @@ body {
 }
 
 .file-item.selected {
-    background-color: #cce4f7;
-    border-color: #0078d4;
-    color: #0078d4;
+    background-color: #d4e8d4;
+    border-color: #217346;
+    color: #217346;
 }
 
 .file-item:last-child {

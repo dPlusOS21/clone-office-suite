@@ -44,11 +44,11 @@
 
 .menu-item.active {
     background: #ffffff;
-    border-bottom: 2px solid #0078d4;
+    border-bottom: 2px solid #217346;
     border-top: 1px solid transparent;
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
-    color: #0078d4;
+    color: #217346;
     font-weight: 500;
 }
 
@@ -197,7 +197,7 @@
 }
 
 .ribbon-combo:focus {
-    border-color: #0078d4;
+    border-color: #217346;
     outline: none;
 }
 
@@ -233,7 +233,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #0078d4;
+    background: #217346;
     color: white;
     padding: 4px 8px;
     height: 32px;
@@ -448,9 +448,9 @@
 }
 
 .status-button.active {
-    background-color: #cce4f7;
-    border-color: #0078d4;
-    color: #0078d4;
+    background-color: #d4e8d4;
+    border-color: #217346;
+    color: #217346;
 }
 
 .zoom-controls {
@@ -458,6 +458,11 @@
     align-items: center;
     gap: 4px;
     padding: 0 4px;
+}
+
+/* Slider dello zoom in verde Excel (cursore e barra) */
+#zoom-slider-bar {
+    accent-color: #217346;
 }
 
 .zoom-button {
@@ -566,7 +571,7 @@
 }
 
 #formula-input:focus {
-    outline: 1px solid #0078d4;
+    outline: 1px solid #217346;
     outline-offset: -1px;
 }
 
@@ -602,7 +607,7 @@
 
 /* Stili per i filtri */
 .filter-icon:hover {
-    color: #0078d4;
+    color: #217346;
 }
 
 /* Modal per grafici */
@@ -845,7 +850,7 @@
 
 .border-preset.selected {
     background-color: #e1f0ff !important;
-    border-color: #0078d4 !important;
+    border-color: #217346 !important;
 }
 
 .border-side-btn:hover {
@@ -854,7 +859,7 @@
 
 .border-side-btn.active {
     background-color: #e1f0ff !important;
-    border-color: #0078d4 !important;
+    border-color: #217346 !important;
 }
 
 /* Migliora la visualizzazione delle celle con bordi */
