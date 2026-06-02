@@ -8,7 +8,7 @@ Una **suite Office completa** che gira interamente nel browser, in stile Microso
 
 La suite è pubblicata con **GitHub Pages** e si può **provare direttamente dal browser**:
 
-➡️ **https://dPlusOS21.github.io/clone-office-suite/**
+➡️ **https://dplusos21.github.io/clone-office-suite/**
 
 In demo (hosting statico) il backend PHP non è attivo: l'accesso è automatico come *Ospite* e i dati vengono salvati nel **browser** (localStorage). Per tutte le funzioni server (account, salvataggio sul server, dashboard admin, invio email dei feedback) serve eseguire il progetto su un server PHP (vedi *Avvio rapido*).
 
