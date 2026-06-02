@@ -22,6 +22,12 @@ catch { console.log('⚠ puppeteer-core assente: e2e file server SALTATO.'); pro
 // App con elenco file sul server. openExpr viene valutato nel contesto pagina.
 const TARGETS = [
   {
+    id: 'word', appUrl: 'word-clone/index.html',
+    saveUrl: 'word-clone/save.php', saveBody: (n) => ({ filename: n, content: '<p>e2e</p>', format: 'json' }),
+    listUrl: 'word-clone/list_documents.php', listKey: 'documents',
+    openExpr: 'typeof openServerOpenModal === "function" && openServerOpenModal()',
+  },
+  {
     id: 'excel', appUrl: 'excel-clone/index.html',
     saveUrl: 'excel-clone/php/save.php', saveBody: (n) => ({ filename: n, content: { t: 1 } }),
     listUrl: 'excel-clone/php/list_files.php', listKey: 'files',
@@ -38,6 +44,12 @@ const TARGETS = [
     saveUrl: 'powerpoint-clone/save.php', saveBody: (n) => ({ filename: n, data: { t: 1 } }),
     listUrl: 'powerpoint-clone/list_presentations.php', listKey: 'presentations',
     openExpr: 'typeof loadFromServerList === "function" && loadFromServerList()',
+  },
+  {
+    id: 'access', appUrl: 'access-clone/index.html',
+    saveUrl: 'access-clone/save.php', saveBody: (n) => ({ filename: n, data: { tables: {} } }),
+    listUrl: 'access-clone/list_databases.php', listKey: 'databases',
+    openExpr: 'typeof accessOpenServer === "function" && accessOpenServer()',
   },
 ];
 

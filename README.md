@@ -172,7 +172,7 @@ I selettori di colore e gli input usano **interfacce eleganti** integrate (nient
 
 Ogni utente vede **solo i propri dati**:
 
-- **App a file** (Word, Excel, PowerPoint, OneNote, Power BI, OneDrive): i file sono salvati in `data/users/<id>/<app>/`, una directory **separata per utente**. Tutti gli endpoint richiedono autenticazione (`requireAuth`) e usano `basename()` sui nomi file per impedire il *path traversal*.
+- **App a file** (Word, Excel, PowerPoint, OneNote, Power BI, Access, OneDrive): i file sono salvati in `data/users/<id>/<app>/`, una directory **separata per utente**. Tutti gli endpoint richiedono autenticazione (`requireAuth`) e usano `basename()` sui nomi file per impedire il *path traversal*.
 - **Outlook**: usa un **database SQLite per-utente** (`data/users/<id>/outlook/outlook_data.db`). Così account email, messaggi e contatti di un utente non sono **mai** visibili a un altro. L'API Outlook ora richiede l'autenticazione (prima era accessibile in modo anonimo su un DB condiviso — vedi *Correzioni*).
 - L'isolamento è verificato dal test di sicurezza in `clone-tests/` (endpoint protetti → **401** senza sessione).
 
@@ -180,6 +180,14 @@ Ogni utente vede **solo i propri dati**:
 
 ## 🩹 Correzioni recenti
 
+- **Salvataggio/apertura uniformi su tutte le app** — ogni app ora **salva e apre sia in locale che sul server**. Verificato da test e2e di *round-trip* (salva → riapri, contenuto integro) su Word, Excel, PowerPoint, OneNote, Power BI e Access.
+  - **Word** — la finestra "Salva/Apri sul server" è ora una **modale uniforme** (come Excel/OneNote/PowerPoint): nome **precompilato** dal titolo del documento, elenco file **caricato automaticamente** e **aggiornato** subito dopo salvataggio/eliminazione (niente più pulsante "Aggiorna elenco"); su mobile l'ultimo file non viene più tagliato.
+  - **Access** — aggiunto il **salvataggio/apertura su server** (prima solo `localStorage`): nuovi endpoint per-utente `save.php`, `load_database.php`, `list_databases.php`, `delete_database.php`. I comandi (Salva/Apri su server, **Backup** e **Ripristina** su file, Esporta CSV) sono ora sotto il **tab File** (prima il tab File apriva erroneamente la guida).
+  - **Power BI** — aggiunto **Backup su file (.json)** (menu *Esporta*) e **Apri da file…** (finestra *Apri report*), oltre al salvataggio sul server e all'export PNG già presenti.
+  - Nomi dei backup descrittivi: `<nome>_backup_<timestamp>.json`.
+- **Barra superiore uniforme su tutte le app** — stessa **sequenza** di pulsanti a destra: *…funzioni dell'app → Account → Acquista Clone Office → Guida (?) → Schermo intero*. Aggiunti dove mancavano (Excel/OneNote: Guida; Excel/OneDrive/Power BI: Schermo intero; ovunque: Acquista). Rimossi i **cerchi avatar "DD" non cliccabili** (PowerPoint, Outlook) e i finti controlli finestra `− □ ×` di Excel.
+- **Pagina principale su mobile** — l'header dell'hub mostrava 4 pulsanti (Dona/Acquista/Tema/Account) che su schermi stretti tagliavano l'Account a destra: ora su mobile i pulsanti diventano **solo icona**, così l'Account resta sempre visibile.
+- **Limite dispositivi per l'amministratore** — l'admin non è più soggetto al limite di sessioni/dispositivi della licenza (poteva ricevere "Limite dispositivi raggiunto" anche in locale).
 - **Sicurezza / isolamento dati (Outlook)** — l'API Outlook non richiedeva autenticazione e usava un database **condiviso** fra tutti gli utenti: un utente poteva vedere account ed email altrui. Ora richiede `requireAuth` e ogni utente ha un **database fisicamente separato** (`data/users/<id>/outlook/`).
 - **Eliminazione file dal server (Excel, OneNote, PowerPoint)** — il pulsante *Elimina* nella finestra "Apri dal server" aveva un apice doppio (`"`) dentro l'attributo `onclick="…"`: l'attributo veniva troncato e al click **non accadeva nulla** (nessun avviso, file non eliminato). Corretto; l'elenco ora si **aggiorna** dopo l'eliminazione. Coperto da un test e2e che clicca il pulsante reale.
 - **Crash/Warning PHP su `date()`** — impostato il fuso orario di default (`Europe/Rome`) in `backend/config.php` e in `outlook-clone/api.php`, evitando l'avviso PHP che poteva corrompere l'output JSON delle API (stesso problema affrontato dalla PR #1, qui risolto alla radice mantenendo l'orario locale).
@@ -192,7 +200,7 @@ Ogni utente vede **solo i propri dati**:
 
 - **Auth/licenze/sessioni/feedback/impostazioni**: SQLite `data/clone_office.db`.
 - **File utente** (documenti salvati sul server): `data/users/<id>/<app>/`.
-- **OneNote / Power BI / Outlook / OneDrive**: ciascuno con il proprio salvataggio (PHP dedicati o DB SQLite locale dell'app).
+- **OneNote / Power BI / Access / Outlook / OneDrive**: ciascuno con il proprio salvataggio (PHP dedicati per-utente o DB SQLite locale dell'app). Access salva l'intero database come JSON in `data/users/<id>/access/` e mantiene anche una copia in `localStorage`.
 - **Stato UI** e preferenze (tema, zoom, bozze): `localStorage` del browser.
 
 ---

@@ -145,13 +145,15 @@
     <div class="app-logo"><i class="fas fa-database"></i> <span>Clone-Access</span></div>
     <input class="db-name" id="dbName" value="Database1" title="Nome database">
     <div class="top-spacer"></div>
-    <button class="top-btn" onclick="openGuide()" title="Guida (F1)"><i class="fas fa-circle-question"></i></button>
     <button class="top-btn" id="btn-auth-access" onclick="toggleAuthAccess()"><i class="fas fa-user-circle"></i> <span id="auth-label-access">Utente</span></button>
+    <button class="top-btn" onclick="window.open('../buy.html','_blank')" title="Acquista Clone Office">Acquista Clone Office</button>
+    <button class="top-btn" onclick="openGuide()" title="Guida (F1)"><i class="fas fa-circle-question"></i></button>
+    <button class="top-btn" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}else{document.exitFullscreen&&document.exitFullscreen()}" title="Schermo intero"><i class="fas fa-expand"></i></button>
   </div>
 
   <!-- RIBBON -->
   <div class="ribbon-tabs">
-    <button class="ribbon-tab" onclick="openGuide()">File</button>
+    <button class="ribbon-tab" id="tab-file" onclick="switchRibbon('file',this)">File</button>
     <button class="ribbon-tab active" id="tab-home" onclick="switchRibbon('home',this)">Home</button>
     <button class="ribbon-tab" id="tab-create" onclick="switchRibbon('create',this)">Crea</button>
     <button class="ribbon-tab" id="tab-tools" onclick="switchRibbon('tools',this)">Strumenti database</button>
@@ -219,6 +221,86 @@ function loadDB(){
 function saveDB(){ try{ localStorage.setItem('access_db',JSON.stringify(DB)); }catch(e){} $('#statusInfo').textContent='Salvato '+new Date().toLocaleTimeString('it-IT'); }
 let _saveT; function scheduleSave(){ clearTimeout(_saveT); _saveT=setTimeout(saveDB,500); }
 
+/* ---------- SALVA/APRI SU SERVER + BACKUP/RIPRISTINO LOCALE ---------- */
+function accessDbName(){ return ($('#dbName').value||'Database1').replace(/\.json$/i,'').trim()||'Database1'; }
+
+function accessSaveServer(){
+  showModal('Salva sul server',
+    `<label>Nome del database</label><input id="m-srvname" value="${accessDbName().replace(/"/g,'&quot;')}" autocomplete="off">`,
+    ()=>{
+      const name=($('#m-srvname').value||'').trim(); if(!name){toast('Inserisci un nome');return;}
+      fetch('save.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:name,data:DB})})
+        .then(r=>r.json()).then(j=>{
+          if(j.success){ $('#dbName').value=name; saveDB(); toast('Database salvato sul server'); }
+          else toast('Errore: '+(j.error||'salvataggio fallito'));
+        }).catch(()=>toast('Errore di connessione al server'));
+    });
+}
+
+function accessOpenServer(){
+  const ov=document.createElement('div'); ov.className='access-srv-overlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:12px;';
+  ov.innerHTML=`<div style="background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);width:min(560px,96vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #eee;"><h3 style="margin:0;font-size:16px;color:var(--accent);"><i class="fas fa-cloud-arrow-down"></i> Apri dal server</h3><button style="border:none;background:none;font-size:22px;cursor:pointer;color:#999;" onclick="this.closest('.access-srv-overlay').remove()">&times;</button></div>
+    <div style="padding:16px 20px;overflow-y:auto;"><div id="access-srv-list" style="border:1px solid #eee;border-radius:8px;overflow:hidden;"><div style="padding:30px;text-align:center;color:#888;"><i class="fas fa-spinner fa-spin"></i> Caricamento...</div></div></div>
+    <div style="padding:12px 20px;border-top:1px solid #eee;text-align:right;"><button class="top-btn" style="padding:8px 18px;" onclick="this.closest('.access-srv-overlay').remove()">Chiudi</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+  accessRenderServerList();
+}
+
+function accessRenderServerList(){
+  const list=document.getElementById('access-srv-list'); if(!list)return;
+  fetch('list_databases.php',{credentials:'include'}).then(r=>r.json()).then(j=>{
+    if(!j.success){ list.innerHTML='<div style="padding:24px;text-align:center;color:#888;">Errore nel caricamento</div>'; return; }
+    if(!j.databases||!j.databases.length){ list.innerHTML='<div style="padding:24px;text-align:center;color:#888;">Nessun database salvato sul server</div>'; return; }
+    list.innerHTML=j.databases.map(d=>{
+      const fileJs=d.filename.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const nameJs=d.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const kb=(d.size/1024).toFixed(1);
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #f3f3f3;cursor:pointer;" onmouseenter="this.style.background='#f3f7fb'" onmouseleave="this.style.background=''" onclick="accessLoadServer('${fileJs}')">
+        <i class="fas fa-database" style="color:var(--accent);font-size:18px;width:20px;text-align:center;"></i>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(d.name)}</div><div style="font-size:11px;color:#888;">Modificato: ${d.modified_formatted||''} · ${kb} KB</div></div>
+        <button title="Elimina" style="border:none;background:none;color:#bbb;cursor:pointer;padding:6px;font-size:14px;" onmouseenter="this.style.color='#d32f2f'" onmouseleave="this.style.color='#bbb'" onclick="event.stopPropagation();accessDeleteServer('${nameJs}','${fileJs}')"><i class="fas fa-trash"></i></button>
+      </div>`;
+    }).join('');
+  }).catch(()=>{ if(list) list.innerHTML='<div style="padding:24px;text-align:center;color:#888;">Errore di connessione</div>'; });
+}
+
+function accessLoadServer(filename){
+  fetch('load_database.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename})})
+    .then(r=>r.json()).then(j=>{
+      if(j.success && j.data){ DB=j.data; saveDB(); $('#dbName').value=filename.replace(/\.json$/i,''); document.querySelectorAll('.access-srv-overlay').forEach(o=>o.remove()); renderNav(); openDocs=[]; activeDoc=null; renderDocTabs(); renderActiveDoc(); toast('Database aperto dal server'); }
+      else toast('Errore: '+(j.error||'apertura fallita'));
+    }).catch(()=>toast('Errore di connessione al server'));
+}
+
+function accessDeleteServer(name,filename){
+  if(!confirm('Eliminare il database «'+name+'» dal server?\n\nQuesta azione è irreversibile.'))return;
+  fetch('delete_database.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename})})
+    .then(r=>r.json()).then(j=>{ if(j.success){ toast('Database eliminato'); accessRenderServerList(); } else toast('Errore: '+(j.error||'eliminazione fallita')); })
+    .catch(()=>toast('Errore di connessione al server'));
+}
+
+function accessBackup(){
+  const d=new Date(); const p=n=>String(n).padStart(2,'0');
+  const ts=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}`;
+  const fname=`${accessDbName()}_backup_${ts}.json`;
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download=fname; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('Backup scaricato: '+fname);
+}
+
+function accessRestore(){
+  const i=document.createElement('input'); i.type='file'; i.accept='.json,application/json';
+  i.onchange=e=>{ const f=e.target.files[0]; if(!f)return; const rd=new FileReader();
+    rd.onload=ev=>{ try{ const data=JSON.parse(ev.target.result); if(!data||typeof data!=='object'||!data.tables){ toast('File non valido (manca "tables")'); return; } DB=data; saveDB(); $('#dbName').value=f.name.replace(/\.json$/i,''); renderNav(); openDocs=[]; activeDoc=null; renderDocTabs(); renderActiveDoc(); toast('Database ripristinato dal file'); }catch(err){ toast('File JSON non valido'); } };
+    rd.readAsText(f); };
+  i.click();
+}
+
 /* ---------- RIBBON ---------- */
 function switchRibbon(which,btn){
   document.querySelectorAll('.ribbon-tab').forEach(t=>t.classList.remove('active'));
@@ -229,7 +311,13 @@ function grp(label,btns){ return `<div class="ribbon-group"><div class="grp-btns
 function rb(icon,label,fn,small){ return `<button class="rb-btn${small?' small':''}" onclick="${fn}"><i class="fas ${icon}"></i> ${label}</button>`; }
 function renderRibbon(which){
   const r=$('#ribbon');
-  if(which==='create'){
+  if(which==='file'){
+    r.innerHTML =
+      grp('Server', rb('fa-cloud-arrow-up','Salva su server','accessSaveServer()') + rb('fa-cloud-arrow-down','Apri da server','accessOpenServer()')) +
+      grp('Locale', rb('fa-floppy-disk','Salva (memoria)','saveDB();toast(\'Salvato\')') + rb('fa-download','Backup','accessBackup()',true) + rb('fa-upload','Ripristina','accessRestore()',true)) +
+      grp('Esporta', rb('fa-file-csv','Esporta CSV','exportTableCSV()',true)) +
+      grp('Guida', rb('fa-circle-question','Guida','openGuide()',true));
+  } else if(which==='create'){
     r.innerHTML =
       grp('Tabelle', rb('fa-table','Tabella','createTable()')) +
       grp('Query', rb('fa-filter','Query','createQuery()')) +

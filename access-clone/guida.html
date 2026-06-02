@@ -57,6 +57,7 @@
         <a href="#report">Report</a>
         <a href="#relazioni">Relazioni</a>
         <div class="sec-label">Altro</div>
+        <a href="#file">File e salvataggio</a>
         <a href="#integrazione">Integrazione con la suite</a>
         <a href="#scorciatoie">Suggerimenti</a>
         <a href="#commenti">Commenti e suggerimenti</a>
@@ -94,6 +95,16 @@
         <section class="card" id="relazioni">
             <h2><i class="fas fa-diagram-project"></i> Relazioni</h2>
             <p>Da <strong>Strumenti database ▸ Relazioni</strong> apri il diagramma visuale: ogni tabella è un riquadro trascinabile con i suoi campi (la chiave primaria ha l'icona 🔑). I collegamenti vengono disegnati automaticamente tra un campo che termina con <em>ID</em> (es. <code>ClienteID</code>) e la tabella omonima (es. <code>Clienti</code>).</p>
+        </section>
+        <section class="card" id="file">
+            <h2><i class="fas fa-folder-open"></i> File e salvataggio</h2>
+            <p>Dal tab <strong>File</strong>:</p>
+            <ul>
+                <li><strong>Salva su server</strong> / <strong>Apri da server</strong>: archivia o ricarica l'intero database lato server (per utente). L'elenco si aggiorna da solo dopo salvataggio ed eliminazione.</li>
+                <li><strong>Backup</strong>: scarica una copia del database come file <code>.json</code> (nome <code>&lt;nome&gt;_backup_&lt;data&gt;.json</code>); <strong>Ripristina</strong>: ricarica un backup da file.</li>
+                <li><strong>Esporta CSV</strong>: scarica la tabella attiva in CSV.</li>
+            </ul>
+            <p>Il lavoro viene comunque <strong>salvato automaticamente</strong> nel browser e ripristinato al riavvio.</p>
         </section>
         <section class="card" id="integrazione">
             <h2><i class="fas fa-share-nodes"></i> Integrazione con la suite</h2>

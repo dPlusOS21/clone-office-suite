@@ -459,7 +459,10 @@ switch ($action) {
         $maxLic->execute([$user['id']]);
         $maxDevices = (int)$maxLic->fetchColumn();
 
-        if ($count >= $maxDevices) {
+        // L'amministratore non è soggetto al limite di dispositivi/sessioni
+        $isAdmin = ($user['role'] ?? 'user') === 'admin';
+
+        if (!$isAdmin && $count >= $maxDevices) {
             jsonResponse([
                 'status' => 'limit_reached',
                 'error' => 'Limite dispositivi raggiunto',

@@ -2732,10 +2732,10 @@
                 <div class="backstage-option" onclick="showBackstageSection('saveAs')">
                     <i class="fas fa-save"></i> Salva con nome
                 </div>
-                <div class="backstage-option" onclick="showBackstageSection('saveServer')">
+                <div class="backstage-option" onclick="openServerSaveModal()">
                     <i class="fas fa-cloud-upload-alt"></i> Salva sul Server
                 </div>
-                <div class="backstage-option" onclick="showBackstageSection('loadServer')">
+                <div class="backstage-option" onclick="openServerOpenModal()">
                     <i class="fas fa-cloud-download-alt"></i> Carica dal Server
                 </div>
                 <div class="backstage-option" onclick="showBackstageSection('print')">
@@ -2856,8 +2856,8 @@
                     </div>
                 </div>
 
-<!-- Sezione Salva sul Server -->
-<div class="backstage-section" id="saveServer-section">
+<!-- Sezione Salva sul Server (gestita via modale openServerSaveModal) -->
+<div class="backstage-section" id="saveServer-section" style="display:none;">
     <h2>Salva sul Server</h2>
     <p>Salva il documento corrente sul server. Puoi scegliere il formato e un nuovo nome o sovrascrivere un file esistente.</p>
 
@@ -3126,8 +3126,8 @@
                     <button class="mobile-ribbon-btn" onclick="importDocx(); toggleMobileRibbon()"><i class="fas fa-file-import"></i>Importa DOCX</button>
                     <button class="mobile-ribbon-btn" onclick="saveDocument(); toggleMobileRibbon()"><i class="fas fa-save"></i>Salva</button>
                     <button class="mobile-ribbon-btn" onclick="saveAsDocument(); toggleMobileRibbon()"><i class="fas fa-file-export"></i>Salva con nome</button>
-                    <button class="mobile-ribbon-btn" onclick="toggleMobileRibbon(); showBackstageView(); showBackstageSection('saveServer')"><i class="fas fa-cloud-upload-alt"></i>Salva su Server</button>
-                    <button class="mobile-ribbon-btn" onclick="toggleMobileRibbon(); showBackstageView(); showBackstageSection('loadServer')"><i class="fas fa-cloud-download-alt"></i>Carica da Server</button>
+                    <button class="mobile-ribbon-btn" onclick="toggleMobileRibbon(); openServerSaveModal()"><i class="fas fa-cloud-upload-alt"></i>Salva su Server</button>
+                    <button class="mobile-ribbon-btn" onclick="toggleMobileRibbon(); openServerOpenModal()"><i class="fas fa-cloud-download-alt"></i>Carica da Server</button>
                     <button class="mobile-ribbon-btn" onclick="printDocument(); toggleMobileRibbon()"><i class="fas fa-print"></i>Stampa</button>
                     <button class="mobile-ribbon-btn" onclick="saveAsHTML(); toggleMobileRibbon()"><i class="fas fa-code"></i>Esporta HTML</button>
                     <button class="mobile-ribbon-btn" onclick="exportToDocx(); toggleMobileRibbon()"><i class="fas fa-file-word"></i>Esporta DOCX</button>
@@ -4879,6 +4879,194 @@ function saveToServer() {
         console.error('Errore:', error);
         showNotification('Errore di connessione al server', 'info');
     });
+}
+
+// ============================================================
+// SERVER STORAGE — interfaccia uniforme alla suite (modale)
+// Nome precompilato dal titolo, elenco auto-caricato,
+// refresh automatico dopo salvataggio/eliminazione, responsive.
+// ============================================================
+function ensureServerModalStyles() {
+    if (document.getElementById('word-server-modal-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'word-server-modal-styles';
+    s.textContent = `
+    .wsm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:12px;}
+    .wsm-box{background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);width:min(600px,96vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+    .wsm-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #eee;}
+    .wsm-head h3{margin:0;font-size:16px;color:#2b579a;display:flex;align-items:center;gap:8px;}
+    .wsm-close{border:none;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1;}
+    .wsm-body{padding:16px 20px;overflow-y:auto;}
+    .wsm-field{margin-bottom:14px;}
+    .wsm-field label{display:block;font-size:13px;margin-bottom:4px;color:#333;font-weight:600;}
+    .wsm-field input,.wsm-field select{width:100%;padding:9px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;font-size:13px;}
+    .wsm-field input:focus,.wsm-field select:focus{outline:none;border-color:#2b579a;}
+    .wsm-foot{padding:12px 20px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+    .wsm-btn{padding:8px 18px;border-radius:5px;cursor:pointer;font-size:13px;border:1px solid #ccc;background:#fff;color:#333;}
+    .wsm-btn:hover{background:#f3f3f3;}
+    .wsm-btn.primary{background:#2b579a;color:#fff;border-color:#2b579a;}
+    .wsm-btn.primary:hover{background:#1f4377;}
+    .wsm-list{border:1px solid #eee;border-radius:8px;overflow:hidden;}
+    .wsm-empty{padding:30px 12px;text-align:center;color:#888;font-size:13px;}
+    .wsm-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #f3f3f3;cursor:pointer;transition:background .12s;}
+    .wsm-item:last-child{border-bottom:none;}
+    .wsm-item:hover{background:#f0f5fb;}
+    .wsm-item .wsm-ic{color:#2b579a;font-size:18px;flex-shrink:0;width:20px;text-align:center;}
+    .wsm-item .wsm-meta{flex:1;min-width:0;}
+    .wsm-item .wsm-nm{font-size:13px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;}
+    .wsm-item .wsm-sub{font-size:11px;color:#888;margin-top:2px;}
+    .wsm-badge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:4px;flex-shrink:0;}
+    .wsm-del{border:none;background:none;color:#bbb;cursor:pointer;padding:6px;flex-shrink:0;font-size:14px;border-radius:4px;}
+    .wsm-del:hover{color:#d32f2f;background:#fdecea;}
+    @media(max-width:600px){.wsm-box{width:100%;max-height:94vh;}.wsm-item .wsm-sub{display:none;}}
+    `;
+    document.head.appendChild(s);
+}
+
+function closeServerModal() {
+    document.querySelectorAll('.wsm-overlay').forEach(o => o.remove());
+}
+
+function openServerSaveModal() {
+    ensureServerModalStyles();
+    hideBackstageView();
+    closeServerModal();
+    const current = (document.getElementById('documentName').value || currentDocument.name || 'Documento1')
+        .replace(/\.(html|json)$/i, '').trim();
+    const overlay = document.createElement('div');
+    overlay.className = 'wsm-overlay';
+    overlay.innerHTML = `
+      <div class="wsm-box">
+        <div class="wsm-head"><h3><i class="fas fa-cloud-upload-alt"></i> Salva sul server</h3><button class="wsm-close" title="Chiudi">&times;</button></div>
+        <div class="wsm-body">
+          <div class="wsm-field"><label>Nome del file</label><input type="text" id="wsm-name" value="${current.replace(/"/g, '&quot;')}" autocomplete="off"></div>
+          <div class="wsm-field"><label>Formato</label><select id="wsm-format">
+            <option value="json">JSON (contenuto + impostazioni)</option>
+            <option value="html">HTML (solo contenuto)</option>
+          </select></div>
+        </div>
+        <div class="wsm-foot"><button class="wsm-btn" id="wsm-cancel">Annulla</button><button class="wsm-btn primary" id="wsm-ok"><i class="fas fa-cloud-upload-alt"></i> Salva</button></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.wsm-close').onclick = closeServerModal;
+    overlay.querySelector('#wsm-cancel').onclick = closeServerModal;
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeServerModal(); });
+    const submit = () => {
+        const name = overlay.querySelector('#wsm-name').value.trim();
+        if (!name) { showNotification('Inserisci un nome per il file', 'info'); return; }
+        const format = overlay.querySelector('#wsm-format').value;
+        closeServerModal();
+        doServerSave(name, format);
+    };
+    overlay.querySelector('#wsm-ok').onclick = submit;
+    overlay.querySelector('#wsm-name').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    setTimeout(() => { const el = overlay.querySelector('#wsm-name'); if (el) { el.focus(); el.select(); } }, 80);
+}
+
+function doServerSave(filename, format) {
+    const content = document.getElementById('editor').innerHTML;
+    const cleanFilename = filename.replace(/\.(html|json)$/i, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const postData = { content: content, filename: cleanFilename, format: format };
+    if (format === 'json') {
+        postData.metadata = {
+            name: currentDocument.name || cleanFilename,
+            orientation: currentOrientation,
+            margins: currentMargins,
+            wordCount: currentDocument.wordCount || 0,
+            savedAt: new Date().toISOString()
+        };
+    }
+    showNotification('Salvataggio in corso...', 'info');
+    fetch('save.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Documento salvato sul server!', 'success');
+            currentDocument.name = cleanFilename;
+            document.getElementById('documentName').value = cleanFilename;
+            const m = document.getElementById('mobileDocName'); if (m) m.value = cleanFilename;
+        } else {
+            showNotification('Errore nel salvataggio: ' + (data.error || ''), 'info');
+        }
+    })
+    .catch(() => showNotification('Errore di connessione al server', 'info'));
+}
+
+function openServerOpenModal() {
+    ensureServerModalStyles();
+    hideBackstageView();
+    closeServerModal();
+    const overlay = document.createElement('div');
+    overlay.className = 'wsm-overlay';
+    overlay.innerHTML = `
+      <div class="wsm-box">
+        <div class="wsm-head"><h3><i class="fas fa-cloud-download-alt"></i> Apri dal server</h3><button class="wsm-close" title="Chiudi">&times;</button></div>
+        <div class="wsm-body"><div class="wsm-list" id="wsm-list"><div class="wsm-empty"><i class="fas fa-spinner fa-spin"></i> Caricamento in corso...</div></div></div>
+        <div class="wsm-foot"><button class="wsm-btn" id="wsm-cancel">Chiudi</button></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.wsm-close').onclick = closeServerModal;
+    overlay.querySelector('#wsm-cancel').onclick = closeServerModal;
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeServerModal(); });
+    renderServerOpenList();
+}
+
+function renderServerOpenList() {
+    const list = document.getElementById('wsm-list');
+    if (!list) return;
+    fetch('list_documents.php', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) { list.innerHTML = '<div class="wsm-empty">Errore nel caricamento dell\'elenco</div>'; return; }
+        if (!data.documents || data.documents.length === 0) {
+            list.innerHTML = '<div class="wsm-empty">Nessun documento salvato sul server</div>';
+            return;
+        }
+        list.innerHTML = data.documents.map(doc => {
+            const sizeKB = (doc.size / 1024).toFixed(1);
+            const isHTML = doc.type === 'html';
+            const fileIcon = isHTML ? 'fa-file-code' : 'fa-file-alt';
+            const displayName = doc.filename.replace(/\.(html|json)$/i, '');
+            const badge = isHTML
+                ? '<span class="wsm-badge" style="background:#fdecea;color:#d35400;">HTML</span>'
+                : '<span class="wsm-badge" style="background:#eaf1fb;color:#2b579a;">JSON</span>';
+            const nameJs = displayName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const fileJs = doc.filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            return `<div class="wsm-item" onclick="closeServerModal(); loadDocumentFromServer('${fileJs}', '${doc.type}')">
+                <i class="fas ${fileIcon} wsm-ic"></i>
+                <div class="wsm-meta">
+                    <div class="wsm-nm">${displayName} ${badge}</div>
+                    <div class="wsm-sub">Modificato: ${doc.modified_formatted || ''} · ${sizeKB} KB</div>
+                </div>
+                <button class="wsm-del" title="Elimina" onclick="event.stopPropagation(); deleteServerDocFromModal('${nameJs}', '${fileJs}')"><i class="fas fa-trash"></i></button>
+            </div>`;
+        }).join('');
+    })
+    .catch(() => { if (list) list.innerHTML = '<div class="wsm-empty">Errore di connessione al server</div>'; });
+}
+
+function deleteServerDocFromModal(displayName, filename) {
+    if (!confirm(`Eliminare il documento «${displayName}»?\n\nQuesta azione è irreversibile.`)) return;
+    showNotification('Eliminazione in corso...', 'info');
+    fetch('delete_document.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: filename })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Documento eliminato', 'success');
+            renderServerOpenList();
+        } else {
+            showNotification('Errore nell\'eliminazione: ' + (data.error || ''), 'info');
+        }
+    })
+    .catch(() => showNotification('Errore di connessione al server', 'info'));
 }
 
         // Gestione Modal

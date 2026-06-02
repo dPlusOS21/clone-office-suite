@@ -1615,8 +1615,10 @@
             <button class="top-btn" onclick="startSlideshow()" title="Avvia presentazione">📊 Presenta</button>
             <button class="top-btn" id="editModeBtn" onclick="toggleEditMode()" title="Attiva/Disattiva modalità modifica">✏️ Modifica</button>
             <button class="top-btn primary" onclick="sharePresentation()" title="Condividi presentazione">Condividi</button>
-            <div class="user-icon">DD</div>
             <button id="btn-auth-ppt" style="padding:4px 10px;background:none;border:1px solid rgba(255,255,255,0.2);color:#605e5c;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;margin-left:4px;" onclick="toggleAuthPpt()"><i class="fas fa-user"></i> <span id="auth-label-ppt">Utente</span></button>
+            <button class="top-btn" onclick="window.open('../buy.html','_blank')" title="Acquista Clone Office">Acquista Clone Office</button>
+            <button class="icon-btn" onclick="window.open('guida.html','_blank')" title="Guida (F1)"><i class="fas fa-circle-question"></i></button>
+            <button class="icon-btn" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}else{document.exitFullscreen&&document.exitFullscreen()}" title="Schermo intero"><i class="fas fa-expand"></i></button>
         </div>
     </div>
 

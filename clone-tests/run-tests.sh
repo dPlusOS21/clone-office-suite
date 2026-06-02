@@ -56,6 +56,8 @@ if [ "$ONLY_STATIC" -eq 0 ] && command -v node >/dev/null 2>&1; then
     TEST_BASE_URL="http://127.0.0.1:$PORT" node "$DIR/04-backend-auth.mjs" || rc=1
     echo ""
     TEST_BASE_URL="http://127.0.0.1:$PORT" node "$DIR/05-e2e-server-files.mjs" || rc=1
+    echo ""
+    TEST_BASE_URL="http://127.0.0.1:$PORT" node "$DIR/06-e2e-save-open.mjs" || rc=1
   else
     echo "${YEL}⚠ Test sicurezza backend e e2e saltati (PHP non disponibile).${RST}"
   fi

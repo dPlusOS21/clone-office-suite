@@ -387,11 +387,19 @@
             .apps-grid { grid-template-columns: 1fr; }
             .header-content { padding: 30px 20px 40px; }
             .main { padding: 25px 15px; }
+            /* Header compatto: pulsanti solo-icona per non tagliare l'Account a destra */
+            .header-right { gap: 8px; flex-shrink: 0; }
+            .header-btn { padding: 8px 11px; }
+            .header-btn .hb-label { display: none; }
+            .header-btn i { font-size: 15px; }
         }
 
         @media (max-width: 480px) {
-            .header-top { padding: 10px 15px; }
-            .logo { font-size: 15px; }
+            .header-top { padding: 10px 12px; gap: 8px; }
+            .logo { font-size: 14px; min-width: 0; overflow: hidden; }
+            .logo i { font-size: 18px; }
+            .header-right { gap: 6px; }
+            .header-btn { padding: 7px 9px; }
             .quick-actions { flex-direction: column; }
         }
 
@@ -446,16 +454,16 @@
             </div>
             <div class="header-right">
                 <button class="header-btn" onclick="window.open('https://www.paypal.com/donate?business=deplano.d%40gmail.com&item_name=Sostieni+Clone+Office+Suite&currency_code=EUR','_blank')" title="Sostieni il progetto con una donazione" style="background:#ffc439;color:#142c8e;border-color:#ffc439;font-weight:700;">
-                    <i class="fab fa-paypal"></i> Dona
+                    <i class="fab fa-paypal"></i> <span class="hb-label">Dona</span>
                 </button>
-                <button class="header-btn" onclick="window.location.href='buy.html'">
-                    <i class="fas fa-shopping-cart"></i> Acquista
+                <button class="header-btn" onclick="window.location.href='buy.html'" title="Acquista Clone Office">
+                    <i class="fas fa-shopping-cart"></i> <span class="hb-label">Acquista</span>
                 </button>
-                <button class="header-btn" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i> Tema
+                <button class="header-btn" onclick="toggleTheme()" title="Cambia tema">
+                    <i class="fas fa-moon"></i> <span class="hb-label">Tema</span>
                 </button>
-                <button class="header-btn" id="btn-auth" onclick="toggleAuth()">
-                    <i class="fas fa-user"></i> <span id="auth-label">Utente</span>
+                <button class="header-btn" id="btn-auth" onclick="toggleAuth()" title="Account">
+                    <i class="fas fa-user"></i> <span class="hb-label" id="auth-label">Utente</span>
                 </button>
             </div>
         </div>

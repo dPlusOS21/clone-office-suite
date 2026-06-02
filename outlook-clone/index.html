@@ -415,9 +415,10 @@
         <div class="top-right">
             <button class="top-btn" onclick="syncCurrentFolder()" title="Sincronizza posta"><i class="fas fa-sync-alt"></i></button>
             <button class="top-btn" onclick="showSettings()" title="Impostazioni"><i class="fas fa-cog"></i></button>
-            <button class="top-btn" onclick="showHelp()" title="Guida"><i class="fas fa-question-circle"></i></button>
-            <div class="user-avatar" title="Account utente" id="userAvatar">U</div>
             <button id="btn-auth-outlook" style="padding:4px 10px;background:none;border:1px solid rgba(255,255,255,0.2);color:white;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;margin-left:4px;" onclick="toggleAuthOutlook()"><i class="fas fa-user"></i> <span id="auth-label-outlook">Utente</span></button>
+            <button class="top-btn" onclick="window.open('../buy.html','_blank')" title="Acquista Clone Office">Acquista Clone Office</button>
+            <button class="top-btn" onclick="window.open('guida.html','_blank')" title="Guida (F1)"><i class="fas fa-circle-question"></i></button>
+            <button class="top-btn" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}else{document.exitFullscreen&&document.exitFullscreen()}" title="Schermo intero"><i class="fas fa-expand"></i></button>
         </div>
     </div>
 

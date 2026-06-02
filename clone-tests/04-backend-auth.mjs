@@ -21,6 +21,8 @@ const PROTECTED = [
   { path: 'powerbi-clone/list_reports.php', method: 'GET', why: 'Power BI: elenco report' },
   { path: 'powerpoint-clone/list_presentations.php', method: 'GET', why: 'PowerPoint: elenco' },
   { path: 'onedrive-clone/api.php', method: 'POST', body: { action: 'list', path: '' }, why: 'OneDrive: elenco file' },
+  { path: 'access-clone/list_databases.php', method: 'GET', why: 'Access: elenco database' },
+  { path: 'access-clone/save.php', method: 'POST', body: { filename: 't', data: {} }, why: 'Access: salvataggio' },
 ];
 
 let fail = 0;
