@@ -3654,6 +3654,7 @@
 
         // Server save/load functions
         async function saveToServer() {
+            if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Salva sul server')) return;
             const filename = (presentation.name || 'Presentation 1').replace(/[^a-zA-Z0-9_\- ]/g, '') + '.json';
             try {
                 const response = await fetch('save.php', {
@@ -3684,6 +3685,7 @@
         }
 
         async function loadFromServerList() {
+            if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Carica dal server')) return;
             try {
                 const response = await fetch('list_presentations.php');
                 const data = await response.json();

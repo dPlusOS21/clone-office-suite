@@ -391,6 +391,34 @@
         }
     };
 
+    // ─── Avviso "funzione server non disponibile in demo" ───
+    // Su hosting statico (GitHub Pages / file://) il backend PHP non gira: le
+    // funzioni Salva/Apri dal server non possono funzionare. Mostriamo un avviso
+    // elegante invece di lasciare che il browser navighi all'elenco cartelle.
+    // Ritorna true se siamo in demo (chiamante deve interrompere l'azione server).
+    window.cloneOfficeDemoNotice = function(action) {
+        if (!window.CLONE_OFFICE_DEMO) return false;
+        try {
+            var old = document.getElementById('clone-demo-toast');
+            if (old) old.remove();
+            var t = document.createElement('div');
+            t.id = 'clone-demo-toast';
+            t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);' +
+                'background:#323130;color:#fff;padding:14px 22px;border-radius:8px;z-index:2147483647;' +
+                'font:14px/1.5 Segoe UI,system-ui,sans-serif;max-width:90vw;box-shadow:0 6px 24px rgba(0,0,0,.35);' +
+                'display:flex;align-items:flex-start;gap:10px;';
+            var msg = (action ? action : 'Questa funzione') +
+                ' richiede il backend e non è disponibile in questa demo statica.' +
+                ' Usa il <b>salvataggio locale</b> (sul dispositivo). Online completo: su un host con PHP (es. Altervista).';
+            t.innerHTML = '<span style="font-size:18px;line-height:1;">☁️</span><span>' + msg + '</span>';
+            document.body.appendChild(t);
+            setTimeout(function() { if (t.parentNode) t.remove(); }, 6000);
+        } catch (e) {
+            try { alert('Funzione server non disponibile in questa demo statica. Usa il salvataggio locale.'); } catch (e2) {}
+        }
+        return true;
+    };
+
     // Termina sessione quando la pagina viene chiusa
     window.addEventListener('beforeunload', function() {
         if (_sessionActive) {

@@ -3186,6 +3186,7 @@
     }
 
     function saveToServer() {
+        if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Salva sul server')) return;
         saveCurrentPageContent();
         const nb = getCurrentNotebook();
         const data = {
@@ -3219,6 +3220,7 @@
     }
 
     function loadFromServerList() {
+        if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Carica dal server')) return;
         const listEl = document.getElementById('serverDocsList');
         listEl.innerHTML = '<div class="file-menu-item" style="opacity:0.5;"><i class="fas fa-spinner fa-spin"></i> Caricamento...</div>';
 

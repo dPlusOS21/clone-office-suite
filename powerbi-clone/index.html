@@ -897,6 +897,7 @@ function deserialize(obj){
   renderFields(); renderCanvas(); renderWellsPanel();
 }
 async function saveReport(){
+  if(window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Salva sul server')) return;
   STATE.fileName=$('#fileName').value||'Report';
   try{
     const res=await fetch('save.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({ filename:STATE.fileName, data:serialize() })});
@@ -906,6 +907,7 @@ async function saveReport(){
   }catch(e){ toast('Errore di rete nel salvataggio'); }
 }
 async function openReport(){
+  if(window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Apri dal server')) return;
   let list=[];
   try{ const res=await fetch('list_reports.php',{credentials:'include'}); const j=await res.json(); list=j.reports||[]; }catch(e){}
   const body = list.length ? list.map(f=>`<div class="saved-item" data-f="${esc(f.filename)}"><div><div class="si-name">${esc(f.name)}</div><div class="si-meta">${esc(f.modified_formatted||'')}</div></div><i class="fas fa-trash si-del" data-f="${esc(f.filename)}"></i></div>`).join('') : '<div style="color:#999;font-size:13px;padding:20px;text-align:center;">Nessun report salvato</div>';

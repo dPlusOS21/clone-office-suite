@@ -4928,6 +4928,7 @@ function closeServerModal() {
 }
 
 function openServerSaveModal() {
+    if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Salva sul server')) { hideBackstageView(); return; }
     ensureServerModalStyles();
     hideBackstageView();
     closeServerModal();
@@ -4997,6 +4998,7 @@ function doServerSave(filename, format) {
 }
 
 function openServerOpenModal() {
+    if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Apri dal server')) { hideBackstageView(); return; }
     ensureServerModalStyles();
     hideBackstageView();
     closeServerModal();

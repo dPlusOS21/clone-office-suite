@@ -10,7 +10,9 @@ La suite è pubblicata con **GitHub Pages** e si può **provare direttamente dal
 
 ➡️ **https://dplusos21.github.io/clone-office-suite/**
 
-In demo (hosting statico) il backend PHP non è attivo: l'accesso è automatico come *Ospite* e i dati vengono salvati nel **browser** (localStorage). Per tutte le funzioni server (account, salvataggio sul server, dashboard admin, invio email dei feedback) serve eseguire il progetto su un server PHP (vedi *Avvio rapido*).
+In demo (hosting statico) il backend PHP non è attivo: l'accesso è automatico come *Ospite* e i dati vengono salvati nel **browser** (localStorage). I comandi **Salva/Apri dal server** mostrano un avviso (non sono disponibili senza backend); usa il **salvataggio locale**. Per tutte le funzioni server (account, salvataggio sul server, dashboard admin, invio email dei feedback) serve eseguire il progetto su un server PHP (vedi *Avvio rapido*).
+
+> **Installazione ex novo:** il repository **non contiene dati personali né database** (sono esclusi via `.gitignore`). Al primo avvio su un server PHP, il database SQLite e le cartelle dati vengono **creati automaticamente** e il **primo utente che si registra diventa amministratore**.
 
 ## ❤️ Sostieni il progetto
 

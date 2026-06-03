@@ -225,6 +225,7 @@ let _saveT; function scheduleSave(){ clearTimeout(_saveT); _saveT=setTimeout(sav
 function accessDbName(){ return ($('#dbName').value||'Database1').replace(/\.json$/i,'').trim()||'Database1'; }
 
 function accessSaveServer(){
+  if(window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Salva sul server')) return;
   showModal('Salva sul server',
     `<label>Nome del database</label><input id="m-srvname" value="${accessDbName().replace(/"/g,'&quot;')}" autocomplete="off">`,
     ()=>{
@@ -238,6 +239,7 @@ function accessSaveServer(){
 }
 
 function accessOpenServer(){
+  if(window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Apri dal server')) return;
   const ov=document.createElement('div'); ov.className='access-srv-overlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:12px;';
   ov.innerHTML=`<div style="background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);width:min(560px,96vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">

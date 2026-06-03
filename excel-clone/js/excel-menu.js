@@ -398,6 +398,7 @@ newFile() {
 
     saveToServer() {
         if (!window.spreadsheet) return;
+        if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Salva sul server')) return;
         const self = this;
         const overlay = document.createElement('div');
         overlay.id = 'server-save-modal';
@@ -454,6 +455,7 @@ newFile() {
     }
 
     openFromServer() {
+        if (window.cloneOfficeDemoNotice && window.cloneOfficeDemoNotice('Apri dal server')) return;
         const self = this;
         this.updateStatus('Caricamento lista file...');
         fetch('php/list_files.php')
