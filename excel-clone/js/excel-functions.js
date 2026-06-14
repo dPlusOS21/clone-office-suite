@@ -549,118 +549,18 @@ class ExcelFunctions {
             max-width: 500px;
         `;
 
+        content.style.maxWidth = '440px';
         content.innerHTML = `
-            <h3 style="margin-bottom: 15px; font-size: 14px; font-weight: 600;">Bordi</h3>
-            
-            <div class="border-presets" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px;">
-                <div class="border-preset" data-type="none" style="border: 1px solid #d6d6d6; padding: 10px; text-align: center; cursor: pointer; border-radius: 2px;">
-                    <div style="font-size: 20px; color: #666;">∅</div>
-                    <div style="font-size: 11px; margin-top: 5px;">Nessun bordo</div>
-                </div>
-                <div class="border-preset" data-type="all" style="border: 1px solid #d6d6d6; padding: 10px; text-align: center; cursor: pointer; border-radius: 2px;">
-                    <div style="font-size: 20px; color: #666;">▣</div>
-                    <div style="font-size: 11px; margin-top: 5px;">Tutti i bordi</div>
-                </div>
-                <div class="border-preset" data-type="outside" style="border: 1px solid #d6d6d6; padding: 10px; text-align: center; cursor: pointer; border-radius: 2px;">
-                    <div style="font-size: 20px; color: #666;">▢</div>
-                    <div style="font-size: 11px; margin-top: 5px;">Bordo esterno</div>
-                </div>
-                <div class="border-preset" data-type="thick" style="border: 1px solid #d6d6d6; padding: 10px; text-align: center; cursor: pointer; border-radius: 2px;">
-                    <div style="font-size: 20px; color: #666;">▩</div>
-                    <div style="font-size: 11px; margin-top: 5px;">Bordo spesso</div>
-                </div>
-                <div class="border-preset" data-type="double" style="border: 1px solid #d6d6d6; padding: 10px; text-align: center; cursor: pointer; border-radius: 2px;">
-                    <div style="font-size: 20px; color: #666;">⧈</div>
-                    <div style="font-size: 11px; margin-top: 5px;">Doppio bordo</div>
-                </div>
-                <div class="border-preset" data-type="dashed" style="border: 1px solid #d6d6d6; padding: 10px; text-align: center; cursor: pointer; border-radius: 2px;">
-                    <div style="font-size: 20px; color: #666;">┄</div>
-                    <div style="font-size: 11px; margin-top: 5px;">Tratteggiato</div>
-                </div>
-            </div>
-
-            <div class="border-custom" style="margin-bottom: 20px;">
-                <div style="font-size: 12px; font-weight: 600; margin-bottom: 10px;">Bordi personalizzati</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div>
-                        <label style="font-size: 11px; display: block; margin-bottom: 5px;">Stile linea:</label>
-                        <select id="border-style" style="width: 100%; padding: 5px; border: 1px solid #d6d6d6; border-radius: 2px; font-size: 11px;">
-                            <option value="none">Nessuno</option>
-                            <option value="thin">Linea sottile</option>
-                            <option value="medium">Linea media</option>
-                            <option value="thick">Linea spessa</option>
-                            <option value="double">Doppia linea</option>
-                            <option value="dashed">Tratteggiata</option>
-                            <option value="dotted">Punteggiata</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size: 11px; display: block; margin-bottom: 5px;">Colore:</label>
-                        <input type="color" id="border-color" value="#000000" style="width: 100%; height: 27px; border: 1px solid #d6d6d6; border-radius: 2px;">
-                    </div>
-                </div>
-                
-                <div style="margin-top: 15px;">
-                    <div style="font-size: 11px; margin-bottom: 8px;">Applica a:</div>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="border-side-btn" data-side="all" style="padding: 5px 10px; border: 1px solid #d6d6d6; background: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Tutti i bordi</button>
-                        <button class="border-side-btn" data-side="top" style="padding: 5px 10px; border: 1px solid #d6d6d6; background: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Bordo superiore</button>
-                        <button class="border-side-btn" data-side="bottom" style="padding: 5px 10px; border: 1px solid #d6d6d6; background: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Bordo inferiore</button>
-                        <button class="border-side-btn" data-side="left" style="padding: 5px 10px; border: 1px solid #d6d6d6; background: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Bordo sinistro</button>
-                        <button class="border-side-btn" data-side="right" style="padding: 5px 10px; border: 1px solid #d6d6d6; background: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Bordo destro</button>
-                        <button class="border-side-btn" data-side="outside" style="padding: 5px 10px; border: 1px solid #d6d6d6; background: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Bordo esterno</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-buttons" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
-                <button id="border-apply" style="padding: 6px 16px; border: 1px solid #0078d4; background: #0078d4; color: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Applica</button>
-                <button id="border-cancel" style="padding: 6px 16px; border: 1px solid #d6d6d6; background: white; border-radius: 2px; font-size: 11px; cursor: pointer;">Annulla</button>
-            </div>
-        `;
-
-        // Aggiungi event listeners per i preset
-        content.querySelectorAll('.border-preset').forEach(preset => {
-            preset.addEventListener('click', () => {
-                // Rimuovi selezione precedente
-                content.querySelectorAll('.border-preset').forEach(p => {
-                    p.style.backgroundColor = '';
-                    p.style.borderColor = '#d6d6d6';
-                });
-                
-                // Seleziona corrente
-                preset.style.backgroundColor = '#e1f0ff';
-                preset.style.borderColor = '#0078d4';
-                
-                const borderType = preset.getAttribute('data-type');
-                this.applyBorderPreset(borderType);
-                document.body.removeChild(dialog);
-            });
-        });
-
-        // Aggiungi event listeners per i bordi personalizzati
-        content.querySelectorAll('.border-side-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const side = btn.getAttribute('data-side');
-                const style = content.querySelector('#border-style').value;
-                const color = content.querySelector('#border-color').value;
-                
-                this.applyCustomBorder(side, style, color);
-                document.body.removeChild(dialog);
-            });
-        });
-
-        // Pulsanti di azione
-        content.querySelector('#border-apply').addEventListener('click', () => {
-            const style = content.querySelector('#border-style').value;
-            const color = content.querySelector('#border-color').value;
-            this.applyCustomBorder('all', style, color);
+            <h3 style="margin-bottom: 14px; font-size: 14px; font-weight: 600;">Bordi</h3>
+            <div id="bp-host"></div>
+            <div class="modal-buttons" style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+                <button id="border-cancel" style="padding:6px 18px; border:1px solid #d6d6d6; background:#fff; border-radius:3px; font-size:11px; cursor:pointer;">Chiudi</button>
+            </div>`;
+        this._renderBorderPicker(content.querySelector('#bp-host'), (type, style, color) => {
+            this.applyBorderType(type, type === 'none' ? 'none' : style, color);
             document.body.removeChild(dialog);
         });
-
-        content.querySelector('#border-cancel').addEventListener('click', () => {
-            document.body.removeChild(dialog);
-        });
+        content.querySelector('#border-cancel').addEventListener('click', () => { document.body.removeChild(dialog); });
 
         // Chiudi cliccando fuori
         dialog.addEventListener('click', (e) => {
@@ -671,6 +571,96 @@ class ExcelFunctions {
 
         dialog.appendChild(content);
         document.body.appendChild(dialog);
+    }
+
+    // Selettore bordi VISUALE riusabile: stile linea (spessore/tratteggio/doppia),
+    // colore e posizioni con anteprime live. `onApply(type, style, color)` è invocato
+    // al clic su una posizione. Usato sia dal menu Bordi del ribbon sia dal tab
+    // "Bordo" di "Formato celle" (così le due interfacce sono identiche).
+    _renderBorderPicker(host, onApply) {
+        host.innerHTML = `
+            <div style="display:flex; gap:18px; margin-bottom:14px; flex-wrap:wrap; align-items:flex-start;">
+                <div>
+                    <div style="font-size:11px; font-weight:600; margin-bottom:7px;">Stile linea</div>
+                    <div class="bp-styles" style="display:grid; grid-template-columns:repeat(2,86px); gap:5px;">
+                        <button class="bstyle" data-style="thin"   style="padding:6px 4px; border:1px solid #d6d6d6; background:#fff; border-radius:3px; cursor:pointer;"><span class="bsline"></span><span style="font-size:10px;color:#555;">Sottile</span></button>
+                        <button class="bstyle" data-style="medium" style="padding:6px 4px; border:1px solid #d6d6d6; background:#fff; border-radius:3px; cursor:pointer;"><span class="bsline"></span><span style="font-size:10px;color:#555;">Media</span></button>
+                        <button class="bstyle" data-style="thick"  style="padding:6px 4px; border:1px solid #d6d6d6; background:#fff; border-radius:3px; cursor:pointer;"><span class="bsline"></span><span style="font-size:10px;color:#555;">Spessa</span></button>
+                        <button class="bstyle" data-style="double" style="padding:6px 4px; border:1px solid #d6d6d6; background:#fff; border-radius:3px; cursor:pointer;"><span class="bsline"></span><span style="font-size:10px;color:#555;">Doppia</span></button>
+                        <button class="bstyle" data-style="dashed" style="padding:6px 4px; border:1px solid #d6d6d6; background:#fff; border-radius:3px; cursor:pointer;"><span class="bsline"></span><span style="font-size:10px;color:#555;">Tratteggiata</span></button>
+                        <button class="bstyle" data-style="dotted" style="padding:6px 4px; border:1px solid #d6d6d6; background:#fff; border-radius:3px; cursor:pointer;"><span class="bsline"></span><span style="font-size:10px;color:#555;">Punteggiata</span></button>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:600; margin-bottom:7px;">Colore</div>
+                    <input type="color" class="bp-color" value="#000000" style="width:64px; height:34px; padding:0; border:1px solid #d6d6d6; border-radius:3px; cursor:pointer;">
+                </div>
+            </div>
+
+            <div style="font-size:11px; font-weight:600; margin:6px 0 8px;">Posizione bordi</div>
+            <div class="border-presets" style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;">
+                <button class="border-preset" data-type="none"       style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="none"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Nessuno</span></button>
+                <button class="border-preset" data-type="all"        style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="all"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Tutti</span></button>
+                <button class="border-preset" data-type="outer"      style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="outer"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Esterni</span></button>
+                <button class="border-preset" data-type="inside"     style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="inside"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Interni</span></button>
+                <button class="border-preset" data-type="top"        style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="top"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Superiore</span></button>
+                <button class="border-preset" data-type="bottom"     style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="bottom"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Inferiore</span></button>
+                <button class="border-preset" data-type="left"       style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="left"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Sinistro</span></button>
+                <button class="border-preset" data-type="right"      style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="right"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Destro</span></button>
+                <button class="border-preset" data-type="top-bottom" style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="top-bottom"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Sopra e sotto</span></button>
+                <button class="border-preset" data-type="inside-h"   style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="inside-h"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Interni orizz.</span></button>
+                <button class="border-preset" data-type="inside-v"   style="border:1px solid #d6d6d6; background:#fff; padding:8px 4px; text-align:center; cursor:pointer; border-radius:3px;"><span class="bprev" data-type="inside-v"></span><span style="font-size:10px; display:block; margin-top:5px; color:#555;">Interni vert.</span></button>
+            </div>
+
+            <div style="font-size:11px; color:#888; margin-top:12px;">Scegli <b>stile</b> e <b>colore</b>, poi clicca una <b>posizione</b>. Lo spessore e il tipo di linea (continua, tratteggiata, doppia…) vengono applicati a tutte le posizioni.</div>
+        `;
+
+        const sel = { style: 'thin', color: '#000000' };
+        const lineCss = (style, color) => {
+            const map = { thin: '1px solid', medium: '2px solid', thick: '3px solid', double: '3px double', dashed: '1px dashed', dotted: '1px dotted' };
+            return (map[style] || '1px solid') + ' ' + color;
+        };
+        const refreshPreviews = () => {
+            const on = lineCss(sel.style, sel.color);
+            const off = '1px solid #e6e6e6';
+            host.querySelectorAll('.bprev').forEach(prev => {
+                const type = prev.getAttribute('data-type');
+                const s = { top: false, bottom: false, left: false, right: false, h: false, v: false };
+                if (type === 'all') { s.top = s.bottom = s.left = s.right = s.h = s.v = true; }
+                else if (type === 'outer') { s.top = s.bottom = s.left = s.right = true; }
+                else if (type === 'inside') { s.h = s.v = true; }
+                else if (type === 'inside-h') { s.h = true; }
+                else if (type === 'inside-v') { s.v = true; }
+                else if (type === 'top') { s.top = true; }
+                else if (type === 'bottom') { s.bottom = true; }
+                else if (type === 'left') { s.left = true; }
+                else if (type === 'right') { s.right = true; }
+                else if (type === 'top-bottom') { s.top = s.bottom = true; }
+                prev.style.cssText = 'position:relative; display:inline-block; width:30px; height:30px; background:#fff; box-sizing:border-box;' +
+                    'border-top:' + (s.top ? on : off) + ';border-bottom:' + (s.bottom ? on : off) + ';border-left:' + (s.left ? on : off) + ';border-right:' + (s.right ? on : off) + ';';
+                prev.innerHTML = (s.h ? '<i style="position:absolute; left:-1px; right:-1px; top:50%; border-top:' + on + ';"></i>' : '') +
+                    (s.v ? '<i style="position:absolute; top:-1px; bottom:-1px; left:50%; border-left:' + on + ';"></i>' : '');
+            });
+            host.querySelectorAll('.bstyle').forEach(b => {
+                const st = b.getAttribute('data-style');
+                const line = b.querySelector('.bsline');
+                if (line) line.style.cssText = 'display:block; width:48px; height:0; margin:2px auto 4px; border-top:' + lineCss(st, sel.color) + ';';
+                b.style.outline = (st === sel.style) ? '2px solid #0078d4' : 'none';
+                b.style.outlineOffset = '-1px';
+            });
+        };
+
+        host.querySelectorAll('.bstyle').forEach(b => {
+            b.addEventListener('click', () => { sel.style = b.getAttribute('data-style'); refreshPreviews(); });
+        });
+        host.querySelector('.bp-color').addEventListener('input', (e) => { sel.color = e.target.value; refreshPreviews(); });
+        host.querySelectorAll('.border-preset').forEach(preset => {
+            preset.addEventListener('click', () => {
+                const type = preset.getAttribute('data-type');
+                onApply(type, type === 'none' ? 'none' : sel.style, sel.color);
+            });
+        });
+        refreshPreviews();
     }
 
     applyBorderPreset(presetType) {
@@ -834,6 +824,65 @@ class ExcelFunctions {
         }
 
         this.spreadsheet.updateCellDisplay(cellRef);
+    }
+
+    // ===== BORDI RANGE-AWARE (stile Excel) =====
+    _ensureBorders(cellRef) {
+        if (!this.spreadsheet.data[cellRef]) this.spreadsheet.data[cellRef] = this.createCellData();
+        const cell = this.spreadsheet.data[cellRef];
+        if (!cell.format.borders) {
+            cell.format.borders = {
+                top: { style: 'none', color: '#000000' }, right: { style: 'none', color: '#000000' },
+                bottom: { style: 'none', color: '#000000' }, left: { style: 'none', color: '#000000' }
+            };
+        }
+        return cell.format.borders;
+    }
+
+    // Applica un tipo di bordo all'intera selezione tenendo conto della geometria
+    // (bordi esterni vs interni orizzontali/verticali), come la versione originale di Excel.
+    applyBorderType(type, style, color) {
+        style = style || 'thin';
+        color = color || '#000000';
+        const s = this.spreadsheet;
+        if (s.isProtected) {
+            const all = this.getSelectedCells().every(r => s.isCellEditable(r));
+            if (!all) { s.updateStatus('Operazione annullata: alcune celle sono protette.'); return; }
+        }
+        const a = s.getCellCoordinates(s.selectedRange.start);
+        const b = s.getCellCoordinates(s.selectedRange.end);
+        const r1 = Math.min(a.row, b.row), r2 = Math.max(a.row, b.row);
+        const c1 = Math.min(a.col, b.col), c2 = Math.max(a.col, b.col);
+        const cfg = (st, co) => ({ style: st || style, color: co || color });
+        const none = () => ({ style: 'none', color: '#000000' });
+        for (let row = r1; row <= r2; row++) {
+            for (let col = c1; col <= c2; col++) {
+                const ref = s.numberToColumn(col) + (row + 1);
+                const bd = this._ensureBorders(ref);
+                const isTop = row === r1, isBottom = row === r2, isLeft = col === c1, isRight = col === c2;
+                switch (type) {
+                    case 'none': bd.top = none(); bd.right = none(); bd.bottom = none(); bd.left = none(); break;
+                    case 'all': bd.top = cfg(); bd.right = cfg(); bd.bottom = cfg(); bd.left = cfg(); break;
+                    case 'outer': if (isTop) bd.top = cfg(); if (isBottom) bd.bottom = cfg(); if (isLeft) bd.left = cfg(); if (isRight) bd.right = cfg(); break;
+                    case 'thick-outer': if (isTop) bd.top = cfg('thick'); if (isBottom) bd.bottom = cfg('thick'); if (isLeft) bd.left = cfg('thick'); if (isRight) bd.right = cfg('thick'); break;
+                    case 'top': bd.top = cfg(); break;
+                    case 'bottom': bd.bottom = cfg(); break;
+                    case 'left': bd.left = cfg(); break;
+                    case 'right': bd.right = cfg(); break;
+                    case 'top-bottom': bd.top = cfg(); bd.bottom = cfg(); break;
+                    case 'bottom-thick': bd.bottom = cfg('thick'); break;
+                    case 'bottom-double': bd.bottom = cfg('double'); break;
+                    case 'top-bottom-thick': bd.top = cfg('thin'); bd.bottom = cfg('thick'); break;
+                    case 'inside': if (!isBottom) bd.bottom = cfg(); if (!isRight) bd.right = cfg(); break;
+                    case 'inside-h': if (!isBottom) bd.bottom = cfg(); break;
+                    case 'inside-v': if (!isRight) bd.right = cfg(); break;
+                    default: bd.top = cfg(); bd.right = cfg(); bd.bottom = cfg(); bd.left = cfg();
+                }
+                s.updateCellDisplay(ref);
+            }
+        }
+        s.setModified(true); s.saveState();
+        s.updateStatus('Bordi applicati');
     }
 
     // ===== FUNZIONI AUSILIARIE =====
@@ -1160,26 +1209,11 @@ class ExcelFunctions {
                 content.querySelector('#fc-italic').onchange = (e) => { state.italic = e.target.checked; updatePreview(); };
                 content.querySelector('#fc-underline').onchange = (e) => { state.underline = e.target.checked; updatePreview(); };
                 content.querySelector('#fc-fcolor').onchange = (e) => { state.fontColor = e.target.value; updatePreview(); };
-            } else if (idx === 3) { // Bordo
-                const borders = [
-                    { id: 'none', label: 'Nessuno', icon: '▢' },
-                    { id: 'all', label: 'Tutti i bordi', icon: '▦' },
-                    { id: 'outline', label: 'Contorno', icon: '□' },
-                    { id: 'bottom', label: 'Bordo inferiore', icon: '▁' },
-                    { id: 'top', label: 'Bordo superiore', icon: '▔' },
-                    { id: 'left', label: 'Bordo sinistro', icon: '▏' },
-                    { id: 'right', label: 'Bordo destro', icon: '▕' }
-                ];
-                content.innerHTML = `
-                    <label style="font-size:12px;font-weight:bold;">Stile bordo:</label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">
-                        ${borders.map(b => `<button class="fc-border-btn" data-border="${b.id}" style="padding:10px;border:1px solid #ddd;background:${b.id === state.borderStyle ? '#e8f5e9' : '#fff'};border-radius:4px;cursor:pointer;text-align:left;font-size:13px;">${b.icon} ${b.label}</button>`).join('')}
-                    </div>`;
-                content.querySelectorAll('.fc-border-btn').forEach(btn => {
-                    btn.onclick = () => {
-                        state.borderStyle = btn.dataset.border;
-                        content.querySelectorAll('.fc-border-btn').forEach(b => b.style.background = b.dataset.border === state.borderStyle ? '#e8f5e9' : '#fff');
-                    };
+            } else if (idx === 3) { // Bordo — stesso selettore visuale del menu Bordi del ribbon
+                content.innerHTML = `<div id="fc-border-host"></div>
+                    <div style="font-size:11px;color:#888;margin-top:10px;">I bordi vengono applicati <b>subito</b> alla selezione (annullabili con Ctrl+Z).</div>`;
+                self._renderBorderPicker(content.querySelector('#fc-border-host'), (type, style, color) => {
+                    self.applyBorderType(type, type === 'none' ? 'none' : style, color);
                 });
             } else if (idx === 4) { // Riempimento
                 const colors = ['', '#FFFFFF', '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',

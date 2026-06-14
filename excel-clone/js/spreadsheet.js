@@ -243,11 +243,17 @@ this.format = {
                 e.preventDefault();
                 const cellRef = cell.getAttribute('data-cell');
 
+                // Modalità "punta e clicca": se stai editando una formula e il cursore
+                // è dopo un operatore, il click inserisce il riferimento nella formula
+                // invece di spostare la selezione.
+                if (this.isEditing && this._isPointModeContext()) {
+                    this._startPointSelection(cellRef);
+                    return;
+                }
+
                 // Se si stava editando un'altra cella, conferma il valore
                 if (this.isEditing) {
-                    const formulaInput = document.getElementById('formula-input');
-                    this.setCellValue(this.selectedCell, formulaInput.value);
-                    this.isEditing = false;
+                    this.commitCellEdit(null);
                 }
 
                 if (e.shiftKey) {
@@ -289,33 +295,29 @@ this.format = {
         });
 
         const formulaInput = document.getElementById('formula-input');
+        // Editare nella barra della formula apre/sincronizza anche l'editor in-cella.
+        formulaInput.addEventListener('focus', () => {
+            if (!this.isEditing) this.startCellEdit(this.selectedCell, null, 'edit', false);
+            this._activeEditorEl = formulaInput;
+        });
         formulaInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                this.setCellValue(this.selectedCell, formulaInput.value);
-                formulaInput.blur();
-                this.selectCell(this.getCellBelow(this.selectedCell));
-            } else if (e.key === 'Escape') {
-                const cellData = this.data[this.selectedCell];
-                formulaInput.value = cellData ? (cellData.formula || cellData.value || '') : '';
-                formulaInput.blur();
-            } else if (e.key === 'Tab') {
-                e.preventDefault();
-                this.setCellValue(this.selectedCell, formulaInput.value);
-                this.selectCell(this.getCellRight(this.selectedCell));
-            }
+            if (e.key === 'Enter') { e.preventDefault(); this.commitCellEdit('down'); }
+            else if (e.key === 'Escape') { e.preventDefault(); this.cancelCellEdit(); }
+            else if (e.key === 'Tab') { e.preventDefault(); this.commitCellEdit('right'); }
         });
-
-        formulaInput.addEventListener('input', (e) => {
-            if (this.isEditing) {
-                this.setCellValue(this.selectedCell, e.target.value, true);
-            }
+        formulaInput.addEventListener('input', () => {
+            if (this.isEditing && this.cellEditorEl) this.cellEditorEl.value = formulaInput.value;
+            this._pointStart = null;
+            this._renderFormulaHighlights(formulaInput.value);
         });
-
         formulaInput.addEventListener('blur', () => {
-            if (this.isEditing) {
-                this.setCellValue(this.selectedCell, formulaInput.value);
-                this.isEditing = false;
-            }
+            // Conferma quando il focus lascia la barra, salvo passaggio all'editor in-cella o "punta e clicca".
+            setTimeout(() => {
+                if (!this.isEditing || this._pointing) return;
+                const ae = document.activeElement;
+                if (ae === formulaInput || ae === this.cellEditorEl) return;
+                this.commitCellEdit(null);
+            }, 0);
         });
 
         // Menu contestuale (tasto destro sulle celle)
@@ -365,21 +367,15 @@ this.format = {
                 case 'Backspace': e.preventDefault(); this.clearSelectedCells(); return;
                 case 'Escape': return;
                 default:
-                    // Auto-edit: se si digita un carattere stampabile, entra in editing
+                    // Auto-edit: se si digita un carattere stampabile, entra in editing IN-CELLA
                     if (!e.ctrlKey && !e.altKey && !e.metaKey && e.key.length === 1) {
                         if (!this.isCellEditable(this.selectedCell)) {
                             this.updateStatus('La cella è protetta.');
                             return;
                         }
                         e.preventDefault();
-                        this.isEditing = true;
-                        const formulaInput = document.getElementById('formula-input');
-                        // Cancella il contenuto precedente e inizia con il nuovo carattere
-                        formulaInput.value = e.key;
-                        formulaInput.focus();
-                        // Posiziona cursore alla fine
-                        formulaInput.setSelectionRange(formulaInput.value.length, formulaInput.value.length);
-                        this.updateStatus(`Modifica cella ${this.selectedCell}`);
+                        // Modalità "inserimento": sovrascrive il contenuto, le frecce confermano e spostano.
+                        this.startCellEdit(this.selectedCell, e.key, 'enter');
                         return;
                     }
                     break;
@@ -716,19 +712,8 @@ this.format = {
     }
 
     editCell(cellRef) {
-        if (!this.isValidCell(cellRef)) return;
-        if (!this.isCellEditable(cellRef)) {
-            this.updateStatus('La cella è protetta. Le celle bloccate non possono essere modificate.');
-            return;
-        }
-        this.selectCell(cellRef);
-        this.isEditing = true;
-        const formulaInput = document.getElementById('formula-input');
-        const cellData = this.data[cellRef];
-        formulaInput.value = cellData ? (cellData.formula || cellData.value || '') : '';
-        formulaInput.focus();
-        formulaInput.select();
-        this.updateStatus(`Modifica cella ${cellRef}`);
+        // Apre l'editor IN-CELLA in modalità "modifica" (frecce muovono il cursore).
+        this.startCellEdit(cellRef, null, 'edit');
     }
 
     getCellValue(cellRef) {
@@ -1850,14 +1835,11 @@ this.format = {
                     const styleMap = { thin:'solid', medium:'solid', thick:'solid', double:'double', dashed:'dashed', dotted:'dotted' };
                     return `${widthMap[b.style]||'1px'} ${styleMap[b.style]||'solid'} ${b.color||'#000000'}`;
                 };
-                const bt = toBorderCSS(fmt.borders.top);
-                const br = toBorderCSS(fmt.borders.right);
-                const bb = toBorderCSS(fmt.borders.bottom);
-                const bl = toBorderCSS(fmt.borders.left);
-                if (bt) cellElement.style.borderTop = bt;
-                if (br) cellElement.style.borderRight = br;
-                if (bb) cellElement.style.borderBottom = bb;
-                if (bl) cellElement.style.borderLeft = bl;
+                // Assegna sempre (anche '' per ripristinare la griglia quando il bordo è rimosso)
+                cellElement.style.borderTop = toBorderCSS(fmt.borders.top) || '';
+                cellElement.style.borderRight = toBorderCSS(fmt.borders.right) || '';
+                cellElement.style.borderBottom = toBorderCSS(fmt.borders.bottom) || '';
+                cellElement.style.borderLeft = toBorderCSS(fmt.borders.left) || '';
             }
         } else {
             content.textContent = '';
@@ -2073,10 +2055,14 @@ this.format = {
                 this.setCellValue(destRef, cellData.value);
                 // Sovrascrivi formato con quello originale (resta in questo undo step)
                 this.data[destRef].format = { ...cellData.format };
-                // Se c'era una formula, ripristinala
+                // Se c'era una formula, ripristinala. In COPIA i riferimenti relativi
+                // vengono traslati per l'offset (come in Excel); in TAGLIA restano invariati.
                 if (cellData.formula) {
-                    this.data[destRef].formula = cellData.formula;
-                    this.data[destRef].computedValue = this.evaluateFormula(cellData.formula);
+                    const formula = this.clipboard.action === 'cut'
+                        ? cellData.formula
+                        : this.adjustFormulaReferences(cellData.formula, colOffset, rowOffset);
+                    this.data[destRef].formula = formula;
+                    this.data[destRef].computedValue = this.evaluateFormula(formula);
                 }
                 this.updateCellDisplay(destRef);
             });
@@ -2645,6 +2631,275 @@ this.format = {
         }
     }
 
+    // ===== EDITOR IN-CELLA (digitazione visibile nella cella + "punta e clicca") =====
+
+    _colLettersToNum(colStr) {
+        let n = 0;
+        colStr = (colStr || '').toUpperCase();
+        for (let i = 0; i < colStr.length; i++) n = n * 26 + (colStr.charCodeAt(i) - 64);
+        return n - 1; // 0-based
+    }
+
+    _getCellEditor() {
+        if (this.cellEditorEl && this.cellEditorEl.parentNode) return this.cellEditorEl;
+        const ed = document.createElement('input');
+        ed.type = 'text';
+        ed.id = 'cell-editor';
+        ed.autocomplete = 'off';
+        ed.spellcheck = false;
+        ed.style.cssText = "position:absolute;display:none;z-index:20;margin:0;border:2px solid #217346;outline:none;padding:0 3px;font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:11px;box-sizing:border-box;background:#fff;color:#333;line-height:normal;";
+        ed.addEventListener('input', () => {
+            const fi = document.getElementById('formula-input');
+            if (fi) fi.value = ed.value;
+            this._pointStart = null; // digitando si annulla l'ancora del "punta e clicca"
+            this._renderFormulaHighlights(ed.value);
+        });
+        ed.addEventListener('keydown', (e) => this._onEditorKeydown(e));
+        ed.addEventListener('focus', () => { this._activeEditorEl = ed; });
+        ed.addEventListener('blur', () => {
+            // Non confermare se il focus passa alla barra della formula (editing in contemporanea)
+            // o durante il "punta e clicca".
+            setTimeout(() => {
+                if (!this.isEditing || this._pointing || this._suppressBlurCommit) return;
+                const ae = document.activeElement;
+                if (ae === ed || ae === document.getElementById('formula-input')) return;
+                this.commitCellEdit(null);
+            }, 0);
+        });
+        this.container.appendChild(ed);
+        this.cellEditorEl = ed;
+        return ed;
+    }
+
+    _positionEditor(cellRef) {
+        const c = this.getCellCoordinates(cellRef);
+        const ed = this._getCellEditor();
+        const w = this.getColWidth(c.col), h = this.getRowHeight(c.row);
+        ed.style.left = this.getColLeft(c.col) + 'px';
+        ed.style.top = this.getRowTop(c.row) + 'px';
+        ed.style.width = w + 'px';
+        ed.style.height = h + 'px';
+        const fmt = (this.data[cellRef] && this.data[cellRef].format) || {};
+        ed.style.fontWeight = fmt.bold ? 'bold' : 'normal';
+        ed.style.fontStyle = fmt.italic ? 'italic' : 'normal';
+        ed.style.textAlign = fmt.horizontalAlign || 'left';
+        ed.style.fontFamily = (fmt.fontFamily && fmt.fontFamily !== 'Calibri') ? fmt.fontFamily : "Calibri,'Segoe UI',Arial,sans-serif";
+        ed.style.fontSize = (fmt.fontSize ? parseInt(fmt.fontSize) : 11) + 'px';
+        ed.style.color = (fmt.fontColor && fmt.fontColor !== '#000000') ? fmt.fontColor : '#333';
+        ed.style.background = fmt.fillColor || '#fff';
+    }
+
+    startCellEdit(cellRef, initialChar, mode, focusEditor) {
+        if (!this.isValidCell(cellRef)) return;
+        if (!this.isCellEditable(cellRef)) { this.updateStatus('La cella è protetta. Le celle bloccate non possono essere modificate.'); return; }
+        this.selectCell(cellRef);
+        this.isEditing = true;
+        this.editingCell = cellRef;
+        this.editMode = mode || 'edit';
+        this._pointStart = null;
+        const ed = this._getCellEditor();
+        this._positionEditor(cellRef);
+        const cellData = this.data[cellRef];
+        const existing = cellData ? (cellData.formula || cellData.value || '') : '';
+        ed.value = (initialChar !== undefined && initialChar !== null) ? initialChar : existing;
+        ed.style.display = 'block';
+        const fi = document.getElementById('formula-input');
+        if (fi) fi.value = ed.value;
+        const contentEl = document.querySelector('[data-cell="' + cellRef + '"] .cell-content');
+        if (contentEl) contentEl.style.visibility = 'hidden';
+        this._renderFormulaHighlights(ed.value);
+        if (focusEditor !== false) {
+            ed.focus();
+            this._activeEditorEl = ed;
+            if (initialChar !== undefined && initialChar !== null) ed.setSelectionRange(ed.value.length, ed.value.length);
+            else ed.select();
+        }
+        this.updateStatus('Modifica cella ' + cellRef);
+    }
+
+    _hideCellEditor() {
+        this._clearFormulaHighlights();
+        const cellRef = this.editingCell || this.selectedCell;
+        const ed = this.cellEditorEl;
+        if (ed) { this._suppressBlurCommit = true; ed.style.display = 'none'; ed.blur(); ed.value = ''; this._suppressBlurCommit = false; }
+        const contentEl = document.querySelector('[data-cell="' + cellRef + '"] .cell-content');
+        if (contentEl) contentEl.style.visibility = '';
+    }
+
+    commitCellEdit(move) {
+        if (!this.isEditing) return;
+        const cellRef = this.editingCell || this.selectedCell;
+        const fi = document.getElementById('formula-input');
+        let value = this.cellEditorEl ? this.cellEditorEl.value : '';
+        if (this._activeEditorEl === fi && fi) value = fi.value;
+        this._hideCellEditor();
+        this.isEditing = false;
+        this.editingCell = null;
+        this._activeEditorEl = null;
+        this.setCellValue(cellRef, value);
+        if (move === 'down') this.selectCell(this.getCellBelow(cellRef));
+        else if (move === 'up') this.selectCell(this.getCellAbove(cellRef));
+        else if (move === 'right') this.selectCell(this.getCellRight(cellRef));
+        else if (move === 'left') this.selectCell(this.getCellLeft(cellRef));
+        else this.selectCell(cellRef);
+        const sel = document.querySelector('[data-cell="' + this.selectedCell + '"]');
+        if (sel) sel.focus();
+    }
+
+    cancelCellEdit() {
+        if (!this.isEditing) return;
+        const cellRef = this.editingCell || this.selectedCell;
+        this._hideCellEditor();
+        this.isEditing = false;
+        this.editingCell = null;
+        this._activeEditorEl = null;
+        this.updateFormulaBar();
+        this.updateStatus('Pronto');
+        const sel = document.querySelector('[data-cell="' + cellRef + '"]');
+        if (sel) sel.focus();
+    }
+
+    _onEditorKeydown(e) {
+        switch (e.key) {
+            case 'Enter': e.preventDefault(); this.commitCellEdit(e.shiftKey ? 'up' : 'down'); return;
+            case 'Tab': e.preventDefault(); this.commitCellEdit(e.shiftKey ? 'left' : 'right'); return;
+            case 'Escape': e.preventDefault(); this.cancelCellEdit(); return;
+            case 'ArrowUp': case 'ArrowDown': case 'ArrowLeft': case 'ArrowRight':
+                // In "inserimento" (nuovo valore digitato) le frecce confermano e spostano, come in Excel.
+                if (this.editMode === 'enter' && !this._isPointModeContext()) {
+                    e.preventDefault();
+                    const map = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
+                    this.commitCellEdit(map[e.key]);
+                }
+                return;
+        }
+    }
+
+    // Il cursore dell'editor attivo è in un punto dove ci si aspetta un riferimento?
+    _isPointModeContext() {
+        const ed = this._activeEditorEl || this.cellEditorEl;
+        if (!ed || ed.style.display === 'none') return false;
+        const val = ed.value;
+        if (!val || val[0] !== '=') return false;
+        const before = val.slice(0, ed.selectionStart || 0).replace(/\s+$/, '');
+        if (before === '=') return true;
+        return '=+-*/^(,:&<>%{'.includes(before.slice(-1));
+    }
+
+    _normalizeRange(a, b) {
+        const ca = this.getCellCoordinates(a), cb = this.getCellCoordinates(b);
+        const r1 = Math.min(ca.row, cb.row), r2 = Math.max(ca.row, cb.row);
+        const c1 = Math.min(ca.col, cb.col), c2 = Math.max(ca.col, cb.col);
+        const start = this.numberToColumn(c1) + (r1 + 1);
+        const end = this.numberToColumn(c2) + (r2 + 1);
+        return start === end ? start : start + ':' + end;
+    }
+
+    _startPointSelection(anchorRef) {
+        const ed = this._activeEditorEl || this.cellEditorEl;
+        if (!ed) return;
+        this._pointing = true;
+        this._pointStart = ed.selectionStart;
+        this._pointEnd = ed.selectionStart;
+        this._insertReference(anchorRef, anchorRef);
+        const onMove = (ev) => {
+            const cell = document.elementFromPoint(ev.clientX, ev.clientY);
+            const target = cell && cell.closest ? cell.closest('.cell') : null;
+            if (target) this._insertReference(anchorRef, target.getAttribute('data-cell'));
+        };
+        const onUp = () => {
+            this._pointing = false;
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            const e2 = this._activeEditorEl || this.cellEditorEl;
+            if (e2) e2.focus();
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    }
+
+    _insertReference(anchorRef, endRef) {
+        const ed = this._activeEditorEl || this.cellEditorEl;
+        if (!ed) return;
+        const ref = (endRef && endRef !== anchorRef) ? this._normalizeRange(anchorRef, endRef) : anchorRef;
+        if (this._pointStart === null || this._pointStart === undefined) this._pointStart = ed.value.length;
+        const before = ed.value.slice(0, this._pointStart);
+        const after = ed.value.slice(this._pointEnd != null ? this._pointEnd : this._pointStart);
+        ed.value = before + ref + after;
+        this._pointEnd = this._pointStart + ref.length;
+        ed.setSelectionRange(this._pointEnd, this._pointEnd);
+        const fi = document.getElementById('formula-input');
+        if (fi && fi !== ed) fi.value = ed.value;
+        if (endRef) this.selectRange(anchorRef, endRef);
+        this._renderFormulaHighlights(ed.value);
+    }
+
+    // ===== EVIDENZIAZIONE DEI RIFERIMENTI DI UNA FORMULA (riquadri colorati come Excel) =====
+    _clearFormulaHighlights() {
+        if (this.container) this.container.querySelectorAll('.formula-ref-hl').forEach(el => el.remove());
+    }
+
+    _renderFormulaHighlights(formula) {
+        this._clearFormulaHighlights();
+        if (!this.isEditing || !formula || formula[0] !== '=') return;
+        const palette = ['#2563eb', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#dc2626'];
+        const seen = {};
+        let idx = 0;
+        const parts = formula.split(/("[^"]*")/);
+        const re = /(\$?)([A-Za-z]{1,3})(\$?)(\d+)(?::(\$?)([A-Za-z]{1,3})(\$?)(\d+))?/g;
+        for (let pi = 0; pi < parts.length; pi++) {
+            if (pi % 2 === 1) continue; // dentro le virgolette
+            let m;
+            while ((m = re.exec(parts[pi])) !== null) {
+                const startRef = m[2].toUpperCase() + m[4];
+                const endRef = m[6] ? (m[6].toUpperCase() + m[8]) : startRef;
+                if (!this.isValidCell(startRef) || !this.isValidCell(endRef)) continue;
+                const key = startRef + ':' + endRef;
+                let color = seen[key];
+                if (!color) { color = palette[idx % palette.length]; seen[key] = color; idx++; }
+                this._drawRefBox(startRef, endRef, color);
+            }
+        }
+    }
+
+    _drawRefBox(startRef, endRef, color) {
+        const a = this.getCellCoordinates(startRef), b = this.getCellCoordinates(endRef);
+        const r1 = Math.min(a.row, b.row), r2 = Math.max(a.row, b.row);
+        const c1 = Math.min(a.col, b.col), c2 = Math.max(a.col, b.col);
+        const left = this.getColLeft(c1), top = this.getRowTop(r1);
+        const right = this.getColLeft(c2) + this.getColWidth(c2);
+        const bottom = this.getRowTop(r2) + this.getRowHeight(r2);
+        const box = document.createElement('div');
+        box.className = 'formula-ref-hl';
+        box.style.cssText = 'position:absolute;pointer-events:none;z-index:7;box-sizing:border-box;' +
+            'left:' + left + 'px;top:' + top + 'px;width:' + (right - left) + 'px;height:' + (bottom - top) + 'px;' +
+            'border:2px solid ' + color + ';background:' + color + '22;';
+        this.container.appendChild(box);
+    }
+
+    // Trasla i riferimenti relativi di una formula per (colOffset, rowOffset).
+    // Conserva i riferimenti assoluti ($A$1) e misti; ignora il testo tra virgolette.
+    adjustFormulaReferences(formula, colOffset, rowOffset) {
+        if (!formula || formula[0] !== '=') return formula;
+        const parts = formula.split(/("[^"]*")/);
+        const refRe = /(\$?)([A-Za-z]{1,3})(\$?)(\d+)/g;
+        for (let i = 0; i < parts.length; i++) {
+            if (i % 2 === 1) continue; // dentro le virgolette
+            parts[i] = parts[i].replace(refRe, (m, ad, colL, ar, rowN) => {
+                let col = this._colLettersToNum(colL);
+                let row = parseInt(rowN, 10) - 1;
+                if (!ad) col += colOffset;
+                if (!ar) row += rowOffset;
+                if (col < 0) col = 0;
+                if (row < 0) row = 0;
+                if (col >= this.cols) col = this.cols - 1;
+                if (row >= this.rows) row = this.rows - 1;
+                return ad + this.numberToColumn(col) + ar + (row + 1);
+            });
+        }
+        return parts.join('');
+    }
+
     updateStatus(message) {
         const statusElement = document.getElementById('status-text');
         if (statusElement) {
@@ -3051,14 +3306,10 @@ this.format = {
                 this.setCellValue(this.selectedCell, `=SOMMA(${startRef}:${endRef})`);
                 this.updateStatus(`Somma automatica: ${startRef}:${endRef}`);
             } else {
-                // Nessun range trovato adiacente: inserisci =SOMMA() e lascia editare
-                this.isEditing = true;
-                const formulaInput = document.getElementById('formula-input');
-                formulaInput.value = '=SOMMA(';
-                formulaInput.focus();
-                // Posiziona cursore prima della parentesi chiusa
-                formulaInput.setSelectionRange(7, 7);
-                this.updateStatus('Inserisci il range per la somma, es. A1:A10');
+                // Nessun range trovato adiacente: apri l'editor in-cella con =SOMMA( e lascia
+                // selezionare il range col mouse ("punta e clicca").
+                this.startCellEdit(this.selectedCell, '=SOMMA(', 'enter');
+                this.updateStatus('Seleziona il range per la somma (clic e trascina), es. A1:A10');
             }
         }
     }
